@@ -35,7 +35,7 @@ Open `index.html` in any text editor and replace these placeholders:
 
 | Placeholder | What to replace with |
 |---|---|
-| `Maison Habitat` | Your actual brand name (appears in nav and footer) |
+| `Plex Québec` | Your actual brand name (appears in nav and footer) |
 | `514 000-0000` | Your real phone number |
 | `contact@example.com` | Your real email |
 | `YOUR_FORM_ID` | Your Formspree form ID — see next section |
