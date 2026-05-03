@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plex Québec — Door Hanger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f5f1ea;
+    --bg-warm:  #ebe4d6;
+    --ink:      #1c1c1a;
+    --ink-soft: #4a4a47;
+    --accent:   #8b3a2f;
+    --line:     #d9cfbe;
+    --paper:    #fbf8f1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter Tight', sans-serif;
+    background: #ccc9c2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    padding: 48px;
+    justify-content: center;
+    align-items: flex-start;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .panel-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .panel-label {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #888;
+  }
+
+  /* Door hanger: 4.25" x 11" at 96dpi = 408 x 1056px */
+  /* Rendered at 1x for preview; use browser print for PDF */
+  .panel {
+    width: 408px;
+    height: 1056px;
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  /* ── dot texture ── */
+  .panel::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(28,28,26,0.025) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ── die-cut hole indicator ── */
+  .hole {
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #ccc9c2;
+    border: 1.5px dashed #bbb;
+    z-index: 2;
+  }
+
+  /* ══════════════════════════════
+     FRONT
+  ══════════════════════════════ */
+  .front {
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    padding: 80px 36px 40px;
+    height: 100%;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 36px;
+  }
+
+  .logo-mark {
+    width: 20px; height: 20px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 24px; height: 1px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .headline {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 42px;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 28px;
+  }
+
+  .headline em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--accent);
+  }
+
+  .pitch {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: var(--line);
+    margin-bottom: 32px;
+  }
+
+  .values {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    flex: 1;
+  }
+
+  .value {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .value-accent {
+    width: 2px;
+    height: 100%;
+    background: var(--accent);
+    flex-shrink: 0;
+    margin-top: 3px;
+    min-height: 38px;
+  }
+
+  .value-text h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+
+  .value-text p {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .front-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    margin-top: 32px;
+  }
+
+  .qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .qr-img {
+    width: 80px; height: 80px;
+    background: #fff;
+    padding: 5px;
+    border-radius: 4px;
+  }
+
+  .qr-img img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+  }
+
+  .qr-label {
+    font-size: 9px;
+    color: var(--ink-soft);
+    letter-spacing: 0.06em;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .footer-contact {
+    text-align: right;
+  }
+
+  .footer-contact .url {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--ink);
+    font-weight: 400;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .footer-contact .phone {
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    display: block;
+  }
+
+  /* ══════════════════════════════
+     BACK
+  ══════════════════════════════ */
+  .back {
+    background: var(--ink);
+    display: flex;
+    flex-direction: column;
+    padding: 80px 36px 40px;
+    height: 100%;
+  }
+
+  .back .logo-text { color: var(--paper); }
+
+  .back-eyebrow {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 16px;
+    margin-top: 32px;
+  }
+
+  .back-headline {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--paper);
+    margin-bottom: 32px;
+  }
+
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .step {
+    padding: 22px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    gap: 18px;
+  }
+
+  .step-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 12px;
+    color: var(--accent);
+    flex-shrink: 0;
+    padding-top: 2px;
+    width: 28px;
+  }
+
+  .step-content h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--paper);
+    margin-bottom: 5px;
+  }
+
+  .step-content p {
+    font-size: 12px;
+    color: #a8a8a3;
+    line-height: 1.5;
+  }
+
+  .back-footer {
+    padding-top: 28px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    margin-top: 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .back-contact-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .back-contact-line {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .bcl-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-weight: 500;
+    width: 44px;
+    flex-shrink: 0;
+  }
+
+  .bcl-value {
+    font-size: 13px;
+    color: var(--paper);
+  }
+
+  .back-qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .back-qr-box {
+    width: 80px; height: 80px;
+    background: #fff;
+    border-radius: 5px;
+    padding: 5px;
+  }
+
+  .back-qr-box img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+  }
+
+  .back-qr-label {
+    font-size: 9px;
+    color: #7a7a76;
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; padding: 0; gap: 0; }
+    .panel-label { display: none; }
+    .panel {
+      box-shadow: none;
+      border-radius: 0;
+      page-break-after: always;
+      width: 4.25in;
+      height: 11in;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- FRONT -->
+<div class="panel-wrap">
+  <div class="panel-label">Recto (Front)</div>
+  <div class="panel">
+    <div class="hole"></div>
+    <div class="front">
+      <div class="logo">
+        <span class="logo-mark"></span>
+        <span class="logo-text">Plex Québec</span>
+      </div>
+
+      <div class="eyebrow">Acquisition directe</div>
+
+      <h1 class="headline">
+        Vendez<br>votre plex<br><em>simplement.</em>
+      </h1>
+
+      <p class="pitch">
+        Nous achetons des immeubles à logements multiples partout au Québec — directement, sans agent, sans pression. Une offre concrète en 48 heures.
+      </p>
+
+      <div class="divider"></div>
+
+      <div class="values">
+        <div class="value">
+          <div class="value-accent"></div>
+          <div class="value-text">
+            <h3>Discrétion</h3>
+            <p>Aucun affichage public. Vos discussions restent confidentielles.</p>
+          </div>
+        </div>
+        <div class="value">
+          <div class="value-accent"></div>
+          <div class="value-text">
+            <h3>Rapidité</h3>
+            <p>Évaluation préliminaire en 48 h. Financement déjà en place.</p>
+          </div>
+        </div>
+        <div class="value">
+          <div class="value-accent"></div>
+          <div class="value-text">
+            <h3>Respect des locataires</h3>
+            <p>Nous achetons pour conserver. Les baux en place sont respectés.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="front-footer">
+        <div class="qr-wrap">
+          <div class="qr-img"><img src="qr-flyer.png" alt="QR" /></div>
+          <div class="qr-label">Scannez</div>
+        </div>
+        <div class="footer-contact">
+          <span class="url">plexquebec.com</span>
+          <span class="phone">514 000-0000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BACK -->
+<div class="panel-wrap">
+  <div class="panel-label">Verso (Back)</div>
+  <div class="panel">
+    <div class="hole"></div>
+    <div class="back">
+      <div class="logo">
+        <span class="logo-mark"></span>
+        <span class="logo-text">Plex Québec</span>
+      </div>
+
+      <div class="back-eyebrow">Comment ça fonctionne</div>
+      <h2 class="back-headline">Trois étapes,<br>sans surprise.</h2>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01 —</div>
+          <div class="step-content">
+            <h3>Premier contact</h3>
+            <p>Appelez-nous ou scannez le code. Nous prenons le temps de comprendre votre immeuble et votre situation.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">02 —</div>
+          <div class="step-content">
+            <h3>Évaluation & offre</h3>
+            <p>Sous 48 à 72 heures, une fourchette de prix réaliste. Si ça vous convient, on visite et on confirme.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">03 —</div>
+          <div class="step-content">
+            <h3>Clôture chez le notaire</h3>
+            <p>Vous choisissez la date. La transaction se fait chez votre notaire. Vous recevez les fonds.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="back-footer">
+        <div class="back-contact-block">
+          <div class="back-contact-line">
+            <span class="bcl-label">Tél.</span>
+            <span class="bcl-value">514 000-0000</span>
+          </div>
+          <div class="back-contact-line">
+            <span class="bcl-label">Courriel</span>
+            <span class="bcl-value">contact@plexquebec.com</span>
+          </div>
+          <div class="back-contact-line">
+            <span class="bcl-label">Web</span>
+            <span class="bcl-value">plexquebec.com</span>
+          </div>
+        </div>
+        <div class="back-qr-wrap">
+          <div class="back-qr-box"><img src="qr-flyer.png" alt="QR" /></div>
+          <div class="back-qr-label">Scannez pour<br>nous joindre</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plex Québec — Lettre de démarchage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #f5f1ea;
+    --bg-warm:  #ebe4d6;
+    --ink:      #1c1c1a;
+    --ink-soft: #4a4a47;
+    --accent:   #8b3a2f;
+    --line:     #d9cfbe;
+    --paper:    #fbf8f1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter Tight', sans-serif;
+    background: #ccc9c2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 24px;
+    gap: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #888;
+  }
+
+  /* 8.5" x 11" at 96dpi = 816 x 1056px */
+  .letter {
+    width: 816px;
+    min-height: 1056px;
+    background: var(--paper);
+    position: relative;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14), 0 2px 6px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* dot texture */
+  .letter::before {
+    content: "";
+    position: absolute; inset: 0;
+    background-image: radial-gradient(rgba(28,28,26,0.018) 1px, transparent 1px);
+    background-size: 3px 3px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* accent top bar */
+  .letter::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--accent);
+    z-index: 1;
+  }
+
+  .letter-inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 52px 72px 0;
+  }
+
+  /* ── LETTERHEAD ── */
+  .letterhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 40px;
+  }
+
+  .lh-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-mark {
+    width: 22px; height: 22px;
+    background: var(--accent);
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+
+  .lh-contact {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .lh-contact span {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+
+  .lh-contact .lh-phone {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* ── DATE + RECIPIENT ── */
+  .meta {
+    margin-bottom: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .date-line {
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+
+  .recipient {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .recipient-name {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .recipient-addr {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  /* ── BODY ── */
+  .body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .salutation {
+    font-size: 15px;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  p {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.75;
+  }
+
+  p strong {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  .merge {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: var(--bg-warm);
+    border-left: 3px solid var(--accent);
+    padding: 18px 22px;
+    margin: 8px 0;
+  }
+
+  .callout p {
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  .callout-title {
+    font-family: 'Fraunces', serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .steps-inline {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .step-inline {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    align-items: baseline;
+  }
+
+  .step-inline .sn {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--accent);
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+
+  /* ── SIGN-OFF ── */
+  .signoff {
+    margin-top: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .signoff p { color: var(--ink-soft); }
+
+  .signoff-name {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--ink);
+    margin-top: 18px;
+  }
+
+  .signoff-title {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  /* ── FOOTER STRIP ── */
+  .letter-footer {
+    margin-top: 40px;
+    padding: 20px 72px;
+    background: var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  .footer-left {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .footer-contact-line {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .fcl-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-weight: 500;
+    width: 44px;
+    flex-shrink: 0;
+  }
+
+  .fcl-value {
+    font-size: 12px;
+    color: #d9d9d4;
+  }
+
+  .footer-qr-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .footer-qr-box {
+    width: 70px; height: 70px;
+    background: #fff;
+    border-radius: 4px;
+    padding: 5px;
+  }
+
+  .footer-qr-box img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+  }
+
+  .footer-qr-label {
+    font-size: 9px;
+    color: #7a7a76;
+    text-align: center;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* ── PRINT ── */
+  @media print {
+    body { background: white; padding: 0; }
+    .page-label { display: none; }
+    .letter {
+      width: 8.5in;
+      min-height: 11in;
+      box-shadow: none;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-label">Direct Mail Letter — Template (champs en <span style="color:#8b3a2f">orange</span> = fusion)</div>
+
+<div class="letter">
+  <div class="letter-inner">
+
+    <!-- LETTERHEAD -->
+    <div class="letterhead">
+      <div class="lh-logo">
+        <span class="logo-mark"></span>
+        <span class="logo-text">Plex Québec</span>
+      </div>
+      <div class="lh-contact">
+        <span class="lh-phone">514 000-0000</span>
+        <span>contact@plexquebec.com</span>
+        <span>plexquebec.com</span>
+      </div>
+    </div>
+
+    <!-- DATE + RECIPIENT -->
+    <div class="meta">
+      <div class="date-line"><span class="merge">{{date}}</span></div>
+
+      <div class="recipient">
+        <div class="recipient-name"><span class="merge">{{prenom_nom}}</span></div>
+        <div class="recipient-addr">
+          <span class="merge">{{adresse_proprietaire}}</span><br>
+          <span class="merge">{{ville_proprietaire}}, QC &nbsp;{{code_postal}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="body">
+      <div class="salutation">Bonjour <span class="merge">{{prenom}}</span>,</div>
+
+      <p>
+        Nous sommes une équipe basée à Montréal qui se spécialise dans l'achat de plex — et nous avons remarqué votre <strong><span class="merge">{{type_immeuble}}</span></strong> situé au <strong><span class="merge">{{adresse_immeuble}}</span></strong>.
+      </p>
+
+      <p>
+        Si vous avez déjà songé à vendre — que ce soit maintenant, dans six mois, ou simplement pour connaître la valeur de votre immeuble — nous aimerions vous parler. <strong>Pas d'agent, pas de pression, pas d'obligation.</strong>
+      </p>
+
+      <p>
+        Nous achetons directement, à juste prix, et nous conservons les immeubles à long terme. Les locataires en place sont respectés.
+      </p>
+
+      <div class="callout">
+        <div class="callout-title">Comment ça se passe</div>
+        <div class="steps-inline">
+          <div class="step-inline"><span class="sn">01 —</span><span>Vous nous contactez. On prend le temps d'écouter.</span></div>
+          <div class="step-inline"><span class="sn">02 —</span><span>Sous 48 à 72 h, une fourchette de prix réaliste — sans visite obligatoire.</span></div>
+          <div class="step-inline"><span class="sn">03 —</span><span>Si ça vous convient, on passe chez le notaire à la date qui vous arrange.</span></div>
+        </div>
+      </div>
+
+      <p>
+        Vous pouvez nous joindre au <strong>514 000-0000</strong>, écrire à <strong>contact@plexquebec.com</strong>, ou simplement scanner le code ci-dessous pour laisser vos coordonnées et nous vous rappelons.
+      </p>
+
+      <p>
+        Toutes vos informations restent strictement confidentielles.
+      </p>
+
+      <div class="signoff">
+        <p>Cordialement,</p>
+        <div class="signoff-name"><span class="merge">{{prenom_nom_expediteur}}</span></div>
+        <div class="signoff-title">Plex Québec — Acquisition &amp; gestion</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER STRIP -->
+  <div class="letter-footer">
+    <div class="footer-left">
+      <div class="footer-contact-line">
+        <span class="fcl-label">Tél.</span>
+        <span class="fcl-value">514 000-0000</span>
+      </div>
+      <div class="footer-contact-line">
+        <span class="fcl-label">Courriel</span>
+        <span class="fcl-value">contact@plexquebec.com</span>
+      </div>
+      <div class="footer-contact-line">
+        <span class="fcl-label">Web</span>
+        <span class="fcl-value">plexquebec.com</span>
+      </div>
+    </div>
+    <div class="footer-qr-wrap">
+      <div class="footer-qr-box"><img src="qr-letter.png" alt="QR" /></div>
+      <div class="footer-qr-label">Scannez pour<br>nous joindre</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
