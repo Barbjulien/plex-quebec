@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plex Québec</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white:    #ffffff;
+    --off:      #f7f7f5;
+    --ink:      #111110;
+    --ink-soft: #555551;
+    --forest:   #28405a;
+    --forest-l: #3a5c7a;
+    --sage:     #b8cdd8;
+    --sage-l:   #e2ecf2;
+    --line:     #e4e4e0;
+    --line-d:   #d0cec8;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--white);
+    color: var(--ink);
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0;
+    background: rgba(255,255,255,0.95);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    z-index: 50; padding: 0;
+  }
+  nav .container { display: flex; justify-content: space-between; align-items: stretch; height: 64px; }
+  .logo { display: flex; align-items: center; gap: 14px; text-decoration: none; }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--forest);
+    border-radius: 2px;
+    display: grid; place-items: center;
+  }
+  .logo-mark svg { width: 18px; height: 18px; }
+  .logo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 19px; color: var(--ink);
+    letter-spacing: -0.01em; font-weight: 500;
+  }
+  .nav-center {
+    display: flex; align-items: center; gap: 0;
+    position: absolute; left: 50%; transform: translateX(-50%);
+  }
+  .nav-center a {
+    display: flex; align-items: center;
+    padding: 0 20px; height: 64px;
+    font-size: 13.5px; font-weight: 400; color: var(--ink-soft);
+    text-decoration: none; border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  .nav-center a:hover { color: var(--forest); border-bottom-color: var(--forest); }
+  .nav-right { display: flex; align-items: center; gap: 16px; }
+  .lang-toggle {
+    display: flex; gap: 2px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.06em;
+  }
+  .lang-toggle button {
+    background: transparent; border: none; padding: 5px 10px;
+    cursor: pointer; color: var(--ink-soft);
+    font-family: inherit; border-radius: 3px; transition: all .2s;
+  }
+  .lang-toggle button.active { background: var(--forest); color: white; }
+  .nav-cta {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 38px; padding: 0 20px;
+    background: var(--forest); color: white;
+    font-size: 13px; font-weight: 500;
+    text-decoration: none; border-radius: 3px;
+    transition: background .2s; white-space: nowrap;
+  }
+  .nav-cta:hover { background: var(--forest-l); }
+
+  /* ── HERO ── */
+  .hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 92vh; max-height: 860px;
+  }
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 80px 64px 80px 32px;
+    border-right: 1px solid var(--line);
+    position: relative;
+  }
+  .hero-left::after {
+    content: ""; position: absolute; bottom: 0; left: 32px; right: 64px;
+    height: 1px; background: var(--line);
+  }
+  .hero-right {
+    background: var(--forest);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 56px 56px 56px 48px;
+    position: relative; overflow: hidden;
+  }
+  .hero-right::before {
+    content: ""; position: absolute; top: -120px; right: -120px;
+    width: 420px; height: 420px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .hero-right::after {
+    content: ""; position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--forest);
+    margin-bottom: 28px;
+  }
+  .tag::before {
+    content: ""; display: block;
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--forest);
+  }
+  h1 {
+    font-family: 'Playfair Display', serif; font-weight: 500;
+    font-size: clamp(36px, 4.8vw, 62px); line-height: 1.06;
+    letter-spacing: -0.02em; margin-bottom: 28px;
+  }
+  h1 em { font-style: italic; color: var(--forest); }
+  .hero-sub {
+    font-size: 16.5px; color: var(--ink-soft); max-width: 46ch;
+    margin-bottom: 42px; line-height: 1.7; font-weight: 300;
+  }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 13px 24px; border-radius: 3px;
+    font-size: 14px; font-weight: 500;
+    text-decoration: none; transition: all .22s;
+    font-family: inherit; cursor: pointer; border: none;
+  }
+  .btn-forest { background: var(--forest); color: white; }
+  .btn-forest:hover { background: var(--forest-l); transform: translateY(-1px); }
+  .btn-outline { background: transparent; color: var(--ink); border: 1px solid var(--line-d); }
+  .btn-outline:hover { border-color: var(--forest); color: var(--forest); }
+  .btn .arrow { transition: transform .22s; }
+  .btn:hover .arrow { transform: translateX(3px); }
+
+  /* Hero right content */
+  .hero-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--sage); margin-bottom: 32px;
+  }
+  .hero-stat-list { display: flex; flex-direction: column; gap: 28px; position: relative; z-index: 1; }
+  .hero-stat { }
+  .hero-stat-num {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 52px; color: white; line-height: 1; margin-bottom: 4px;
+  }
+  .hero-stat-desc { font-size: 13.5px; color: var(--sage); font-weight: 300; max-width: 28ch; }
+  .hero-stat-rule { height: 1px; background: rgba(255,255,255,0.1); margin: 28px 0 0; }
+
+  /* ── MARQUEE STRIP ── */
+  .strip {
+    background: var(--forest); height: 44px;
+    display: flex; align-items: center; overflow: hidden;
+    border-top: none;
+  }
+  .strip-inner {
+    display: flex; gap: 0;
+    animation: scroll-x 22s linear infinite;
+    white-space: nowrap;
+  }
+  .strip-item {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: rgba(255,255,255,0.55);
+    padding: 0 40px;
+  }
+  .strip-item span { color: rgba(255,255,255,0.2); margin-left: 40px; }
+  @keyframes scroll-x { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ── ABOUT ── */
+  .about { padding: 100px 0; border-bottom: 1px solid var(--line); }
+  .about-grid { display: grid; grid-template-columns: 340px 1fr; gap: 100px; align-items: start; }
+  .about-aside { position: sticky; top: 90px; }
+  .section-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--forest); margin-bottom: 16px;
+  }
+  h2 {
+    font-family: 'Playfair Display', serif; font-weight: 500;
+    font-size: clamp(28px, 3.5vw, 40px); line-height: 1.12;
+    letter-spacing: -0.015em; color: var(--ink);
+  }
+  .about-body p {
+    font-size: 16.5px; color: var(--ink-soft); line-height: 1.75;
+    margin-bottom: 22px; font-weight: 300;
+  }
+  .about-body p:first-child { font-size: 18px; color: var(--ink); font-weight: 400; }
+  .values-list { display: flex; flex-direction: column; gap: 0; margin-top: 48px; border-top: 1px solid var(--line); }
+  .value-row {
+    display: grid; grid-template-columns: 200px 1fr;
+    gap: 32px; padding: 28px 0;
+    border-bottom: 1px solid var(--line);
+    align-items: start;
+  }
+  .value-label {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 20px; color: var(--ink); padding-top: 2px;
+  }
+  .value-desc { font-size: 15px; color: var(--ink-soft); line-height: 1.65; font-weight: 300; }
+
+  /* ── PROCESS ── */
+  .process { padding: 100px 0; background: var(--off); border-bottom: 1px solid var(--line); }
+  .process-header {
+    display: grid; grid-template-columns: 340px 1fr;
+    gap: 100px; margin-bottom: 70px;
+  }
+  h2.process-title { font-family: 'Playfair Display', serif; font-weight: 500; font-size: clamp(28px, 3.5vw, 40px); line-height: 1.12; letter-spacing: -0.015em; }
+  .process-intro { font-size: 16px; color: var(--ink-soft); line-height: 1.7; font-weight: 300; padding-top: 4px; }
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; background: var(--line); }
+  .step {
+    background: white; padding: 40px 36px 44px;
+    display: flex; flex-direction: column;
+  }
+  .step-num {
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 13px; color: var(--forest); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .step-num::after { content: ""; flex: 1; height: 1px; background: var(--sage); max-width: 40px; }
+  .step h3 {
+    font-family: 'Playfair Display', serif; font-weight: 500;
+    font-size: 22px; margin-bottom: 14px; line-height: 1.2;
+  }
+  .step p { font-size: 15px; color: var(--ink-soft); line-height: 1.65; font-weight: 300; }
+
+  /* ── CONTACT ── */
+  .contact { padding: 100px 0; }
+  .contact-grid { display: grid; grid-template-columns: 1fr 520px; gap: 80px; align-items: start; }
+  .contact-left { }
+  .contact-left h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: clamp(28px,3.5vw,42px); line-height: 1.1; letter-spacing: -0.015em; margin-bottom: 20px; }
+  .contact-left .lead { font-size: 16.5px; color: var(--ink-soft); max-width: 38ch; margin-bottom: 48px; font-weight: 300; line-height: 1.7; }
+  .contact-items { display: flex; flex-direction: column; gap: 28px; }
+  .contact-item .ci-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--forest); margin-bottom: 5px;
+  }
+  .contact-item .ci-value {
+    font-family: 'Playfair Display', serif; font-size: 20px; color: var(--ink);
+  }
+  .contact-item a { color: inherit; text-decoration: none; border-bottom: 1px solid var(--line-d); transition: border-color .2s; }
+  .contact-item a:hover { border-color: var(--forest); }
+
+  .form-wrap {
+    background: var(--off);
+    border: 1px solid var(--line);
+    padding: 44px 40px;
+  }
+  .form-title {
+    font-family: 'Playfair Display', serif; font-weight: 500;
+    font-size: 24px; margin-bottom: 6px;
+  }
+  .form-intro { font-size: 14px; color: var(--ink-soft); margin-bottom: 28px; font-weight: 300; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .field { display: flex; flex-direction: column; }
+  .field.full { grid-column: 1 / -1; }
+  label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.13em;
+    color: var(--ink-soft); margin-bottom: 6px; font-weight: 600;
+  }
+  input, textarea, select {
+    background: white; border: 1px solid var(--line-d);
+    padding: 11px 14px; font-family: inherit;
+    font-size: 14.5px; color: var(--ink);
+    transition: border-color .2s; border-radius: 2px;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none; border-color: var(--forest);
+  }
+  textarea { resize: vertical; min-height: 96px; }
+  .form-submit { margin-top: 8px; width: 100%; justify-content: center; padding: 15px; font-size: 14px; }
+  .form-note { font-size: 12px; color: var(--ink-soft); margin-top: 12px; text-align: center; opacity: 0.6; }
+  .success-msg {
+    display: none; background: var(--sage-l);
+    border: 1px solid var(--forest);
+    padding: 28px; text-align: center;
+    font-family: 'Playfair Display', serif; font-style: italic;
+    font-size: 20px; color: var(--forest);
+  }
+  .success-msg.visible { display: block; }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--ink); color: rgba(255,255,255,0.35);
+    padding: 44px 0 32px; font-size: 13px;
+  }
+  footer .container { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  footer .logo-name { color: rgba(255,255,255,0.55); font-size: 17px; }
+  footer .logo-mark { background: rgba(255,255,255,0.1); }
+  footer .logo-mark svg path { stroke: rgba(255,255,255,0.5); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; min-height: auto; max-height: none; }
+    .hero-left { padding: 60px 32px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .hero-left::after { display: none; }
+    .hero-right { padding: 48px 32px; min-height: 300px; justify-content: flex-start; }
+    .hero-stat-list { flex-direction: row; flex-wrap: wrap; gap: 32px; }
+    .hero-stat-rule { display: none; }
+    .about-grid, .process-header, .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+    .about-aside { position: static; }
+    .steps { grid-template-columns: 1fr; }
+    .value-row { grid-template-columns: 1fr; gap: 8px; }
+    .nav-center { display: none; }
+    .form-row { grid-template-columns: 1fr; }
+    .form-wrap { padding: 28px 24px; }
+    section, .about, .process, .contact { padding: 60px 0; }
+  }
+
+  /* ── ANIMATIONS ── */
+  .fade-in { opacity: 0; transform: translateY(14px); animation: rise .8s cubic-bezier(.2,.7,.2,1) forwards; }
+  .fade-in.d1 { animation-delay: .1s; }
+  .fade-in.d2 { animation-delay: .2s; }
+  .fade-in.d3 { animation-delay: .3s; }
+  .fade-in.d4 { animation-delay: .4s; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 2L16 6.5V11.5L9 16L2 11.5V6.5L9 2Z" stroke="white" stroke-width="1.4" fill="none"/>
+          <path d="M9 6V12M6 8.5H12" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="logo-name" data-fr="Plex Québec" data-en="Plex Québec">Plex Québec</span>
+    </a>
+    <div class="nav-center">
+      <a href="#about" data-fr="À propos" data-en="About">À propos</a>
+      <a href="#process" data-fr="Processus" data-en="Process">Processus</a>
+      <a href="#contact" data-fr="Contact" data-en="Contact">Contact</a>
+    </div>
+    <div class="nav-right">
+      <div class="lang-toggle">
+        <button class="active" data-lang="fr">FR</button>
+        <button data-lang="en">EN</button>
+      </div>
+      <a href="#contact" class="nav-cta">
+        <span data-fr="Demander une offre" data-en="Request an offer">Demander une offre</span>
+        <span>→</span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="tag fade-in" data-fr="Acquisition de plex au Québec" data-en="Plex acquisition in Quebec">Acquisition de plex au Québec</div>
+    <h1 class="fade-in d1"
+        data-fr="Vendez votre plex <em>simplement.</em>"
+        data-en="Sell your plex, <em>the simple way.</em>">
+      Vendez votre plex <em>simplement.</em>
+    </h1>
+    <p class="hero-sub fade-in d2"
+       data-fr="Nous achetons des immeubles à logements multiples partout au Québec, directement, sans agent, sans pression. Une offre claire, un processus rapide."
+       data-en="We acquire multi-unit residential buildings across Quebec. Directly, no agent, no pressure. A clear offer, a fast process.">
+      Nous achetons des immeubles à logements multiples partout au Québec, directement, sans agent, sans pression. Une offre claire, un processus rapide.
+    </p>
+    <div class="cta-row fade-in d3">
+      <a href="#contact" class="btn btn-forest">
+        <span data-fr="Demander une offre" data-en="Request an offer">Demander une offre</span>
+        <span class="arrow">→</span>
+      </a>
+      <a href="#about" class="btn btn-outline" data-fr="En savoir plus" data-en="Learn more">En savoir plus</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-label" data-fr="Pourquoi choisir Plex Québec" data-en="Why choose Plex Québec">Pourquoi choisir Plex Québec</div>
+    <div class="hero-stat-list">
+      <div class="hero-stat">
+        <div class="hero-stat-num">48h</div>
+        <div class="hero-stat-desc" data-fr="Évaluation préliminaire garantie, financement déjà confirmé" data-en="Guaranteed preliminary assessment, financing already confirmed">Évaluation préliminaire garantie, financement déjà confirmé</div>
+        <div class="hero-stat-rule"></div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">0</div>
+        <div class="hero-stat-desc" data-fr="Intermédiaire. Vous traitez directement avec les décideurs" data-en="No middlemen. You deal directly with decision-makers">Intermédiaire. Vous traitez directement avec les décideurs</div>
+        <div class="hero-stat-rule"></div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-num">100%</div>
+        <div class="hero-stat-desc" data-fr="Confidentiel. Aucun affichage public, aucun agent informé" data-en="Confidential. No public listing, no agent notification">Confidentiel. Aucun affichage public, aucun agent informé</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="strip">
+  <div class="strip-inner">
+    <span class="strip-item" data-fr="Duplex" data-en="Duplex">Duplex<span>◆</span></span>
+    <span class="strip-item" data-fr="Triplex" data-en="Triplex">Triplex<span>◆</span></span>
+    <span class="strip-item" data-fr="Quadruplex" data-en="Quadruplex">Quadruplex<span>◆</span></span>
+    <span class="strip-item" data-fr="5 logements et +" data-en="5 units and up">5 logements et +<span>◆</span></span>
+    <span class="strip-item" data-fr="Grand Montréal" data-en="Greater Montreal">Grand Montréal<span>◆</span></span>
+    <span class="strip-item" data-fr="Rive-Sud" data-en="South Shore">Rive-Sud<span>◆</span></span>
+    <span class="strip-item" data-fr="Partout au Québec" data-en="All of Quebec">Partout au Québec<span>◆</span></span>
+    <!-- duplicate for seamless loop -->
+    <span class="strip-item" data-fr="Duplex" data-en="Duplex">Duplex<span>◆</span></span>
+    <span class="strip-item" data-fr="Triplex" data-en="Triplex">Triplex<span>◆</span></span>
+    <span class="strip-item" data-fr="Quadruplex" data-en="Quadruplex">Quadruplex<span>◆</span></span>
+    <span class="strip-item" data-fr="5 logements et +" data-en="5 units and up">5 logements et +<span>◆</span></span>
+    <span class="strip-item" data-fr="Grand Montréal" data-en="Greater Montreal">Grand Montréal<span>◆</span></span>
+    <span class="strip-item" data-fr="Rive-Sud" data-en="South Shore">Rive-Sud<span>◆</span></span>
+    <span class="strip-item" data-fr="Partout au Québec" data-en="All of Quebec">Partout au Québec<span>◆</span></span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid">
+      <div class="about-aside">
+        <div class="section-eyebrow" data-fr="Qui nous sommes" data-en="Who we are">Qui nous sommes</div>
+        <h2 data-fr="Des acheteurs locaux, sérieux, et transparents."
+            data-en="Local buyers. Serious, transparent, no theatrics.">
+          Des acheteurs locaux, sérieux, et transparents.
+        </h2>
+      </div>
+      <div class="about-body">
+        <p data-fr="Nous sommes une équipe basée à Montréal qui se spécialise dans l'achat de plex (duplex, triplex, quadruplex et plus) pour les conserver à long terme dans notre portefeuille."
+           data-en="We're a Montreal-based team specialized in buying plexes (duplexes, triplexes, quadruplexes and up) to hold long-term in our portfolio.">
+          Nous sommes une équipe basée à Montréal qui se spécialise dans l'achat de plex (duplex, triplex, quadruplex et plus) pour les conserver à long terme dans notre portefeuille.
+        </p>
+        <p data-fr="Pas d'intermédiaire, pas de chaîne d'agents, pas de visites à répétition. Vous traitez directement avec les décideurs. Si votre immeuble nous intéresse, vous recevez une offre concrète en quelques jours."
+           data-en="No middleman, no chain of agents, no endless showings. You deal directly with decision-makers. If your building fits, you get a concrete offer within days.">
+          Pas d'intermédiaire, pas de chaîne d'agents, pas de visites à répétition. Vous traitez directement avec les décideurs. Si votre immeuble nous intéresse, vous recevez une offre concrète en quelques jours.
+        </p>
+
+        <div class="values-list">
+          <div class="value-row">
+            <div class="value-label" data-fr="Discrétion" data-en="Discretion">Discrétion</div>
+            <div class="value-desc" data-fr="Vos discussions avec nous restent confidentielles. Aucun affichage public, aucune liste partagée avec des tiers."
+                                    data-en="Conversations stay between us. No public listings, no lists shared with third parties.">
+              Vos discussions avec nous restent confidentielles. Aucun affichage public, aucune liste partagée avec des tiers.
+            </div>
+          </div>
+          <div class="value-row">
+            <div class="value-label" data-fr="Rapidité" data-en="Speed">Rapidité</div>
+            <div class="value-desc" data-fr="Évaluation préliminaire en 48 heures. Financement déjà en place. Pas de condition de financement bancaire surprise."
+                                    data-en="Preliminary assessment within 48 hours. Financing already in place. No last-minute bank surprise.">
+              Évaluation préliminaire en 48 heures. Financement déjà en place. Pas de condition de financement bancaire surprise.
+            </div>
+          </div>
+          <div class="value-row">
+            <div class="value-label" data-fr="Respect des locataires" data-en="Tenants">Respect des locataires</div>
+            <div class="value-desc" data-fr="Nous achetons pour conserver et bien gérer. Les baux et les locataires en place sont respectés."
+                                    data-en="We buy to hold and manage well. Existing leases and tenants are respected.">
+              Nous achetons pour conserver et bien gérer. Les baux et les locataires en place sont respectés.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="process" id="process">
+  <div class="container">
+    <div class="process-header">
+      <div>
+        <div class="section-eyebrow" data-fr="Comment ça fonctionne" data-en="How it works">Comment ça fonctionne</div>
+        <h2 class="process-title" data-fr="Trois étapes, sans surprise." data-en="Three steps, no surprises.">Trois étapes, sans surprise.</h2>
+      </div>
+      <p class="process-intro"
+         data-fr="Du premier contact à la clôture chez le notaire, nous avons conçu un processus simple qui respecte votre temps et votre immeuble."
+         data-en="From first contact to closing at the notary, we've built a simple process that respects your time and your property.">
+        Du premier contact à la clôture chez le notaire, nous avons conçu un processus simple qui respecte votre temps et votre immeuble.
+      </p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3 data-fr="Premier contact" data-en="First contact">Premier contact</h3>
+        <p data-fr="Vous nous écrivez ou remplissez le formulaire. Nous prenons le temps de comprendre votre immeuble et votre situation."
+           data-en="Reach out or fill the form. We take time to understand your building and your situation.">
+          Vous nous écrivez ou remplissez le formulaire. Nous prenons le temps de comprendre votre immeuble et votre situation.
+        </p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3 data-fr="Évaluation & offre" data-en="Assessment & offer">Évaluation & offre</h3>
+        <p data-fr="Sous 48 à 72 heures, nous revenons avec une fourchette de prix réaliste. Si ça vous convient, on visite et on confirme l'offre."
+           data-en="Within 48 to 72 hours, we come back with a realistic price range. If it works for you, we visit and confirm the offer.">
+          Sous 48 à 72 heures, nous revenons avec une fourchette de prix réaliste. Si ça vous convient, on visite et on confirme l'offre.
+        </p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3 data-fr="Clôture chez le notaire" data-en="Closing at the notary">Clôture chez le notaire</h3>
+        <p data-fr="Vous choisissez la date. La transaction se fait chez votre notaire, simplement, et vous recevez les fonds."
+           data-en="You pick the date. The transaction happens at your notary, simply, and you receive the funds.">
+          Vous choisissez la date. La transaction se fait chez votre notaire, simplement, et vous recevez les fonds.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="contact-grid">
+      <div class="contact-left">
+        <div class="section-eyebrow" data-fr="Parlons-nous" data-en="Let's talk">Parlons-nous</div>
+        <h2 data-fr="Joignez-nous, ou laissez-nous vos coordonnées."
+            data-en="Reach us, or leave your details.">
+          Joignez-nous, ou laissez-nous vos coordonnées.
+        </h2>
+        <p class="lead"
+           data-fr="La plupart des vendeurs préfèrent qu'on les rappelle à un moment qui leur convient. Choisissez l'option qui vous convient."
+           data-en="Most sellers prefer that we call them back at a time that suits them. Pick whichever feels right.">
+          La plupart des vendeurs préfèrent qu'on les rappelle à un moment qui leur convient. Choisissez l'option qui vous convient.
+        </p>
+        <div class="contact-items">
+          <div class="contact-item">
+            <div class="ci-label" data-fr="Téléphone" data-en="Phone">Téléphone</div>
+            <div class="ci-value"><a href="tel:+15144025466">514-402-5466</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-label">Courriel / Email</div>
+            <div class="ci-value"><a href="mailto:contact@example.com">contact@example.com</a></div>
+          </div>
+          <div class="contact-item">
+            <div class="ci-label" data-fr="Région servie" data-en="Service area">Région servie</div>
+            <div class="ci-value" data-fr="Grand Montréal & Rive-Sud" data-en="Greater Montreal & South Shore">Grand Montréal & Rive-Sud</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-wrap">
+        <div class="form-title" data-fr="Demandez qu'on vous rappelle" data-en="Request a callback">Demandez qu'on vous rappelle</div>
+        <p class="form-intro" data-fr="Aucun engagement. Vos informations restent confidentielles."
+                              data-en="No commitment. Your information stays confidential.">
+          Aucun engagement. Vos informations restent confidentielles.
+        </p>
+
+        <form id="leadForm" action="https://formspree.io/f/xnjwjpnj" method="POST">
+          <div class="form-row">
+            <div class="field">
+              <label data-fr="Nom" data-en="Name">Nom</label>
+              <input type="text" name="name" required />
+            </div>
+            <div class="field">
+              <label data-fr="Téléphone" data-en="Phone">Téléphone</label>
+              <input type="tel" name="phone" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label data-fr="Courriel" data-en="Email">Courriel</label>
+              <input type="email" name="email" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label data-fr="Adresse de l'immeuble (si applicable)" data-en="Building address (if applicable)">Adresse de l'immeuble (si applicable)</label>
+              <input type="text" name="address" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label data-fr="Type d'immeuble" data-en="Building type">Type d'immeuble</label>
+              <select name="building_type">
+                <option data-fr="Duplex" data-en="Duplex">Duplex</option>
+                <option data-fr="Triplex" data-en="Triplex">Triplex</option>
+                <option data-fr="Quadruplex" data-en="Quadruplex">Quadruplex</option>
+                <option data-fr="5 logements et +" data-en="5 units and more">5 logements et +</option>
+                <option data-fr="Autre" data-en="Other">Autre</option>
+              </select>
+            </div>
+            <div class="field">
+              <label data-fr="Meilleur moment pour appeler" data-en="Best time to call">Meilleur moment pour appeler</label>
+              <select name="best_time">
+                <option data-fr="Avant-midi" data-en="Morning">Avant-midi</option>
+                <option data-fr="Après-midi" data-en="Afternoon">Après-midi</option>
+                <option data-fr="Soir" data-en="Evening">Soir</option>
+                <option data-fr="N'importe quand" data-en="Anytime">N'importe quand</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field full">
+              <label data-fr="Message (facultatif)" data-en="Message (optional)">Message (facultatif)</label>
+              <textarea name="message"></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-forest form-submit">
+            <span data-fr="Envoyer ma demande" data-en="Send my request">Envoyer ma demande</span>
+            <span class="arrow">→</span>
+          </button>
+          <p class="form-note" data-fr="Réponse sous 24 à 48 heures." data-en="Response within 24 to 48 hours.">
+            Réponse sous 24 à 48 heures.
+          </p>
+        </form>
+
+        <div class="success-msg" id="successMsg"
+             data-fr="Merci. Nous vous contacterons sous peu."
+             data-en="Thank you. We'll be in touch shortly.">
+          Merci. Nous vous contacterons sous peu.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none">
+          <path d="M9 2L16 6.5V11.5L9 16L2 11.5V6.5L9 2Z" stroke="rgba(255,255,255,0.4)" stroke-width="1.4" fill="none"/>
+          <path d="M9 6V12M6 8.5H12" stroke="rgba(255,255,255,0.4)" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="logo-name">Plex Québec</span>
+    </div>
+    <div data-fr="© 2026 Montréal, Québec. Tous droits réservés."
+         data-en="© 2026 Montreal, Quebec. All rights reserved.">
+      © 2026 Montréal, Québec. Tous droits réservés.
+    </div>
+  </div>
+</footer>
+
+<script>
+  const langButtons = document.querySelectorAll('.lang-toggle button');
+  const setLang = (lang) => {
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-fr][data-en]').forEach(el => {
+      const txt = el.getAttribute('data-' + lang);
+      if (txt) el.innerHTML = txt;
+    });
+    document.querySelectorAll('select option[data-fr][data-en]').forEach(opt => {
+      opt.textContent = opt.getAttribute('data-' + lang);
+    });
+    langButtons.forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+  };
+  langButtons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.lang)));
+
+  const form = document.getElementById('leadForm');
+  const success = document.getElementById('successMsg');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST', body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+      if (res.ok) {
+        form.style.display = 'none';
+        success.classList.add('visible');
+      } else {
+        alert('Erreur. Veuillez réessayer. / Error. Please try again.');
+      }
+    } catch (err) {
+      alert('Erreur réseau / Network error.');
+    }
+  });
+</script>
+</body>
+</html>

@@ -9,20 +9,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg:       #f5f1ea;
-    --bg-warm:  #ebe4d6;
-    --ink:      #1c1c1a;
-    --ink-soft: #4a4a47;
-    --accent:   #8b3a2f;
-    --line:     #d9cfbe;
-    --paper:    #fbf8f1;
+    --bg:          #f7f7f5;
+    --bg-warm:     #efeeec;
+    --ink:         #1c1c1a;
+    --ink-soft:    #4a4a47;
+    --accent:      #3a5c7a;
+    --accent-deep: #28405a;
+    --gold:        #b8893a;
+    --line:        #e4e4e0;
+    --paper:       #ffffff;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'Inter Tight', sans-serif;
-    background: #ccc9c2;
+    background: #f7f7f5;
     display: flex;
     flex-wrap: wrap;
     gap: 48px;
@@ -76,7 +78,7 @@
     transform: translateX(-50%);
     width: 32px; height: 32px;
     border-radius: 50%;
-    background: #ccc9c2;
+    background: #f7f7f5;
     border: 1.5px dashed #bbb;
     z-index: 2;
   }
@@ -100,9 +102,9 @@
   }
 
   .logo-mark {
+    display: inline-flex;
+    align-items: center;
     width: 20px; height: 20px;
-    background: var(--accent);
-    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
     flex-shrink: 0;
   }
 
@@ -413,7 +415,7 @@
     <div class="hole"></div>
     <div class="front">
       <div class="logo">
-        <span class="logo-mark"></span>
+        <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="8" width="16" height="18" rx="3" fill="var(--accent)" opacity="0.4"/><rect x="2" y="4" width="16" height="22" rx="3" fill="var(--accent)"/></svg></span>
         <span class="logo-text">Plex Québec</span>
       </div>
 
@@ -460,7 +462,7 @@
         </div>
         <div class="footer-contact">
           <span class="url">plexquebec.com</span>
-          <span class="phone">514 000-0000</span>
+          <span class="phone">514-402-5466</span>
         </div>
       </div>
     </div>
@@ -474,7 +476,7 @@
     <div class="hole"></div>
     <div class="back">
       <div class="logo">
-        <span class="logo-mark"></span>
+        <span class="logo-mark"><svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="8" width="16" height="18" rx="3" fill="var(--accent)" opacity="0.4"/><rect x="2" y="4" width="16" height="22" rx="3" fill="var(--accent)"/></svg></span>
         <span class="logo-text">Plex Québec</span>
       </div>
 
@@ -509,7 +511,7 @@
         <div class="back-contact-block">
           <div class="back-contact-line">
             <span class="bcl-label">Tél.</span>
-            <span class="bcl-value">514 000-0000</span>
+            <span class="bcl-value">514-402-5466</span>
           </div>
           <div class="back-contact-line">
             <span class="bcl-label">Courriel</span>

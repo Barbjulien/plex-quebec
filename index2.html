@@ -9,15 +9,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg: #f7f7f5;
-    --bg-warm: #efeeec;
+    --bg: #f5f1ea;
+    --bg-warm: #ebe4d6;
     --ink: #1c1c1a;
     --ink-soft: #4a4a47;
-    --accent: #3a5c7a;
-    --accent-deep: #28405a;
+    --accent: #3d4785;
+    --accent-deep: #2a3060;
     --gold: #b8893a;
-    --line: #e4e4e0;
-    --paper: #ffffff;
+    --line: #d9cfbe;
+    --paper: #fbf8f1;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{scroll-behavior:smooth;}
@@ -42,7 +42,7 @@
 
   nav{
     position: sticky; top:0;
-    background: rgba(247,247,245,0.92);
+    background: rgba(245,241,234,0.92);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--line);
     z-index: 50; padding: 18px 0;
@@ -67,6 +67,12 @@
   .lang-toggle button.active{ background: var(--ink); color: var(--paper); }
 
   .hero{ padding: 90px 0 110px; position: relative; }
+  .hero::after{
+    content:""; position: absolute; right: -60px; top: 80px;
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(61,71,133,0.12), transparent 70%);
+    border-radius: 50%; z-index: 0; pointer-events: none;
+  }
   .eyebrow{
     font-size: 12px; text-transform: uppercase; letter-spacing: 0.18em;
     color: var(--accent); font-weight: 500; margin-bottom: 24px;
