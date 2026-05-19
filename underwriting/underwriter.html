@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plex Québec — Outil d'analyse d'acquisition</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter+Tight:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f7f7f5;
+  --bg-warm: #efeeec;
+  --ink: #1c1c1a;
+  --ink-soft: #4a4a47;
+  --accent: #3a5c7a;
+  --accent-deep: #28405a;
+  --gold: #b8893a;
+  --gold-light: #f5edd8;
+  --line: #e4e4e0;
+  --paper: #ffffff;
+  --positive: #3a6a5c;
+  --positive-light: #e6f0ec;
+  --negative: #8b3a2f;
+  --negative-light: #f5e8e5;
+  --warm: #b8893a;
+  --warm-light: #f5edd8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter Tight', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-weight: 400;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  font-size: 14px;
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(28,28,26,0.025) 1px, transparent 1px);
+  background-size: 3px 3px;
+  z-index: 1;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────── */
+nav {
+  position: sticky; top: 0;
+  background: rgba(247,247,245,0.94);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  z-index: 50; padding: 14px 0;
+}
+.nav-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+.logo { font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.logo-mark { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; }
+.nav-tag { font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent); font-weight: 500; border: 1px solid var(--accent); border-radius: 4px; padding: 2px 8px; }
+.reset-btn {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px; font-weight: 500;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  color: var(--ink-soft);
+  padding: 6px 14px; border-radius: 6px;
+  cursor: pointer; transition: all .18s;
+  letter-spacing: 0.02em;
+}
+.reset-btn:hover { border-color: var(--ink); color: var(--ink); }
+
+/* ── Dashboard bar ───────────────────────────────────────────────────── */
+.dashboard {
+  background: var(--accent-deep);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 0;
+  position: sticky; top: 57px; z-index: 40;
+}
+.dashboard-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; position: relative; z-index: 2; }
+.kpi { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 14px; min-width: 0; flex: 1; }
+.kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.5); margin-bottom: 3px; }
+.kpi-value { font-size: 16px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
+.kpi-sub { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 1px; font-variant-numeric: tabular-nums; }
+.kpi.green, .kpi.amber, .kpi.red, .kpi.blue { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.12); }
+.constraint-badge {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;
+  padding: 8px 14px; border-radius: 8px;
+  background: rgba(255,255,255,0.08) !important; color: rgba(255,255,255,0.7) !important; border: 1px solid rgba(255,255,255,0.12) !important;
+  display: flex; align-items: center; gap: 5px;
+}
+
+/* ── Layout ──────────────────────────────────────────────────────────── */
+.page { max-width: 1280px; margin: 0 auto; padding: 28px 28px 60px; position: relative; z-index: 2; }
+.tabs { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--line); }
+.tab-btn {
+  font-family: 'Fraunces', serif;
+  font-size: 14px; font-weight: 400;
+  background: none; border: none; cursor: pointer;
+  color: var(--ink-soft); padding: 10px 18px;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all .18s; letter-spacing: -0.01em;
+}
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Grid ────────────────────────────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) {
+  .grid-2, .grid-3 { grid-template-columns: 1fr; }
+}
+
+/* ── Section cards ───────────────────────────────────────────────────── */
+.section-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  border-radius: 0;
+  overflow: hidden;
+  margin-bottom: 0;
+  box-shadow: 0 1px 3px rgba(28,28,26,0.04);
+}
+.section-header {
+  background: var(--bg-warm);
+  padding: 12px 18px;
+  display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--line);
+}
+.section-header h3 { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.section-header .chevron { color: var(--accent); font-size: 12px; transition: transform .2s; }
+.section-header.open .chevron { transform: rotate(180deg); }
+.section-body { padding: 16px 18px; display: none; }
+.section-body.open { display: block; }
+
+/* ── Field rows ──────────────────────────────────────────────────────── */
+.field-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
+.field-row:last-child { border-bottom: none; }
+.field-label { font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+.field-label .tip { font-size: 11px; color: var(--accent); cursor: help; position: relative; }
+.field-input { position: relative; display: flex; align-items: center; flex-shrink: 0; }
+.field-input .pfx { position: absolute; left: 8px; font-size: 12px; color: var(--ink-soft); pointer-events: none; }
+.field-input .sfx { position: absolute; right: 8px; font-size: 12px; color: var(--ink-soft); pointer-events: none; }
+input[type="number"], select {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13px; font-weight: 500;
+  border: 1px solid var(--line);
+  border-left: 2px solid rgba(184,137,58,0.45);
+  border-radius: 6px;
+  background: #fffef9;
+  color: var(--ink);
+  padding: 5px 8px;
+  width: 130px;
+  text-align: right;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s;
+  font-variant-numeric: tabular-nums;
+}
+input[type="number"]:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(58,92,122,0.1); }
+.has-pfx input[type="number"] { padding-left: 20px; }
+.has-sfx input[type="number"] { padding-right: 24px; }
+select { text-align: left; cursor: pointer; }
+input[type="text"] {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 13px; font-weight: 500;
+  border: 1px solid var(--line);
+  border-left: 2px solid rgba(184,137,58,0.45);
+  border-radius: 6px;
+  background: #fffef9; color: var(--ink);
+  padding: 5px 8px; width: 130px; text-align: right;
+  outline: none; transition: border-color .18s;
+}
+input[type="text"]:focus { border-color: var(--accent); }
+
+/* ── Output cards ────────────────────────────────────────────────────── */
+.output-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(28,28,26,0.04);
+}
+.output-header {
+  background: var(--bg-warm);
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--line);
+}
+.output-header h3 { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
+.output-body { padding: 16px 18px; }
+.out-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid var(--line); gap: 12px; }
+.out-row:last-child { border-bottom: none; }
+.out-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+.out-value { font-size: 13px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+.out-row.key-row .out-label { color: var(--accent-deep); font-weight: 600; }
+.out-row.key-row .out-value { font-size: 15px; color: var(--accent-deep); }
+.out-row.neg .out-value { color: var(--negative); }
+.out-row.pos .out-value { color: var(--accent); }
+.out-row.warn .out-value { color: var(--accent); }
+
+.metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-top: 14px; }
+.metric-box { border-radius: 8px; padding: 10px 14px; background: #e8f0f7; border: 1px solid rgba(58,92,122,0.25); }
+.metric-box.green, .metric-box.amber, .metric-box.blue { background: #e8f0f7; border: 1px solid rgba(58,92,122,0.25); }
+.metric-box .m-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.13em; margin-bottom: 4px; color: var(--accent); }
+.metric-box.green .m-label, .metric-box.amber .m-label, .metric-box.blue .m-label { color: var(--accent); }
+.metric-box .m-value { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--accent-deep); }
+.metric-box.green .m-value, .metric-box.amber .m-value, .metric-box.blue .m-value { color: var(--accent-deep); }
+.metric-box .m-sub { font-size: 10px; margin-top: 2px; opacity: .7; font-variant-numeric: tabular-nums; }
+
+/* ── Constraint badge in outputs ─────────────────────────────────────── */
+.inline-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px;
+  background: #e8f0f7; color: var(--accent); border: 1px solid rgba(58,92,122,0.3);
+}
+
+/* ── Divider ─────────────────────────────────────────────────────────── */
+.divider { height: 1px; background: var(--line); margin: 12px 0; }
+.sub-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); margin-bottom: 6px; margin-top: 4px; }
+
+/* ── Cash flow table ─────────────────────────────────────────────────── */
+.cf-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.cf-table th { text-align: right; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); padding: 8px 10px; border-bottom: 1px solid var(--line); font-weight: 500; }
+.cf-table th:first-child { text-align: left; }
+.cf-table td { text-align: right; padding: 8px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; font-weight: 500; }
+.cf-table td:first-child { text-align: left; font-weight: 600; color: var(--ink-soft); }
+.cf-table tr:last-child td { border-bottom: none; }
+.cf-table tr:hover td { background: var(--bg-warm); }
+.cf-table .pos-cf { color: var(--accent); }
+.cf-table .neg-cf { color: var(--negative); }
+
+/* ── Help sections ───────────────────────────────────────────────────── */
+.help-section { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+.help-header { padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--paper); transition: background .15s; }
+.help-header:hover { background: var(--bg-warm); }
+.help-header h4 { font-size: 13px; font-weight: 500; color: var(--ink); }
+.help-body { padding: 16px 18px; background: var(--bg-warm); display: none; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); line-height: 1.65; }
+.help-body.open { display: block; }
+.help-body strong { color: var(--ink); font-weight: 600; }
+.help-body ul { padding-left: 16px; margin: 6px 0; }
+.help-body li { margin-bottom: 4px; }
+.help-body p { margin-bottom: 8px; }
+.help-body .tip-arrow { color: var(--accent); font-weight: 500; }
+
+/* ── Tooltip ─────────────────────────────────────────────────────────── */
+.tooltip-wrap { position: relative; display: inline-flex; }
+.tooltip-wrap .tip-icon { font-size: 11px; color: var(--accent); cursor: help; width: 15px; height: 15px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--accent); border-radius: 50%; opacity: .6; transition: opacity .15s; }
+.tooltip-wrap:hover .tip-icon { opacity: 1; }
+.tooltip-text {
+  display: none;
+  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: #fff;
+  font-size: 11px; line-height: 1.5;
+  padding: 8px 12px; border-radius: 7px;
+  width: 260px; white-space: normal;
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+  z-index: 100;
+  pointer-events: none;
+}
+.tooltip-wrap:hover .tooltip-text { display: block; }
+
+/* ── SCHL reference tab ──────────────────────────────────────────────── */
+.schl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+@media (max-width: 900px) { .schl-grid { grid-template-columns: 1fr; } }
+.schl-card { background: var(--paper); border: 1px solid var(--line); border-left: 2px solid var(--accent); box-shadow: 0 1px 3px rgba(28,28,26,0.04); overflow: hidden; }
+.schl-card-header { background: var(--bg-warm); padding: 10px 16px; border-bottom: 1px solid var(--line); font-family: 'Fraunces', serif; font-size: 13px; font-weight: 500; color: var(--ink); letter-spacing: -0.01em; }
+.schl-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.schl-table th { text-align: center; font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); padding: 8px 10px; border-bottom: 1px solid var(--line); font-weight: 500; background: var(--bg-warm); }
+.schl-table th:first-child { text-align: left; }
+.schl-table td { text-align: center; padding: 7px 10px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; color: var(--ink); }
+.schl-table td:first-child { text-align: left; font-weight: 500; color: var(--ink-soft); }
+.schl-table tr:last-child td { border-bottom: none; }
+.schl-table tr:hover td { background: var(--bg-warm); }
+.schl-table .highlight { font-weight: 600; color: var(--accent-deep); }
+.schl-table .green-cell { color: var(--positive); font-weight: 600; }
+.schl-table .gold-cell { color: var(--gold); font-weight: 600; }
+.schl-badge { display: inline-block; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; padding: 2px 8px; border-radius: 4px; }
+.schl-badge.market { background: #e8f0f7; color: var(--accent); border: 1px solid rgba(58,92,122,0.3); }
+.schl-badge.select { background: var(--gold-light); color: var(--gold); border: 1px solid rgba(184,137,58,0.3); }
+.schl-note { font-size: 11px; color: var(--ink-soft); padding: 8px 16px 10px; border-top: 1px solid var(--line); background: var(--bg-warm); line-height: 1.5; }
+
+/* ── Spacing utilities ───────────────────────────────────────────────── */
+.space-y > * + * { margin-top: 12px; }
+.mt-4 { margin-top: 16px; }
+.mb-2 { margin-bottom: 8px; }
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+footer { background: var(--ink); color: #a8a8a3; padding: 50px 0 30px; font-size: 13px; }
+footer .footer-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2; }
+footer .logo { color: var(--paper); }
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-mark"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="8" width="16" height="18" rx="3" fill="var(--accent)" opacity="0.4"/><rect x="2" y="4" width="16" height="22" rx="3" fill="var(--accent)"/></svg></span>
+      Plex Québec
+    </a>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="nav-tag">Outil interne</span>
+      <button class="reset-btn" onclick="resetAll()">↺ Réinitialiser</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Dashboard -->
+<div class="dashboard">
+  <div class="dashboard-inner">
+    <div class="kpi green" id="kpi-noi">
+      <div class="kpi-label">NOI Actuel</div>
+      <div class="kpi-value" id="kv-noi">—</div>
+      <div class="kpi-sub" id="ks-noi">Cap rate: —</div>
+    </div>
+    <div class="kpi blue" id="kpi-noi-opt">
+      <div class="kpi-label">NOI Optimisé</div>
+      <div class="kpi-value" id="kv-noi-opt">—</div>
+      <div class="kpi-sub" id="ks-noi-opt">Yield on Cost: —</div>
+    </div>
+    <div class="kpi" id="kpi-loan">
+      <div class="kpi-label">Prêt Approuvé</div>
+      <div class="kpi-value" id="kv-loan">—</div>
+      <div class="kpi-sub" id="ks-loan">LTV — · DSCR —</div>
+    </div>
+    <div class="kpi amber" id="kpi-cash">
+      <div class="kpi-label">Cash Requis</div>
+      <div class="kpi-value" id="kv-cash">—</div>
+      <div class="kpi-sub" id="ks-cash">MP mensuel: —</div>
+    </div>
+    <div class="kpi green" id="kpi-profit">
+      <div class="kpi-label">Profit Net</div>
+      <div class="kpi-value" id="kv-profit">—</div>
+      <div class="kpi-sub" id="ks-profit">— / an · —x</div>
+    </div>
+    <div class="kpi blue" id="kpi-refi">
+      <div class="kpi-label">Prise de fonds nette</div>
+      <div class="kpi-value" id="kv-refi">—</div>
+      <div class="kpi-sub" id="ks-refi">Multiple cash-out: —</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main page -->
+<div class="page">
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('inputs', this)">Paramètres</button>
+    <button class="tab-btn" onclick="showTab('analysis', this)">Analyse</button>
+    <button class="tab-btn" onclick="showTab('cashflow', this)">Flux</button>
+    <button class="tab-btn" onclick="showTab('help', this)">Guide</button>
+    <button class="tab-btn" onclick="showTab('schl', this)">SCHL</button>
+  </div>
+
+  <!-- ── Tab: Paramètres ─────────────────────────────────────────────── -->
+  <div id="tab-inputs" class="tab-content active">
+    <div class="grid-2">
+      <!-- LEFT COLUMN -->
+      <div class="space-y">
+
+        <!-- A: Property -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>A | Propriété &amp; Acquisition</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Prix d'achat <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Base de tous les calculs de rendement.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="purchasePrice" value="1175000" step="5000" min="0" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Nombre d'unités</span>
+              <div class="field-input"><input type="number" id="units" value="6" step="1" min="1" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Type d'unité</span>
+              <div class="field-input"><input type="text" id="unitType" value="6 x 4½"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Pi² moyen / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Superficie moyenne par logement en pieds carrés.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="avgSqft" value="1000" step="50" min="0" onchange="recalc()"><span class="sfx">pi²</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Valeur au rôle <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Évaluation municipale. Un ratio prix/rôle &gt; 1.3 peut signaler un prix élevé.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="rollValue" value="969400" step="5000" min="0" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais d'acquisition <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Notaire, inspection, due diligence. Typiquement 1.5–3% du prix d'achat.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="acquisitionCostPct" value="2.5" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B: Current Revenue -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>B | Revenus Actuels</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Loyer mensuel / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loyer moyen actuel par unité.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="currentRent" value="1000" step="25" min="0" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux d'inoccupation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">3% = marché serré, 5% = équilibré, 7%+ = surplus.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="vacancyRate" value="5" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Autres revenus (annuel)</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="otherIncome" value="0" step="100" min="0" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Dépenses d'exploitation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">30–35% = bien entretenu 6+, 35–40% = moyen, 40–45% = vieux/petit. Exclut le service de la dette.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="operatingExpenses" value="30" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- C: Optimized Revenue -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>C | Revenus Optimisés (Post-Réno)</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Loyer cible / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Valider avec des comparables du marché.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="targetRent" value="1450" step="25" min="0" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Croissance annuelle des loyers <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Historique QC: 2–3%/an. Soyez conservateur.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="rentGrowth" value="2" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Période de détention <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Durée prévue avant vente ou refinancement.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="holdingPeriod" value="5" step="1" min="1" max="30" onchange="recalc()"><span class="sfx">ans</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Inoccupation optimisée</span>
+              <div class="field-input has-sfx"><input type="number" id="optimizedVacancy" value="5" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Dépenses optimisées</span>
+              <div class="field-input has-sfx"><input type="number" id="optimizedExpenses" value="30" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux de roulement annuel <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Moyenne QC: 15–20%/an. Affecte la vitesse de transition vers les loyers cibles.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="turnoverRate" value="17.5" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- D: Renovations -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>D | Rénovations &amp; Cash for Keys</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Coût réno / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Léger: 15–25K$, Modéré (cuisine/SDB): 25–40K$, Lourd: 40–60K$+</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="renoCost" value="20000" step="1000" min="0" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">% unités à rénover</span>
+              <div class="field-input has-sfx"><input type="number" id="pctReno" value="50" step="5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Cash for keys (mois de loyer) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Guide TAL: 3–6 mois typique, 6–12 mois longue durée, 12+ mois personnes âgées.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="cfkMonths" value="0" step="1" min="0" onchange="recalc()"><span class="sfx">mois</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">% unités — cash for keys</span>
+              <div class="field-input has-sfx"><input type="number" id="pctCfk" value="20" step="5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /left col -->
+
+      <!-- RIGHT COLUMN -->
+      <div class="space-y">
+
+        <!-- E: CMHC -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>E | Financement SCHL</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Programme SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">MLI Market: amort max 40 ans, LTV 85%. MLI Select: jusqu'à 50 ans / 90% selon les points.</span></span></span>
+              <div class="field-input"><select id="cmhcProgram" onchange="toggleMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select">MLI Select</option></select></div>
+            </div>
+            <div class="field-row" id="mli-points-row" style="display:none">
+              <span class="field-label">Points MLI Select <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">50–69 pts: Palier 3 (amort 40, rabais 10%), 70–99: Palier 2 (45, 20%), 100+: Palier 1 (50, 30%)</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="mliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Type de bâtiment</span>
+              <div class="field-input"><select id="buildingType" onchange="recalc()"><option value="standard">Standard Locatif</option><option value="other">Other Shelter</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">But du prêt</span>
+              <div class="field-input"><select id="loanPurpose" onchange="recalc()"><option value="purchase">Achat / Refi</option><option value="construction">Construction</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">LTV cible <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Le prêt final = MIN(plafond LTV, plafond DSCR). Double plafond SCHL.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="targetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux d'intérêt <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (obligatoire au Canada).</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="interestRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Terme <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Pénalité de bris si vente avant l'échéance du terme.</span></span></span>
+              <div class="field-input"><select id="term" onchange="recalc()"><option value="1">1 an</option><option value="2">2 ans</option><option value="3">3 ans</option><option value="5" selected>5 ans</option><option value="7">7 ans</option><option value="10">10 ans</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Amortissement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Plus long = paiements plus bas et DSCR plus favorable, mais plus d'intérêts payés.</span></span></span>
+              <div class="field-input"><select id="amortization" onchange="recalc()"><option value="15">15 ans</option><option value="20">20 ans</option><option value="25">25 ans</option><option value="30">30 ans</option><option value="35">35 ans</option><option value="40" selected>40 ans</option><option value="45">45 ans</option><option value="50">50 ans</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Province</span>
+              <div class="field-input"><select id="province" onchange="recalc()"><option value="qc" selected>Québec</option><option value="on">Ontario</option><option value="mb">Manitoba</option><option value="sk">Saskatchewan</option><option value="other">Autre</option></select></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- F: Private Financing -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>F | Financement Privé (Rénovations)</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">% des rénovations financées <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Proportion financée par prêt privé. Le reste vient de vos liquidités.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="privatePct" value="100" step="5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux du financement privé <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">1ère hypo: 8–12%, 2e hypo: 12–18%, ponte: 14–20%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="privateRate" value="14" step="0.5" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Durée du financement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Généralement 1–3 ans (financement pont).</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="privatePeriod" value="2.5" step="0.5" min="0" onchange="recalc()"><span class="sfx">ans</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- G: Reserves -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>G | Réserves &amp; CapEx</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">Provision / unité / mois <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Recommandé: 50–100$ / logement / mois selon l'âge et l'état de l'immeuble.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="contingency" value="50" step="10" min="0" onchange="recalc()"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- H: Sale -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>H | Scénario de Vente</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">Variation cap rate / an <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Compression (–) ou expansion (+) du cap rate à la sortie. 0.1–0.25%/an est raisonnable.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="capRateDrift" value="0.5" step="0.05" min="-5" max="5" onchange="recalc()"><span class="sfx">%/an</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Nouveau taux hypo (pénalité) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux actuel du marché, pour calcul IRD.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="newMortgageRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux marginal (revenu locatif) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux d'imposition sur revenu locatif net. Corp SBD QC: ~26.5%. Personnel: ~50%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="marginalTax" value="26.5" step="0.5" min="0" max="60" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux effectif — gain en capital <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux effectif sur gain en capital (inclusion × taux marginal). Corp: 2/3 × ~50% ≈ 33%. Personnel: 1/2 × ~50% ≈ 25%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="cgTaxRate" value="33" step="0.5" min="0" max="60" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Commission vente</span>
+              <div class="field-input has-sfx"><input type="number" id="commission" value="2" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais de fermeture (vente)</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="closingFees" value="-1500" step="100" onchange="recalc()"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- K: Refinance -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>K | Scénario de Refinancement</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">Programme SCHL (refi)</span>
+              <div class="field-input"><select id="refiProgram" onchange="toggleRefiMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select">MLI Select</option></select></div>
+            </div>
+            <div class="field-row" id="refi-mli-points-row" style="display:none">
+              <span class="field-label">Points MLI Select (refi)</span>
+              <div class="field-input has-sfx"><input type="number" id="refiMliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Cap rate au refi <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Sert à estimer la valeur marchande pour le refinancement.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="refiCapRate" value="4.75" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">LTV cible (refi)</span>
+              <div class="field-input has-sfx"><input type="number" id="refiTargetLtv" value="75" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux d'intérêt (refi)</span>
+              <div class="field-input has-sfx"><input type="number" id="refiInterestRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Terme (refi)</span>
+              <div class="field-input"><select id="refiTerm" onchange="recalc()"><option value="1">1 an</option><option value="2">2 ans</option><option value="3">3 ans</option><option value="5" selected>5 ans</option><option value="7">7 ans</option><option value="10">10 ans</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Amortissement (refi)</span>
+              <div class="field-input"><select id="refiAmortization" onchange="recalc()"><option value="25">25 ans</option><option value="30">30 ans</option><option value="35">35 ans</option><option value="40" selected>40 ans</option><option value="45">45 ans</option><option value="50">50 ans</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais de fermeture (refi)</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="refiClosingFees" value="-3000" step="100" onchange="recalc()"></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /right col -->
+    </div><!-- /grid-2 -->
+  </div><!-- /tab inputs -->
+
+  <!-- ── Tab: Analyse ────────────────────────────────────────────────── -->
+  <div id="tab-analysis" class="tab-content">
+    <div class="grid-2">
+      <!-- Current Analysis -->
+      <div class="output-card">
+        <div class="output-header"><h3>Revenus Actuels</h3></div>
+        <div class="output-body" id="out-current"></div>
+      </div>
+      <!-- Acquisition Summary -->
+      <div class="output-card">
+        <div class="output-header"><h3>Financement SCHL &amp; Mise de Fonds</h3></div>
+        <div class="output-body" id="out-acquisition"></div>
+      </div>
+      <!-- Sale Analysis -->
+      <div class="output-card">
+        <div class="output-header"><h3>Scénario de Vente</h3></div>
+        <div class="output-body" id="out-sale"></div>
+      </div>
+      <!-- Refi Analysis -->
+      <div class="output-card">
+        <div class="output-header"><h3>Scénario de Refinancement</h3></div>
+        <div class="output-body" id="out-refi"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab: Flux ───────────────────────────────────────────────────── -->
+  <div id="tab-cashflow" class="tab-content">
+    <div class="output-card">
+      <div class="output-header"><h3 id="cf-title">Projections — Flux de Trésorerie</h3></div>
+      <div class="output-body" style="overflow-x:auto;padding:0;">
+        <table class="cf-table" id="cf-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding-left:18px;">Année</th>
+              <th>EGI</th>
+              <th>NOI</th>
+              <th>Service dette</th>
+              <th>Réserves</th>
+              <th>Flux brut</th>
+              <th>Cash-on-Cash</th>
+              <th>Cumulatif</th>
+              <th>Balance hypo.</th>
+            </tr>
+          </thead>
+          <tbody id="cf-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab: Guide ─────────────────────────────────────────────────── -->
+  <div id="tab-help" class="tab-content">
+    <div style="max-width:760px;">
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-soft);margin-bottom:20px;">Notes, hypothèses &amp; guide d'utilisation</p>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>Benchmarks — Dépenses &amp; Loyers</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Dépenses d'exploitation (% du EGI)</strong></p>
+          <ul><li>30–35% : Immeuble bien entretenu, 6+ logements, propriétaire actif</li><li>35–40% : Immeuble moyen, déferred maintenance</li><li>40–45% : Immeuble plus vieux, petite taille</li></ul>
+          <p style="margin-top:10px;"><strong>Rénovations (coût par unité)</strong></p>
+          <ul><li>Cosmétique léger (peinture, planchers) : 15 000–25 000 $</li><li>Modéré (cuisine, salle de bain) : 25 000–40 000 $</li><li>Lourd (plomberie, électrique, fenêtres) : 40 000–60 000 $+</li></ul>
+          <p style="margin-top:10px;"><strong>Taux d'inoccupation</strong></p>
+          <ul><li>3% = marché serré</li><li>5% = marché équilibré</li><li>7%+ = marché en surplus ou immeuble problématique</li></ul>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>Cash for Keys — Guide TAL</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p>Le cash for keys est une entente volontaire. Pratiques courantes :</p>
+          <ul><li><strong>3–6 mois</strong> : locataire récent, déménagement facile</li><li><strong>6–12 mois</strong> : locataire de longue date (5+ ans)</li><li><strong>12–24 mois</strong> : personnes âgées, longue durée</li><li><strong>24 mois+</strong> : cas exceptionnels</li></ul>
+          <p class="tip-arrow" style="margin-top:8px;">→ Documentez toujours l'entente par écrit avec quittance au TAL.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>Double Plafond SCHL — Comment l'interpréter</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p>Le prêt SCHL = <strong>MIN(plafond LTV, plafond DSCR)</strong></p>
+          <p><strong>Contraint par LTV</strong> : l'actif ne justifie pas plus de dette. Négociez le prix ou augmentez la mise de fonds.</p>
+          <p><strong>Contraint par DSCR</strong> : les revenus ne supportent pas plus de dette. Haussez les loyers, réduisez les dépenses, allongez l'amortissement, ou choisissez MLI Select.</p>
+          <p style="margin-top:8px;"><strong>DSCR cibles</strong> : MLI Market ≥ 1.30x (5 ans), MLI Select ≥ 1.10x. Visez 1.20x+ pour une marge de sécurité.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>5 Pièges du Modèle</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <ol style="padding-left:16px;line-height:2;">
+            <li><strong>Service de dette sur l'hypothèque assurée</strong> : la prime SCHL est capitalisée. DSCR et paiements sont sur le total (prêt + prime).</li>
+            <li><strong>Balance = balance hypothèque assurée</strong> : utilisez toujours le montant total dans les calculs de remboursement.</li>
+            <li><strong>Pénalité de bris</strong> = MAX(3 mois d'intérêt, IRD sur solde restant × durée restante du terme).</li>
+            <li><strong>DSCR de base ≠ DSCR sur hypo assurée</strong> : la banque regarde le DSCR sur l'hypothèque assurée totale.</li>
+            <li><strong>Prime au refinancement</strong> : vous payez une NOUVELLE prime SCHL. Elle érode significativement la prise de fonds nette.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>6 Tests de Stress Avant d'Acheter</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <ol style="padding-left:16px;line-height:2;">
+            <li><strong>Taux +1%</strong> : Le DSCR tient-il toujours ?</li>
+            <li><strong>Loyers cibles –10%</strong> : Le yield on cost reste-t-il acceptable ?</li>
+            <li><strong>Vacance 10%</strong> : Le flux de trésorerie est-il positif ?</li>
+            <li><strong>Rénovations +25%</strong> : Impact sur la mise de fonds totale ?</li>
+            <li><strong>Holding forcé 7 ans</strong> : Le cashflow est-il soutenable ?</li>
+            <li><strong>Cap rate +50 bps à la sortie</strong> : Le retour reste-t-il positif ?</li>
+          </ol>
+          <p class="tip-arrow" style="margin-top:8px;">→ Si l'un de ces scénarios rend le deal inacceptable, renégociez le prix ou passez.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>Vente vs Refinancement — Cadre de Décision</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Préférez la VENTE si :</strong></p>
+          <ul><li>Marché au sommet (cap rates bas)</li><li>Besoin de liquidités pour un autre projet</li><li>Loyers déjà optimisés</li><li>Holding = terme hypothécaire (pénalité = 0)</li></ul>
+          <p style="margin-top:8px;"><strong>Préférez le REFINANCEMENT si :</strong></p>
+          <ul><li>Vous voulez garder l'immeuble pour le revenu passif</li><li>Prise de fonds nette significative (&gt; 50% de la mise initiale)</li><li>Capital réinvesti dans un nouvel actif</li><li>Flux de trésorerie positif après nouveau service de dette</li></ul>
+          <p class="tip-arrow" style="margin-top:8px;">→ Règle empirique : Refi &gt; Vente si multiple cash-out &gt; 0.5x ET flux post-refi &gt; 0</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>MLI Select — Guide des Points</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Paliers</strong></p>
+          <ul><li>50–69 pts (Palier 3) : amort 40 ans, rabais prime 10%</li><li>70–99 pts (Palier 2) : amort 45 ans, rabais prime 20%</li><li>100+ pts (Palier 1) : amort 50 ans, rabais prime 30%</li></ul>
+          <p style="margin-top:8px;"><strong>Sources de points (exemples)</strong></p>
+          <ul><li>Loyers abordables (&lt; 80% médiane du marché) : 15–25 pts/unité</li><li>Certifications énergie (Novoclimat, LEED) : 20–30 pts</li><li>Unités accessibles (mobilité réduite) : 10–15 pts/unité</li></ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Tab: SCHL ──────────────────────────────────────────────────── -->
+  <div id="tab-schl" class="tab-content">
+    <p style="font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-soft);margin-bottom:20px;">Règles d'admissibilité SCHL — Référence rapide (mise à jour : juillet 2025)</p>
+
+    <div class="schl-grid">
+
+      <!-- MLI Market -->
+      <div class="schl-card">
+        <div class="schl-card-header"><span class="schl-badge market">MLI Market</span> &nbsp;Paramètres</div>
+        <table class="schl-table">
+          <thead><tr><th>Paramètre</th><th>Valeur</th></tr></thead>
+          <tbody>
+            <tr><td>Amortissement max.</td><td class="highlight">40 ans</td></tr>
+            <tr><td>LTV max.</td><td class="highlight">85 %</td></tr>
+            <tr><td>DSCR min. — terme ≥ 10 ans</td><td class="highlight">1,20x</td></tr>
+            <tr><td>DSCR min. — terme &lt; 10 ans</td><td class="highlight">1,30x</td></tr>
+            <tr><td>Rabais prime</td><td>Aucun</td></tr>
+            <tr><td>Unités min.</td><td>5</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- MLI Select — Paliers -->
+      <div class="schl-card">
+        <div class="schl-card-header"><span class="schl-badge select">MLI Select</span> &nbsp;Paliers de points</div>
+        <table class="schl-table">
+          <thead><tr><th>Palier</th><th>Points</th><th>Amort. max.</th><th>LTV max.</th><th>Rabais prime</th></tr></thead>
+          <tbody>
+            <tr><td>Palier 3</td><td>50–69</td><td class="highlight">40 ans</td><td>90 %</td><td class="gold-cell">–10 %</td></tr>
+            <tr><td>Palier 2</td><td>70–99</td><td class="highlight">45 ans</td><td>90 %</td><td class="gold-cell">–20 %</td></tr>
+            <tr><td>Palier 1</td><td>100+</td><td class="highlight">50 ans</td><td>95 %</td><td class="gold-cell">–30 %</td></tr>
+          </tbody>
+        </table>
+        <div class="schl-note">DSCR min. : 1,10x (Standard Locatif) · 1,20x (Other Shelter)</div>
+      </div>
+
+      <!-- MLI Select — Sources de points -->
+      <div class="schl-card">
+        <div class="schl-card-header"><span class="schl-badge select">MLI Select</span> &nbsp;Sources de points (exemples)</div>
+        <table class="schl-table">
+          <thead><tr><th>Critère</th><th>Points</th></tr></thead>
+          <tbody>
+            <tr><td>Loyers abordables (&lt; 80 % médiane du marché)</td><td>15–25 / unité</td></tr>
+            <tr><td>Certification énergie (Novoclimat, LEED)</td><td>20–30</td></tr>
+            <tr><td>Unités accessibles (mobilité réduite)</td><td>10–15 / unité</td></tr>
+            <tr><td>Rénovation écoénergétique majeure</td><td>10–20</td></tr>
+            <tr><td>Proximité transport en commun</td><td>5–10</td></tr>
+          </tbody>
+        </table>
+        <div class="schl-note">Les points sont cumulatifs. Un projet atteignant 100 pts accède au Palier 1 (amort. 50 ans, –30 % prime).</div>
+      </div>
+
+      <!-- Taux de prime — Standard Locatif -->
+      <div class="schl-card">
+        <div class="schl-card-header">Taux de prime — Standard Locatif (achat/refi)</div>
+        <table class="schl-table">
+          <thead><tr><th>LTV</th><th>Taux de base</th><th>Surcharge amort. +5 ans</th></tr></thead>
+          <tbody>
+            <tr><td>≤ 65 %</td><td>2,60 %</td><td rowspan="6" style="vertical-align:middle;font-weight:600;color:var(--accent-deep);">+0,25 % / 5 ans<br><span style="font-size:10px;font-weight:400;color:var(--ink-soft);">au-delà de 25 ans</span></td></tr>
+            <tr><td>≤ 70 %</td><td>2,85 %</td></tr>
+            <tr><td>≤ 75 %</td><td>3,35 %</td></tr>
+            <tr><td>≤ 80 %</td><td>4,35 %</td></tr>
+            <tr><td>≤ 85 %</td><td>5,35 %</td></tr>
+            <tr><td>≤ 90 %</td><td>5,90 %</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Taux de prime — Other Shelter / Construction -->
+      <div class="schl-card">
+        <div class="schl-card-header">Taux de prime — Other Shelter &amp; Construction</div>
+        <table class="schl-table">
+          <thead><tr><th>LTV</th><th>Other Shelter</th><th>Construction</th></tr></thead>
+          <tbody>
+            <tr><td>≤ 65 %</td><td>3,25 %</td><td>3,25 %</td></tr>
+            <tr><td>≤ 70 %</td><td>3,75 %</td><td>3,75 %</td></tr>
+            <tr><td>≤ 75 %</td><td>4,25 %</td><td>4,25 %</td></tr>
+            <tr><td>≤ 80 %</td><td>5,00 %</td><td>5,00 %</td></tr>
+            <tr><td>≤ 85 %</td><td>6,00 %</td><td>6,00 %</td></tr>
+            <tr><td>≤ 90 %</td><td>6,75 %</td><td>6,75 %</td></tr>
+            <tr><td>≤ 95 %</td><td>—</td><td class="gold-cell">7,00 %</td></tr>
+          </tbody>
+        </table>
+        <div class="schl-note">La surcharge d'amortissement s'applique identiquement (+0,25 % / 5 ans au-delà de 25 ans).</div>
+      </div>
+
+      <!-- Taxes provinciales sur la prime -->
+      <div class="schl-card">
+        <div class="schl-card-header">Taxe provinciale sur la prime SCHL</div>
+        <table class="schl-table">
+          <thead><tr><th>Province</th><th>Taux</th><th>Remarque</th></tr></thead>
+          <tbody>
+            <tr><td>Québec</td><td class="highlight">9,975 %</td><td>TVQ — payable à la fermeture</td></tr>
+            <tr><td>Ontario</td><td class="highlight">8 %</td><td>TVP</td></tr>
+            <tr><td>Manitoba</td><td class="highlight">8 %</td><td>RST</td></tr>
+            <tr><td>Saskatchewan</td><td class="highlight">8 %</td><td>PST</td></tr>
+            <tr><td>Autres provinces</td><td>0 %</td><td>Aucune taxe provinciale</td></tr>
+          </tbody>
+        </table>
+        <div class="schl-note">La taxe provinciale n'est PAS capitalisée dans l'hypothèque — elle est payable cash à la fermeture.</div>
+      </div>
+
+    </div><!-- /schl-grid -->
+  </div><!-- /tab-schl -->
+
+</div><!-- /page -->
+
+<script>
+// ─── Formatters ───────────────────────────────────────────────────────────────
+const fmtC = (v, d=0) => {
+  if (!isFinite(v)) return '—';
+  return new Intl.NumberFormat('fr-CA', {style:'currency',currency:'CAD',minimumFractionDigits:d,maximumFractionDigits:d}).format(v).replace('CA','').replace('\u00a0',' ');
+};
+const fmtP = (v, d=2) => isFinite(v) ? v.toFixed(d)+'%' : '—';
+const fmtX = (v, d=2) => isFinite(v) ? v.toFixed(d)+'x' : '—';
+const fmtN = (v, d=0) => isFinite(v) ? new Intl.NumberFormat('fr-CA',{minimumFractionDigits:d,maximumFractionDigits:d}).format(v) : '—';
+
+// ─── Mortgage math (Canadian semi-annual compounding) ─────────────────────────
+function monthlyRate(annualPct) { return Math.pow(1 + annualPct/2/100, 1/6) - 1; }
+function mortgageConstant(annualPct, amortYears) {
+  const r = monthlyRate(annualPct), n = amortYears*12;
+  if (r === 0) return 1/n * 12;
+  return (r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1)) * 12;
+}
+function loanBalance(principal, annualPct, amortYears, monthsPaid) {
+  const r = monthlyRate(annualPct), n = amortYears*12;
+  if (r === 0) return principal - (principal/n)*monthsPaid;
+  const pmt = principal * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  return principal * Math.pow(1+r,monthsPaid) - pmt * ((Math.pow(1+r,monthsPaid)-1)/r);
+}
+function breakPenalty(balance, contractPct, currentPct, yearsIntoTerm, termYears) {
+  const remaining = Math.max(0, termYears - yearsIntoTerm);
+  if (remaining <= 0) return 0;
+  const r = monthlyRate(contractPct);
+  const threeMonth = balance * r * 3;
+  const ird = balance * Math.max(0, (contractPct - currentPct)/100) * remaining;
+  return Math.max(threeMonth, ird);
+}
+
+// ─── CMHC tables ──────────────────────────────────────────────────────────────
+function getMaxAmort(program, pts) {
+  if (program === 'mli-market') return 40;
+  if (pts >= 100) return 50;
+  if (pts >= 70) return 45;
+  if (pts >= 50) return 40;
+  return 25;
+}
+function getProgramMaxLtv(program, pts) {
+  if (program === 'mli-market') return 85;
+  if (pts >= 100) return 95;
+  return 90;
+}
+function getMinDscr(program, buildingType, term) {
+  if (program === 'mli-select') return buildingType === 'other' ? 1.2 : 1.1;
+  return term >= 10 ? 1.2 : 1.3;
+}
+function getMliDiscount(program, pts) {
+  if (program !== 'mli-select') return 0;
+  if (pts >= 100) return 0.3;
+  if (pts >= 70) return 0.2;
+  if (pts >= 50) return 0.1;
+  return 0;
+}
+function getBasePremiumRate(ltvPct, buildingType, purpose) {
+  // Rates post July 14, 2025 — Source: CMHC MLI
+  const rates = purpose === 'construction'
+    ? [[65,.0325],[70,.0375],[75,.0425],[80,.050],[85,.060],[90,.0675],[100,.070]]
+    : buildingType === 'standard'
+    ? [[65,.026],[70,.0285],[75,.0335],[80,.0435],[85,.0535],[90,.059],[100,.0615]]
+    : [[65,.0325],[70,.0375],[75,.0425],[80,.050],[85,.060],[90,.0675],[100,.070]];
+  for (const [maxLtv, rate] of rates) if (ltvPct <= maxLtv) return rate;
+  return rates[rates.length-1][1];
+}
+function getAmortSurcharge(amort) { return Math.max(0, Math.floor((amort-25)/5)) * 0.0025; }
+function getProvTax(province) {
+  if (province === 'qc') return 0.09975;
+  if (['on','mb','sk'].includes(province)) return 0.08;
+  return 0;
+}
+
+function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, ratePct, term, amort, province, propertyValue, noi, units) {
+  const effAmort = Math.min(amort, getMaxAmort(program, mliPts));
+  const progMaxLtv = getProgramMaxLtv(program, mliPts);
+  const effLtvCap = Math.min(targetLtvPct, progMaxLtv) / 100;
+  const minDscr = getMinDscr(program, buildingType, term);
+  const mc = mortgageConstant(ratePct, effAmort);
+  const ltvMaxLoan = propertyValue * effLtvCap;
+  const dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
+  const approvedLoan = Math.min(ltvMaxLoan, Math.max(0, dscrMaxLoan));
+  const binding = dscrMaxLoan <= ltvMaxLoan ? 'DSCR' : 'LTV';
+  const effLtv = propertyValue > 0 ? approvedLoan / propertyValue : 0;
+  const baseRate = getBasePremiumRate(effLtv*100, buildingType, purpose);
+  const surcharge = getAmortSurcharge(effAmort);
+  const discount = getMliDiscount(program, mliPts);
+  const netRate = Math.max(0, (baseRate + surcharge) * (1 - discount));
+  const premium = approvedLoan * netRate;
+  const insured = approvedLoan + premium;
+  const r = monthlyRate(ratePct);
+  const n = effAmort * 12;
+  const mp = r === 0 ? insured/n : insured * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const ads = mp * 12;
+  const dscrInsured = ads > 0 ? noi / ads : 0;
+  const provTax = premium * getProvTax(province);
+  const downPayment = propertyValue - approvedLoan;
+  const appFee = Math.min(Math.max(units*150, units*100), 50000);
+  const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
+  return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort};
+}
+
+// ─── Main calculation ─────────────────────────────────────────────────────────
+let C = {};
+
+function recalc() {
+  const g = id => parseFloat(document.getElementById(id).value) || 0;
+  const gs = id => document.getElementById(id).value;
+
+  // Inputs
+  const purchasePrice = g('purchasePrice'), units = g('units'), avgSqft = g('avgSqft');
+  const rollValue = g('rollValue'), acqCostPct = g('acquisitionCostPct');
+  const currentRent = g('currentRent'), vacPct = g('vacancyRate'), otherInc = g('otherIncome'), opexPct = g('operatingExpenses');
+  const targetRent = g('targetRent'), rentGrowth = g('rentGrowth'), holding = g('holdingPeriod');
+  const optVacPct = g('optimizedVacancy'), optOpexPct = g('optimizedExpenses'), turnover = g('turnoverRate');
+  const renoCost = g('renoCost'), pctReno = g('pctReno'), cfkMonths = g('cfkMonths'), pctCfk = g('pctCfk');
+  const program = gs('cmhcProgram'), mliPts = g('mliPoints'), buildingType = gs('buildingType');
+  const purpose = gs('loanPurpose'), targetLtv = g('targetLtv'), rate = g('interestRate');
+  const term = parseFloat(gs('term')), amort = parseFloat(gs('amortization')), province = gs('province');
+  const privPct = g('privatePct'), privRate = g('privateRate'), privPeriod = g('privatePeriod');
+  const contingency = g('contingency');
+  const capDrift = g('capRateDrift'), newRate = g('newMortgageRate'), margTax = g('marginalTax'), cgTaxRate = g('cgTaxRate');
+  const commPct = g('commission'), closing = g('closingFees');
+  const refiProg = gs('refiProgram'), refiMliPts = g('refiMliPoints'), refiCapRatePct = g('refiCapRate');
+  const refiLtv = g('refiTargetLtv'), refiRate = g('refiInterestRate');
+  const refiTerm = parseFloat(gs('refiTerm')), refiAmort = parseFloat(gs('refiAmortization'));
+  const refiClosing = g('refiClosingFees');
+
+  // A: Acquisition
+  const acqCostDollar = purchasePrice * acqCostPct/100;
+  const totalAcqCost = purchasePrice + acqCostDollar;
+  const pricePerUnit = units > 0 ? purchasePrice / units : 0;
+  const premiumOverRoll = rollValue > 0 ? purchasePrice / rollValue - 1 : 0;
+
+  // B: Current NOI
+  const gri = currentRent * units * 12;
+  const egi = gri * (1 - vacPct/100) + otherInc;
+  const opex = egi * opexPct/100;
+  const noi = egi - opex;
+  const capRate = purchasePrice > 0 ? noi / purchasePrice : 0;
+  const grm = gri > 0 ? purchasePrice / gri : 0;
+
+  // D: Renovations
+  const totalReno = renoCost * units * pctReno/100;
+  const cfk = cfkMonths * currentRent * units * pctCfk/100;
+  const totalInvest = totalReno + cfk;
+  const renoPerSqft = avgSqft > 0 && units > 0 ? totalReno / (avgSqft * units) : 0;
+
+  // C: Optimized NOI
+  const projRentExit = targetRent * Math.pow(1 + rentGrowth/100, holding);
+  const optGRI = projRentExit * units * 12;
+  const optEGI = optGRI * (1 - optVacPct/100) + otherInc;
+  const optOpex = optEGI * optOpexPct/100;
+  const optNOI = optEGI - optOpex;
+  const yoc = totalAcqCost + totalInvest > 0 ? optNOI / (totalAcqCost + totalInvest) : 0;
+
+  // E: CMHC
+  const cmhc = computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, noi, units);
+
+  // F: Private financing
+  const renoEquity = totalInvest * (1 - privPct/100);
+  const privAmt = totalInvest * privPct/100;
+  const privCost = privAmt * privRate/100 * privPeriod;
+
+  // G: Reserves
+  const totalReserve = contingency * units * holding * 12;
+  const annualReserve = holding > 0 ? totalReserve / holding : 0;
+
+  // H: Total cash required
+  const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + cmhc.appFee;
+
+  // I: Sale scenario
+  const exitCap = capRate + capDrift/100 * holding;
+  const salePrice = exitCap > 0 ? optNOI / exitCap : 0;
+  const salePPU = units > 0 ? salePrice / units : 0;
+  const balanceAtExit = loanBalance(cmhc.insured, rate, cmhc.effAmort, holding*12);
+  const penalty = breakPenalty(balanceAtExit, rate, newRate, holding, term);
+  const salesComm = salePrice * commPct/100;
+
+  // Weighted revenue (turnover-adjusted, year-specific rents)
+  const tr = turnover/100;
+  let weightedRev = 0;
+  for (let y = 1; y <= holding; y++) {
+    const frac = tr > 0 ? 1 - Math.pow(1-tr, y) : 1;
+    const rentY = targetRent * Math.pow(1 + rentGrowth/100, y);
+    const noiY = (rentY * units * 12 * (1 - optVacPct/100) + otherInc) * (1 - optOpexPct/100);
+    weightedRev += noiY * frac + noi * (1-frac);
+  }
+
+  const totalDS = cmhc.ads * holding;
+  const principalRepaid = cmhc.insured - balanceAtExit;
+  const totalInterest = totalDS - principalRepaid;
+  const grossProfit = salePrice - totalAcqCost - totalInvest;
+  const cgTaxable = Math.max(0, grossProfit);
+  const cgTax = cgTaxable * cgTaxRate/100;
+  const rentalTaxable = Math.max(0, weightedRev - totalInterest);
+  const rentalTax = rentalTaxable * margTax/100;
+  const netOpProfit = weightedRev - totalDS - privCost - totalReserve;
+  const netPreTax = grossProfit + netOpProfit - penalty;
+  const netPostTax = netPreTax - cgTax - salesComm + closing - rentalTax;
+  const totalRet = totalCash > 0 ? netPostTax / totalCash : 0;
+  const annRet = holding > 0 && totalRet > -1 ? Math.pow(1+totalRet, 1/holding)-1 : 0;
+  const exitMult = totalCash > 0 ? (totalCash + netPostTax) / totalCash : 0;
+
+  // K: Refinance
+  const refiPropVal = refiCapRatePct > 0 ? optNOI / (refiCapRatePct/100) : 0;
+  const refi = computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, optNOI, units);
+  const refiBreak = breakPenalty(balanceAtExit, rate, newRate, holding, term);
+  const grossCashOut = refi.approvedLoan - balanceAtExit - refiBreak;
+  const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee;
+  const refiMult = totalCash > 0 ? netCashOut / totalCash : 0;
+
+  C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
+    gri, egi, opex, noi, capRate, grm,
+    totalReno, cfk, totalInvest, renoPerSqft,
+    projRentExit, optGRI, optEGI, optOpex, optNOI, yoc,
+    cmhc, renoEquity, privAmt, privCost,
+    totalReserve, annualReserve, totalCash,
+    exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, netPreTax, netPostTax, totalRet, annRet, exitMult,
+    refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult,
+    holding, rate, term, optVacPct, optOpexPct, otherInc };
+
+  updateDashboard();
+  updateOutputs();
+  updateCashFlow();
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+function updateDashboard() {
+  const { noi, capRate, optNOI, yoc, cmhc, totalCash, netPostTax, annRet, exitMult, netCashOut, refiMult } = C;
+  set('kv-noi', fmtC(noi));
+  set('ks-noi', 'Cap rate: ' + fmtP(capRate*100));
+  set('kv-noi-opt', fmtC(optNOI));
+  set('ks-noi-opt', 'Yield on Cost: ' + fmtP(yoc*100));
+  set('kv-loan', fmtC(cmhc.approvedLoan));
+  set('ks-loan', 'LTV ' + fmtP(cmhc.effLtv*100,1) + ' · DSCR ' + fmtX(cmhc.dscrInsured,2));
+  set('kv-cash', fmtC(totalCash));
+  set('ks-cash', 'MP mensuel: ' + fmtC(cmhc.mp));
+  set('kv-profit', fmtC(netPostTax));
+  set('ks-profit', fmtP(annRet*100,1) + '/an · ' + fmtX(exitMult));
+  set('kv-refi', fmtC(netCashOut));
+  set('ks-refi', 'Multiple cash-out: ' + fmtX(refiMult));
+}
+
+// ─── Output cards ─────────────────────────────────────────────────────────────
+function outRow(label, value, cls='') {
+  return `<div class="out-row ${cls}"><span class="out-label">${label}</span><span class="out-value">${value}</span></div>`;
+}
+function metricBox(label, value, sub='', cls='green') {
+  return `<div class="metric-box ${cls}"><div class="m-label">${label}</div><div class="m-value">${value}</div>${sub?`<div class="m-sub">${sub}</div>`:''}</div>`;
+}
+
+function updateOutputs() {
+  const { purchasePrice, units, avgSqft, rollValue, pricePerUnit, premiumOverRoll,
+    gri, egi, opex, noi, capRate, grm,
+    totalReno, cfk, totalInvest, renoPerSqft,
+    optNOI, yoc, projRentExit,
+    cmhc, renoEquity, privCost,
+    totalReserve, annualReserve, totalCash,
+    exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, rentalTax, netPreTax, netPostTax, totalRet, annRet, exitMult,
+    refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult } = C;
+
+  // Current
+  document.getElementById('out-current').innerHTML =
+    `<div class="metric-grid">
+      ${metricBox('NOI Actuel', fmtC(noi), 'Par unité: '+fmtC(units>0?noi/units:0), 'green')}
+      ${metricBox('Cap Rate', fmtP(capRate*100), 'à l\'achat', 'blue')}
+    </div>` +
+    outRow('Revenu brut potentiel (PGI)', fmtC(gri)) +
+    outRow('Revenus effectifs bruts (EGI)', fmtC(egi)) +
+    outRow('Dépenses d\'exploitation', '-'+fmtC(opex), 'neg') +
+    outRow('NOI', fmtC(noi), 'key-row') +
+    outRow('GRM', fmtN(grm,1)) +
+    outRow('Prix / unité', fmtC(pricePerUnit)) +
+    outRow('Prime sur évaluation', fmtP(premiumOverRoll*100)) +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Optimisé (post-réno)</div>` +
+    outRow('Loyer projeté à la sortie / unité', fmtC(projRentExit)) +
+    outRow('NOI Optimisé', fmtC(optNOI), 'key-row pos') +
+    outRow('Yield on Cost', fmtP(yoc*100), 'key-row pos') +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Rénovations</div>` +
+    outRow('Coût rénovations total', fmtC(totalReno)) +
+    outRow('Cash for Keys total', fmtC(cfk)) +
+    outRow('Investissement total', fmtC(totalInvest), 'key-row');
+
+  // Acquisition / CMHC
+  const c = cmhc;
+  document.getElementById('out-acquisition').innerHTML =
+    `<div class="mb-2"><span class="inline-badge">${c.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+    outRow('Plafond LTV (prêt max)', fmtC(c.ltvMaxLoan)) +
+    outRow('Plafond DSCR (prêt max)', fmtC(c.dscrMaxLoan)) +
+    outRow('Prêt approuvé', fmtC(c.approvedLoan), 'key-row') +
+    outRow('LTV effectif', fmtP(c.effLtv*100)) +
+    outRow('DSCR (prêt de base)', fmtX(c.dscrBase)) +
+    outRow('DSCR (hypo assurée)', fmtX(c.dscrInsured)) +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Prime SCHL</div>` +
+    outRow('Taux de base', fmtP(c.baseRate*100)) +
+    (c.surcharge > 0 ? outRow('Surcharge amortissement', '+'+fmtP(c.surcharge*100)) : '') +
+    (c.discount > 0 ? outRow('Rabais MLI Select', '-'+fmtP(c.discount*100)) : '') +
+    outRow('Taux net', fmtP(c.netRate*100)) +
+    outRow('Prime SCHL nette', fmtC(c.premium), 'key-row') +
+    outRow('Hypothèque assurée', fmtC(c.insured)) +
+    outRow('Paiement mensuel', fmtC(c.mp)) +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Cash requis à la fermeture</div>` +
+    outRow('Mise de fonds', fmtC(c.downPayment)) +
+    outRow('Mise de fonds rénovations', fmtC(renoEquity)) +
+    outRow('Frais d\'acquisition', fmtC(C.acqCostDollar)) +
+    outRow('TVQ sur prime SCHL', fmtC(c.provTax)) +
+    outRow('Frais de demande SCHL', fmtC(c.appFee)) +
+    outRow('TOTAL CASH REQUIS', fmtC(totalCash), 'key-row') +
+    `<div class="metric-grid">
+      ${metricBox('Cash Requis', fmtC(totalCash), '', 'amber')}
+      ${metricBox('Yield on Cost', fmtP(yoc*100), '', 'blue')}
+    </div>`;
+
+  // Sale
+  document.getElementById('out-sale').innerHTML =
+    outRow('Cap rate de sortie', fmtP(exitCap*100)) +
+    outRow('Prix de vente estimé', fmtC(salePrice), 'key-row pos') +
+    outRow('Prix / unité', fmtC(salePPU)) +
+    outRow('Balance hypothécaire à la sortie', '-'+fmtC(balanceAtExit), 'neg') +
+    outRow('Pénalité de bris', '-'+fmtC(penalty), 'neg') +
+    outRow('Commission de vente', '-'+fmtC(salesComm), 'neg') +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Revenus d'exploitation (période de détention)</div>` +
+    outRow('Revenus pondérés (roulement ajusté)', fmtC(weightedRev)) +
+    outRow('Service de la dette total', '-'+fmtC(totalDS), 'neg') +
+    outRow('Financement privé', '-'+fmtC(C.privCost), 'neg') +
+    outRow('Réserves totales', '-'+fmtC(C.totalReserve), 'neg') +
+    '<div class="divider"></div>' +
+    outRow('Gain en capital brut', fmtC(grossProfit)) +
+    outRow('Impôt sur gain en capital ('+fmtP(C.cgTaxRate,1)+')', '-'+fmtC(cgTax), 'neg') +
+    outRow('Impôt sur revenu locatif', '-'+fmtC(rentalTax), 'neg') +
+    outRow('PROFIT NET AVANT IMPÔT', fmtC(netPreTax), 'key-row') +
+    outRow('PROFIT NET APRÈS IMPÔT', fmtC(netPostTax), netPostTax >= 0 ? 'key-row pos' : 'key-row neg') +
+    `<div class="metric-grid">
+      ${metricBox('Rendement net', fmtP(totalRet*100,1), 'sur mise de fonds', 'green')}
+      ${metricBox('Rendement annualisé', fmtP(annRet*100,1), '', 'green')}
+      ${metricBox('Multiple de sortie', fmtX(exitMult), '', 'blue')}
+    </div>`;
+
+  // Refi
+  const r = refi;
+  document.getElementById('out-refi').innerHTML =
+    `<div class="mb-2"><span class="inline-badge">${r.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+    outRow('Valeur estimée au refi', fmtC(refiPropVal)) +
+    outRow('NOI au refinancement', fmtC(optNOI)) +
+    outRow('Plafond LTV', fmtC(r.ltvMaxLoan)) +
+    outRow('Plafond DSCR', fmtC(r.dscrMaxLoan)) +
+    outRow('Prêt refi approuvé', fmtC(r.approvedLoan), 'key-row') +
+    outRow('LTV effectif', fmtP(r.effLtv*100)) +
+    outRow('DSCR sur hypo assurée', fmtX(r.dscrInsured)) +
+    outRow('Paiement mensuel (refi)', fmtC(r.mp)) +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Prime SCHL (refi)</div>` +
+    outRow('Prime SCHL nette', fmtC(r.premium)) +
+    outRow('TVQ sur prime', '-'+fmtC(r.provTax), 'neg') +
+    outRow('Frais de demande SCHL', '-'+fmtC(r.appFee), 'neg') +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Sortie de fonds nette</div>` +
+    outRow('Balance hypothécaire courante', '-'+fmtC(C.balanceAtExit), 'neg') +
+    outRow('Pénalité de bris', '-'+fmtC(refiBreak), 'neg') +
+    outRow('Sortie de fonds brute', fmtC(grossCashOut)) +
+    outRow('SORTIE DE FONDS NETTE', fmtC(netCashOut), netCashOut >= 0 ? 'key-row pos' : 'key-row neg') +
+    `<div class="metric-grid">
+      ${metricBox('Prise de fonds nette', fmtC(netCashOut), '', netCashOut >= 0 ? 'green' : 'amber')}
+      ${metricBox('Multiple cash-out / mise', fmtX(refiMult), '', 'blue')}
+    </div>`;
+}
+
+// ─── Cash flow table ──────────────────────────────────────────────────────────
+function updateCashFlow() {
+  const { noi, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc, totalCash } = C;
+  const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
+  const targetRent = parseFloat(document.getElementById('targetRent').value) || 0;
+  const rentGrowth = (parseFloat(document.getElementById('rentGrowth').value) || 0) / 100;
+  const units = parseFloat(document.getElementById('units').value) || 0;
+  const effAmort = cmhc.effAmort;
+  const holdingInt = Math.min(Math.round(holding), 30);
+
+  document.getElementById('cf-title').textContent = `Projections — Flux de Trésorerie (${holdingInt} ans)`;
+
+  let cumCF = 0;
+  let html = '';
+  for (let y = 1; y <= holdingInt; y++) {
+    const frac = turnover > 0 ? 1 - Math.pow(1-turnover, y) : 1;
+    const rentY = targetRent * Math.pow(1 + rentGrowth, y);
+    const noiY = (rentY * units * 12 * (1 - optVacPct/100) + otherInc) * (1 - optOpexPct/100);
+    const blendedNOI = noiY * frac + noi * (1-frac);
+    const blendedEGI = blendedNOI / (1 - optOpexPct/100);
+    const ds = cmhc.ads;
+    const cf = blendedNOI - ds - annualReserve;
+    cumCF += cf;
+    const coc = totalCash > 0 ? cf / totalCash : 0;
+    const bal = loanBalance(cmhc.insured, rate, effAmort, y*12);
+    const cfCls = cf >= 0 ? 'pos-cf' : 'neg-cf';
+    const cumCls = cumCF >= 0 ? 'pos-cf' : 'neg-cf';
+    const cocCls = coc >= 0 ? 'pos-cf' : 'neg-cf';
+    html += `<tr>
+      <td style="padding-left:18px;">${y}</td>
+      <td>${fmtC(blendedEGI)}</td>
+      <td>${fmtC(blendedNOI)}</td>
+      <td class="neg-cf">-${fmtC(ds)}</td>
+      <td class="neg-cf">-${fmtC(annualReserve)}</td>
+      <td class="${cfCls}">${fmtC(cf)}</td>
+      <td class="${cocCls}">${fmtP(coc*100,1)}</td>
+      <td class="${cumCls}">${fmtC(cumCF)}</td>
+      <td>${fmtC(bal)}</td>
+    </tr>`;
+  }
+  document.getElementById('cf-body').innerHTML = html;
+}
+
+// ─── UI helpers ───────────────────────────────────────────────────────────────
+function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function toggleSection(header) {
+  header.classList.toggle('open');
+  header.nextElementSibling.classList.toggle('open');
+}
+
+function toggleHelp(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+  header.querySelector('span').textContent = body.classList.contains('open') ? '▲' : '▼';
+}
+
+function toggleMliPoints() {
+  const show = document.getElementById('cmhcProgram').value === 'mli-select';
+  document.getElementById('mli-points-row').style.display = show ? '' : 'none';
+}
+function toggleRefiMliPoints() {
+  const show = document.getElementById('refiProgram').value === 'mli-select';
+  document.getElementById('refi-mli-points-row').style.display = show ? '' : 'none';
+}
+
+function resetAll() {
+  if (!confirm('Réinitialiser tous les paramètres aux valeurs par défaut ?')) return;
+  const defaults = {
+    purchasePrice:1175000, units:6, avgSqft:1000, rollValue:969400, acquisitionCostPct:2.5,
+    currentRent:1000, vacancyRate:5, otherIncome:0, operatingExpenses:30,
+    targetRent:1450, rentGrowth:2, holdingPeriod:5, optimizedVacancy:5, optimizedExpenses:30, turnoverRate:17.5,
+    renoCost:20000, pctReno:50, cfkMonths:0, pctCfk:20,
+    mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
+    capRateDrift:0.5, newMortgageRate:4.25, marginalTax:26.5, cgTaxRate:33, commission:2, closingFees:-1500,
+    refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:-3000,
+    privatePct:100, privateRate:14, privatePeriod:2.5,
+  };
+  for (const [id, val] of Object.entries(defaults)) {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  }
+  document.getElementById('cmhcProgram').value = 'mli-market';
+  document.getElementById('refiProgram').value = 'mli-market';
+  document.getElementById('buildingType').value = 'standard';
+  document.getElementById('loanPurpose').value = 'purchase';
+  document.getElementById('term').value = '5';
+  document.getElementById('amortization').value = '40';
+  document.getElementById('province').value = 'qc';
+  document.getElementById('refiTerm').value = '5';
+  document.getElementById('refiAmortization').value = '40';
+  document.getElementById('unitType').value = '6 x 4½';
+  toggleMliPoints();
+  toggleRefiMliPoints();
+  recalc();
+}
+
+// Init
+recalc();
+</script>
+
+<footer>
+  <div class="footer-inner">
+    <div class="logo">
+      <span class="logo-mark"><svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="8" width="16" height="18" rx="3" fill="var(--accent)" opacity="0.4"/><rect x="2" y="4" width="16" height="22" rx="3" fill="var(--accent)"/></svg></span>
+      <span>Plex Québec</span>
+    </div>
+    <div>© 2026 — Montréal, Québec. Tous droits réservés.</div>
+  </div>
+</footer>
+</body>
+</html>
