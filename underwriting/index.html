@@ -529,7 +529,7 @@ footer .logo { color: var(--paper); }
           <div class="section-body open">
             <div class="field-row">
               <span class="field-label">Prix d'achat <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Base de tous les calculs de rendement.</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="purchasePrice" value="1175000" step="5000" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="purchasePrice" value="1175000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Nombre d'unités</span>
@@ -545,7 +545,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Valeur au rôle <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Évaluation municipale. Un ratio prix/rôle &gt; 1.3 peut signaler un prix élevé.</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="rollValue" value="969400" step="5000" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="rollValue" value="969400" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Frais d'acquisition <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Notaire, inspection, due diligence. Typiquement 1.5–3% du prix d'achat.</span></span></span>
@@ -573,7 +573,7 @@ footer .logo { color: var(--paper); }
           <div class="section-body open">
             <div class="field-row">
               <span class="field-label">Loyer mensuel / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loyer moyen actuel par unité.</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="currentRent" value="1000" step="25" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="currentRent" value="1000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taux d'inoccupation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">3% = marché serré, 5% = équilibré, 7%+ = surplus.</span></span></span>
@@ -581,7 +581,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Autres revenus (annuel)</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="otherIncome" value="0" step="100" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="otherIncome" value="0" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Dépenses d'exploitation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">30–35% = bien entretenu 6+, 35–40% = moyen, 40–45% = vieux/petit. Exclut le service de la dette.</span></span></span>
@@ -599,7 +599,7 @@ footer .logo { color: var(--paper); }
           <div class="section-body open">
             <div class="field-row">
               <span class="field-label">Loyer cible / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Valider avec des comparables du marché.</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="targetRent" value="1450" step="25" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="targetRent" value="1450" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Croissance annuelle des loyers <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Historique QC: 2–3%/an. Soyez conservateur.</span></span></span>
@@ -633,7 +633,7 @@ footer .logo { color: var(--paper); }
           <div class="section-body open">
             <div class="field-row">
               <span class="field-label">Coût réno / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Léger: 15–25K$, Modéré (cuisine/SDB): 25–40K$, Lourd: 40–60K$+</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="renoCost" value="20000" step="1000" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="renoCost" value="20000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">% unités à rénover</span>
@@ -732,7 +732,7 @@ footer .logo { color: var(--paper); }
           <div class="section-body">
             <div class="field-row">
               <span class="field-label">Provision / unité / mois <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Recommandé: 50–100$ / logement / mois selon l'âge et l'état de l'immeuble.</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="contingency" value="50" step="10" min="0" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="contingency" value="50" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
           </div>
         </div>
@@ -766,7 +766,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Frais de fermeture (vente)</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="closingFees" value="-1500" step="100" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="closingFees" value="-1500" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
           </div>
         </div>
@@ -808,7 +808,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Frais de fermeture (refi)</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="number" id="refiClosingFees" value="-3000" step="100" onchange="recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="refiClosingFees" value="-3000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
           </div>
         </div>
@@ -848,6 +848,7 @@ footer .logo { color: var(--paper); }
     <div class="output-card">
       <div class="output-header"><h3 id="cf-title">Projections — Flux de Trésorerie</h3></div>
       <div class="output-body" style="overflow-x:auto;padding:0;">
+        <div class="sub-label" style="padding:10px 18px 4px;">Totaux annuels</div>
         <table class="cf-table" id="cf-table">
           <thead>
             <tr>
@@ -858,11 +859,27 @@ footer .logo { color: var(--paper); }
               <th>Réserves</th>
               <th>Flux brut</th>
               <th>Cash-on-Cash</th>
+              <th>DSCR</th>
               <th>Cumulatif</th>
               <th>Balance hypo.</th>
             </tr>
           </thead>
           <tbody id="cf-body"></tbody>
+        </table>
+        <div class="sub-label" style="padding:16px 18px 4px;">Par unité — par mois</div>
+        <table class="cf-table" id="cf-table-unit">
+          <thead>
+            <tr>
+              <th style="text-align:left;padding-left:18px;">Année</th>
+              <th>% unités optim.</th>
+              <th>Loyer moy. /u/mois</th>
+              <th>NOI /u/mois</th>
+              <th>Flux /u/mois</th>
+              <th>DSCR</th>
+              <th>Rend. dette</th>
+            </tr>
+          </thead>
+          <tbody id="cf-body-unit"></tbody>
         </table>
       </div>
     </div>
@@ -871,106 +888,185 @@ footer .logo { color: var(--paper); }
   <!-- ── Tab: Guide ─────────────────────────────────────────────────── -->
   <div id="tab-help" class="tab-content">
     <div style="max-width:760px;">
-      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-soft);margin-bottom:20px;">Notes, hypothèses &amp; guide d'utilisation</p>
+      <p style="font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink-soft);margin-bottom:20px;">Comment fonctionne le modèle — entrées &amp; calculs</p>
 
       <div class="help-section">
         <div class="help-header" onclick="toggleHelp(this)">
-          <h4>Benchmarks — Dépenses &amp; Loyers</h4>
+          <h4>Vue d'ensemble du modèle</h4>
           <span style="color:var(--ink-soft);font-size:12px;">▼</span>
         </div>
         <div class="help-body">
-          <p><strong>Dépenses d'exploitation (% du EGI)</strong></p>
-          <ul><li>30–35% : Immeuble bien entretenu, 6+ logements, propriétaire actif</li><li>35–40% : Immeuble moyen, déferred maintenance</li><li>40–45% : Immeuble plus vieux, petite taille</li></ul>
-          <p style="margin-top:10px;"><strong>Rénovations (coût par unité)</strong></p>
-          <ul><li>Cosmétique léger (peinture, planchers) : 15 000–25 000 $</li><li>Modéré (cuisine, salle de bain) : 25 000–40 000 $</li><li>Lourd (plomberie, électrique, fenêtres) : 40 000–60 000 $+</li></ul>
-          <p style="margin-top:10px;"><strong>Taux d'inoccupation</strong></p>
-          <ul><li>3% = marché serré</li><li>5% = marché équilibré</li><li>7%+ = marché en surplus ou immeuble problématique</li></ul>
-        </div>
-      </div>
-
-      <div class="help-section">
-        <div class="help-header" onclick="toggleHelp(this)">
-          <h4>Cash for Keys — Guide TAL</h4>
-          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
-        </div>
-        <div class="help-body">
-          <p>Le cash for keys est une entente volontaire. Pratiques courantes :</p>
-          <ul><li><strong>3–6 mois</strong> : locataire récent, déménagement facile</li><li><strong>6–12 mois</strong> : locataire de longue date (5+ ans)</li><li><strong>12–24 mois</strong> : personnes âgées, longue durée</li><li><strong>24 mois+</strong> : cas exceptionnels</li></ul>
-          <p class="tip-arrow" style="margin-top:8px;">→ Documentez toujours l'entente par écrit avec quittance au TAL.</p>
-        </div>
-      </div>
-
-      <div class="help-section">
-        <div class="help-header" onclick="toggleHelp(this)">
-          <h4>Double Plafond SCHL — Comment l'interpréter</h4>
-          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
-        </div>
-        <div class="help-body">
-          <p>Le prêt SCHL = <strong>MIN(plafond LTV, plafond DSCR)</strong></p>
-          <p><strong>Contraint par LTV</strong> : l'actif ne justifie pas plus de dette. Négociez le prix ou augmentez la mise de fonds.</p>
-          <p><strong>Contraint par DSCR</strong> : les revenus ne supportent pas plus de dette. Haussez les loyers, réduisez les dépenses, allongez l'amortissement, ou choisissez MLI Select.</p>
-          <p style="margin-top:8px;"><strong>DSCR cibles (MLI Market)</strong> : 5–6 unités achat ≥ 1.10x · 5–6 unités refi ≥ 1.20x · 7+ unités terme ≥10 ans : 1.20x · 7+ unités terme &lt;10 ans : 1.30x. MLI Select : toujours ≥ 1.10x. Visez 1.20x+ pour une marge de sécurité.</p>
-        </div>
-      </div>
-
-      <div class="help-section">
-        <div class="help-header" onclick="toggleHelp(this)">
-          <h4>5 Pièges du Modèle</h4>
-          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
-        </div>
-        <div class="help-body">
+          <p>Le modèle prend une propriété multifamiliale et produit deux scénarios de sortie — vente et refinancement — à la fin d'une période de détention choisie.</p>
+          <p style="margin-top:8px;"><strong>Pipeline de calcul (sections A–K) :</strong></p>
           <ol style="padding-left:16px;line-height:2;">
-            <li><strong>Service de dette sur l'hypothèque assurée</strong> : la prime SCHL est capitalisée. DSCR et paiements sont sur le total (prêt + prime).</li>
-            <li><strong>Balance = balance hypothèque assurée</strong> : utilisez toujours le montant total dans les calculs de remboursement.</li>
-            <li><strong>Pénalité de bris</strong> = MAX(3 mois d'intérêt, IRD sur solde restant × durée restante du terme).</li>
-            <li><strong>DSCR de base ≠ DSCR sur hypo assurée</strong> : la banque regarde le DSCR sur l'hypothèque assurée totale.</li>
-            <li><strong>Prime au refinancement</strong> : vous payez une NOUVELLE prime SCHL. Elle érode significativement la prise de fonds nette.</li>
+            <li><strong>A · B</strong> — Propriété, acquisition et NOI actuel (revenus en place)</li>
+            <li><strong>C · D</strong> — Revenus optimisés post-réno, rénovations et yield on cost</li>
+            <li><strong>E</strong> — Financement SCHL : double plafond LTV / DSCR, prime capitalisée</li>
+            <li><strong>F · G</strong> — Financement privé des rénovations, réserves et cash total requis</li>
+            <li><strong>H</strong> — Scénario de vente : prix de sortie, pénalité, impôts, rendement</li>
+            <li><strong>K</strong> — Scénario de refinancement : nouvelle évaluation, prise de fonds nette</li>
           </ol>
+          <p style="margin-top:8px;">La transition entre les revenus actuels et optimisés est <strong>graduelle</strong> : le taux de roulement annuel détermine quelle fraction des unités est convertie aux loyers cibles chaque année. Le NOI de sortie — utilisé dans les deux scénarios — est un mélange pondéré entre le NOI actuel et le NOI optimisé.</p>
         </div>
       </div>
 
       <div class="help-section">
         <div class="help-header" onclick="toggleHelp(this)">
-          <h4>6 Tests de Stress Avant d'Acheter</h4>
+          <h4>A · B — Propriété, acquisition &amp; NOI actuel</h4>
           <span style="color:var(--ink-soft);font-size:12px;">▼</span>
         </div>
         <div class="help-body">
-          <ol style="padding-left:16px;line-height:2;">
-            <li><strong>Taux +1%</strong> : Le DSCR tient-il toujours ?</li>
-            <li><strong>Loyers cibles –10%</strong> : Le yield on cost reste-t-il acceptable ?</li>
-            <li><strong>Vacance 10%</strong> : Le flux de trésorerie est-il positif ?</li>
-            <li><strong>Rénovations +25%</strong> : Impact sur la mise de fonds totale ?</li>
-            <li><strong>Holding forcé 7 ans</strong> : Le cashflow est-il soutenable ?</li>
-            <li><strong>Cap rate +50 bps à la sortie</strong> : Le retour reste-t-il positif ?</li>
-          </ol>
-          <p class="tip-arrow" style="margin-top:8px;">→ Si l'un de ces scénarios rend le deal inacceptable, renégociez le prix ou passez.</p>
+          <p><strong>Entrées A — Propriété :</strong> prix d'achat, nombre d'unités, pi² moyen/unité, type d'unité, valeur au rôle municipal, frais d'acquisition (%).</p>
+          <p style="margin-top:6px;"><strong>Entrées B — Revenus actuels :</strong> loyer mensuel/unité, taux d'inoccupation (%), autres revenus annuels, dépenses d'exploitation (% du EGI). Les dépenses excluent le service de la dette.</p>
+          <p style="margin-top:10px;"><strong>Formules :</strong></p>
+          <ul style="line-height:2;">
+            <li>Frais d'acq. = Prix × frais% &nbsp;·&nbsp; Coût acq. total = Prix + Frais d'acq.</li>
+            <li>Prime/rôle = Prix / Valeur au rôle − 1</li>
+            <li><strong>GRI</strong> = Loyer × Unités × 12</li>
+            <li><strong>EGI</strong> = GRI × (1 − inoccupation%) + Autres revenus</li>
+            <li>Dépenses = EGI × opex%</li>
+            <li><strong>NOI</strong> = EGI − Dépenses</li>
+            <li><strong>Cap rate</strong> = NOI / Prix d'achat</li>
+            <li><strong>GRM</strong> = Prix d'achat / GRI</li>
+          </ul>
         </div>
       </div>
 
       <div class="help-section">
         <div class="help-header" onclick="toggleHelp(this)">
-          <h4>Vente vs Refinancement — Cadre de Décision</h4>
+          <h4>C · D — Revenus optimisés, rénovations &amp; yield on cost</h4>
           <span style="color:var(--ink-soft);font-size:12px;">▼</span>
         </div>
         <div class="help-body">
-          <p><strong>Préférez la VENTE si :</strong></p>
-          <ul><li>Marché au sommet (cap rates bas)</li><li>Besoin de liquidités pour un autre projet</li><li>Loyers déjà optimisés</li><li>Holding = terme hypothécaire (pénalité = 0)</li></ul>
-          <p style="margin-top:8px;"><strong>Préférez le REFINANCEMENT si :</strong></p>
-          <ul><li>Vous voulez garder l'immeuble pour le revenu passif</li><li>Prise de fonds nette significative (&gt; 50% de la mise initiale)</li><li>Capital réinvesti dans un nouvel actif</li><li>Flux de trésorerie positif après nouveau service de dette</li></ul>
-          <p class="tip-arrow" style="margin-top:8px;">→ Règle empirique : Refi &gt; Vente si multiple cash-out &gt; 0.5x ET flux post-refi &gt; 0</p>
+          <p><strong>Entrées C — Revenus optimisés :</strong> loyer cible/unité, croissance annuelle des loyers (%), période de détention (ans), inoccupation optimisée (%), dépenses optimisées (%), taux de roulement annuel (%).</p>
+          <p style="margin-top:6px;"><strong>Entrées D — Rénovations :</strong> coût de réno/unité, % d'unités à rénover, mois de cash for keys, % d'unités visées par le CFK.</p>
+          <p style="margin-top:10px;"><strong>Formules :</strong></p>
+          <ul style="line-height:2;">
+            <li>Loyer projeté à la sortie = Loyer cible × (1 + croissance)^détention</li>
+            <li>NOI optimisé = [Loyer projeté × Unités × 12 × (1 − inoccupation opt) + Autres revenus] × (1 − dépenses opt%)</li>
+            <li>Rénovations totales = Coût/unité × Unités × % rénover</li>
+            <li>Cash for keys = Mois × Loyer actuel × Unités × % CFK</li>
+            <li>Investissement total = Rénovations + CFK &nbsp;·&nbsp; Réno/pi² = Rénovations / (pi² × unités)</li>
+            <li><strong>Yield on cost</strong> = NOI optimisé / (Coût acq. total + Investissement total)</li>
+          </ul>
+          <p style="margin-top:8px;"><strong>Roulement :</strong> à l'année y, la fraction d'unités converties aux loyers cibles = 1 − (1 − roulement)<sup>y</sup>. Le NOI blendé de l'année = NOI opt × fraction + NOI actuel × (1 − fraction), le NOI actuel étant lui-même indexé annuellement par la croissance.</p>
         </div>
       </div>
 
       <div class="help-section">
         <div class="help-header" onclick="toggleHelp(this)">
-          <h4>MLI Select — Guide des Points</h4>
+          <h4>E — Financement SCHL — double plafond</h4>
           <span style="color:var(--ink-soft);font-size:12px;">▼</span>
         </div>
         <div class="help-body">
-          <p><strong>Paliers</strong></p>
-          <ul><li>50–69 pts (Palier 3) : amort 40 ans, rabais prime 10%</li><li>70–99 pts (Palier 2) : amort 45 ans, rabais prime 20%</li><li>100+ pts (Palier 1) : amort 50 ans, rabais prime 30%</li></ul>
-          <p style="margin-top:8px;"><strong>Sources de points (exemples)</strong></p>
-          <ul><li>Loyers abordables (&lt; 80% médiane du marché) : 15–25 pts/unité</li><li>Certifications énergie (Novoclimat, LEED) : 20–30 pts</li><li>Unités accessibles (mobilité réduite) : 10–15 pts/unité</li></ul>
+          <p><strong>Entrées :</strong> programme (MLI Market / MLI Select), points MLI Select, type de bâtiment, but du prêt, LTV cible (%), taux d'intérêt (%), terme, amortissement, province.</p>
+          <p style="margin-top:10px;"><strong>Double plafond — le prêt approuvé est le minimum des deux :</strong></p>
+          <ul style="line-height:2;">
+            <li>Plafond LTV = Valeur × MIN(LTV cible, LTV max programme)</li>
+            <li>Plafond DSCR = NOI / (DSCR min × constante hypothécaire)</li>
+            <li><strong>Prêt approuvé = MIN(Plafond LTV, Plafond DSCR)</strong></li>
+          </ul>
+          <p style="margin-top:8px;"><strong>Prime SCHL capitalisée :</strong></p>
+          <ul style="line-height:2;">
+            <li>Taux net = (taux de base + surcharge amort.) × (1 − rabais MLI Select)</li>
+            <li>Prime = Prêt approuvé × taux net</li>
+            <li><strong>Hypothèque assurée = Prêt approuvé + Prime</strong></li>
+            <li>Tous les paiements mensuels et DSCR sont calculés sur l'hypothèque assurée</li>
+          </ul>
+          <p style="margin-top:8px;"><strong>Composition semi-annuelle (Canada) :</strong> Taux mensuel = (1 + taux annuel / 2)<sup>1/6</sup> − 1</p>
+          <p style="margin-top:8px;"><strong>DSCR min :</strong> MLI Market 1,30× (terme &lt; 10 ans) · 1,20× (terme ≥ 10 ans) · MLI Select 1,10× (Standard Locatif) · 1,20× (Other Shelter)</p>
+          <p style="margin-top:8px;"><strong>Taxe provinciale</strong> sur la prime (ex. QC : 9,975 %) — payable comptant à la fermeture, non capitalisée. <strong>Frais de dossier</strong> = 100–150 $/unité (max 50 000 $). Voir l'onglet <em>SCHL</em> pour les tables de taux et les paliers MLI Select.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>F · G — Financement privé, réserves &amp; cash total requis</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Entrées F — Financement privé :</strong> % des rénovations financées par prêt privé, taux annuel (%), durée (ans). La portion non financée (1 − %) est l'équité réno apportée comptant.</p>
+          <p style="margin-top:6px;"><strong>Entrée G — Réserves :</strong> provision mensuelle par unité ($) sur toute la période de détention.</p>
+          <p style="margin-top:10px;"><strong>Formules :</strong></p>
+          <ul style="line-height:2;">
+            <li>Équité réno = Investissement total × (1 − % privé)</li>
+            <li>Coût financement privé = Montant privé × taux × durée</li>
+            <li>Réserves totales = Provision × Unités × Détention × 12</li>
+            <li>Réserves annuelles = Réserves totales / Détention</li>
+          </ul>
+          <p style="margin-top:8px;"><strong>Cash total requis (H) :</strong></p>
+          <ul style="line-height:1.8;">
+            <li>Mise de fonds SCHL (= Valeur − Prêt approuvé)</li>
+            <li>+ Équité réno (portion non financée des rénovations)</li>
+            <li>+ Frais d'acquisition ($)</li>
+            <li>+ Taxe provinciale sur la prime SCHL</li>
+            <li>+ Frais de dossier SCHL</li>
+          </ul>
+          <p style="margin-top:6px;">Note : le financement privé n'est pas inclus dans le cash total — c'est un prêt, pas un apport en capital.</p>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>H — Scénario de vente</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Entrées :</strong> dérive du cap rate (%/an), taux hypothécaire courant (pour pénalité IRD), taux marginal revenu locatif (%), taux effectif gain en capital (%), commission de vente (%), frais de fermeture ($).</p>
+          <p style="margin-top:10px;"><strong>NOI de sortie (turnover-phased) :</strong></p>
+          <ul style="line-height:2;">
+            <li>Fraction optimisée = 1 − (1 − roulement)<sup>détention</sup></li>
+            <li>NOI sortie = NOI opt × fraction + NOI actuel × (1 − fraction)</li>
+          </ul>
+          <p style="margin-top:8px;"><strong>Prix de vente :</strong></p>
+          <ul style="line-height:2;">
+            <li>Cap rate de sortie = Cap rate actuel + dérive × détention</li>
+            <li>Prix de vente = NOI sortie / Cap rate de sortie</li>
+          </ul>
+          <p style="margin-top:8px;"><strong>Pénalité de bris</strong> = MAX(3 mois d'intérêts sur solde, IRD) où IRD = Solde × MAX(0, taux contrat − taux courant) × années restantes du terme.</p>
+          <p style="margin-top:8px;"><strong>Rendement :</strong></p>
+          <ul style="line-height:2;">
+            <li>Profit brut = Prix − Coût acq. total − Investissement total</li>
+            <li>Revenus pondérés = Σ NOI blendés annuels sur toute la période</li>
+            <li>Profit op. net = Revenus pondérés − Service dette total − Coût privé − Réserves totales</li>
+            <li>Net avant impôt = Profit brut + Profit op. net − Pénalité</li>
+            <li>Impôt GC = Profit brut × taux effectif GC &nbsp;·&nbsp; Impôt locatif = MAX(0, Revenus − Intérêts) × taux marginal</li>
+            <li>Net après impôt = Net avant impôt − Impôt GC − Commission + Frais fermeture − Impôt locatif</li>
+            <li><strong>Rendement total</strong> = Net après impôt / Cash total</li>
+            <li><strong>Rendement annualisé</strong> = (1 + rendement total)<sup>1/détention</sup> − 1</li>
+            <li><strong>Multiple</strong> = (Cash total + Net après impôt) / Cash total</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>K — Refinancement &amp; glossaire des indicateurs</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Entrées :</strong> programme SCHL (refi), points MLI Select, cap rate au refi (%), LTV cible (%), taux d'intérêt (%), terme, amortissement, frais de fermeture ($).</p>
+          <p style="margin-top:6px;">Le refinancement utilise le même NOI de sortie (turnover-phased) que le scénario de vente.</p>
+          <p style="margin-top:10px;"><strong>Formules :</strong></p>
+          <ul style="line-height:2;">
+            <li>Valeur estimée = NOI sortie / Cap rate refi</li>
+            <li>Nouveau prêt SCHL = MIN(Plafond LTV, Plafond DSCR) sur valeur estimée — même double plafond qu'en E</li>
+            <li>Prise de fonds brute = Nouveau prêt − Solde hypothécaire − Pénalité de bris</li>
+            <li>Prise de fonds nette = Brute + Frais fermeture − Taxe prov. − Frais de dossier</li>
+            <li><strong>Multiple cash-out</strong> = Prise de fonds nette / Cash total initial</li>
+          </ul>
+          <p style="margin-top:10px;"><strong>Glossaire des indicateurs (onglets Analyse &amp; Flux) :</strong></p>
+          <ul style="line-height:2;">
+            <li><strong>Cap rate</strong> = NOI / Prix — rendement opérationnel avant financement</li>
+            <li><strong>GRM</strong> = Prix / GRI — années de revenus bruts équivalant au prix</li>
+            <li><strong>Yield on cost</strong> = NOI opt / (Coût acq. + Investissement) — rendement sur capital total déployé</li>
+            <li><strong>DSCR de base</strong> = NOI / (Prêt approuvé × constante hyp.) — sans prime capitalisée</li>
+            <li><strong>DSCR assuré</strong> = NOI / Service de dette annuel (hypo. assurée) — indicateur officiel SCHL</li>
+            <li><strong>Cash-on-cash</strong> = Flux annuel / Cash total — rendement annuel sur la mise de fonds</li>
+            <li><strong>Rendement de la dette</strong> = NOI / Solde hypothécaire — rendement de l'actif du point de vue du prêteur</li>
+            <li><strong>Rendement annualisé</strong> = (1 + rendement total)<sup>1/n</sup> − 1 — approximation du TRI</li>
+            <li><strong>Multiple</strong> = Valeur finale / Capital investi</li>
+          </ul>
         </div>
       </div>
 
@@ -1196,7 +1292,7 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
 let C = {};
 
 function recalc() {
-  const g = id => parseFloat(document.getElementById(id).value) || 0;
+  const g = id => parseFloat(String(document.getElementById(id).value).replace(/[^\d.-]/g, '')) || 0;
   const gs = id => document.getElementById(id).value;
 
   // Inputs
@@ -1261,22 +1357,25 @@ function recalc() {
   // H: Total cash required
   const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + cmhc.appFee;
 
-  // I: Sale scenario
+  // I: Sale scenario — exit NOI phased by turnover (transparent: buyer pays for in-place, not full stabilization)
+  const tr = turnover/100;
+  const fracExit = tr > 0 ? 1 - Math.pow(1-tr, holding) : 1;
+  const exitNOI = optNOI * fracExit + noi * (1 - fracExit);
   const exitCap = capRate + capDrift/100 * holding;
-  const salePrice = exitCap > 0 ? optNOI / exitCap : 0;
+  const salePrice = exitCap > 0 ? exitNOI / exitCap : 0;
   const salePPU = units > 0 ? salePrice / units : 0;
   const balanceAtExit = loanBalance(cmhc.insured, rate, cmhc.effAmort, holding*12);
   const penalty = breakPenalty(balanceAtExit, rate, newRate, holding, term);
   const salesComm = salePrice * commPct/100;
 
-  // Weighted revenue (turnover-adjusted, year-specific rents)
-  const tr = turnover/100;
+  // Weighted revenue (turnover-adjusted; current-rent NOI also grown by rentGrowth each year)
   let weightedRev = 0;
   for (let y = 1; y <= holding; y++) {
     const frac = tr > 0 ? 1 - Math.pow(1-tr, y) : 1;
     const rentY = targetRent * Math.pow(1 + rentGrowth/100, y);
     const noiY = (rentY * units * 12 * (1 - optVacPct/100) + otherInc) * (1 - optOpexPct/100);
-    weightedRev += noiY * frac + noi * (1-frac);
+    const noiCurrY = noi * Math.pow(1 + rentGrowth/100, y);
+    weightedRev += noiY * frac + noiCurrY * (1-frac);
   }
 
   const totalDS = cmhc.ads * holding;
@@ -1294,9 +1393,9 @@ function recalc() {
   const annRet = holding > 0 && totalRet > -1 ? Math.pow(1+totalRet, 1/holding)-1 : 0;
   const exitMult = totalCash > 0 ? (totalCash + netPostTax) / totalCash : 0;
 
-  // K: Refinance
-  const refiPropVal = refiCapRatePct > 0 ? optNOI / (refiCapRatePct/100) : 0;
-  const refi = computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, optNOI, units);
+  // K: Refinance — uses turnover-blended exitNOI (consistent with in-place income at refi date)
+  const refiPropVal = refiCapRatePct > 0 ? exitNOI / (refiCapRatePct/100) : 0;
+  const refi = computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units);
   const refiBreak = breakPenalty(balanceAtExit, rate, newRate, holding, term);
   const grossCashOut = refi.approvedLoan - balanceAtExit - refiBreak;
   const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee;
@@ -1305,7 +1404,7 @@ function recalc() {
   C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
     gri, egi, opex, noi, capRate, grm,
     totalReno, cfk, totalInvest, renoPerSqft,
-    projRentExit, optGRI, optEGI, optOpex, optNOI, yoc,
+    projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost,
     totalReserve, annualReserve, totalCash,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, netPreTax, netPostTax, totalRet, annRet, exitMult,
@@ -1346,7 +1445,7 @@ function updateOutputs() {
   const { purchasePrice, units, avgSqft, rollValue, pricePerUnit, premiumOverRoll,
     gri, egi, opex, noi, capRate, grm,
     totalReno, cfk, totalInvest, renoPerSqft,
-    optNOI, yoc, projRentExit,
+    optNOI, yoc, projRentExit, exitNOI, fracExit,
     cmhc, renoEquity, privCost,
     totalReserve, annualReserve, totalCash,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, rentalTax, netPreTax, netPostTax, totalRet, annRet, exitMult,
@@ -1411,6 +1510,10 @@ function updateOutputs() {
   // Sale
   document.getElementById('out-sale').innerHTML =
     outRow('Cap rate de sortie', fmtP(exitCap*100)) +
+    `<div class="sub-label">NOI à la réversion</div>` +
+    outRow('NOI optimisé (100% stabilisé)', fmtC(optNOI)) +
+    outRow('% unités optimisées à la sortie', fmtP(fracExit*100, 0)) +
+    outRow('NOI à la réversion (roulement ajusté)', fmtC(exitNOI), 'key-row') +
     outRow('Prix de vente estimé', fmtC(salePrice), 'key-row pos') +
     outRow('Prix / unité', fmtC(salePPU)) +
     outRow('Balance hypothécaire à la sortie', '-'+fmtC(balanceAtExit), 'neg') +
@@ -1439,7 +1542,8 @@ function updateOutputs() {
   document.getElementById('out-refi').innerHTML =
     `<div class="mb-2"><span class="inline-badge">${r.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
     outRow('Valeur estimée au refi', fmtC(refiPropVal)) +
-    outRow('NOI au refinancement', fmtC(optNOI)) +
+    outRow('NOI au refinancement (roulement ajusté)', fmtC(exitNOI)) +
+    outRow('NOI optimisé (réf. stabilisé)', fmtC(optNOI)) +
     outRow('Plafond LTV', fmtC(r.ltvMaxLoan)) +
     outRow('Plafond DSCR', fmtC(r.dscrMaxLoan)) +
     outRow('Prêt refi approuvé', fmtC(r.approvedLoan), 'key-row') +
@@ -1467,7 +1571,8 @@ function updateOutputs() {
 function updateCashFlow() {
   const { noi, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc, totalCash } = C;
   const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
-  const targetRent = parseFloat(document.getElementById('targetRent').value) || 0;
+  const targetRent = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
+  const currentRent = parseFloat(String(document.getElementById('currentRent').value).replace(/[^\d.-]/g,'')) || 0;
   const rentGrowth = (parseFloat(document.getElementById('rentGrowth').value) || 0) / 100;
   const units = parseFloat(document.getElementById('units').value) || 0;
   const effAmort = cmhc.effAmort;
@@ -1477,20 +1582,31 @@ function updateCashFlow() {
 
   let cumCF = 0;
   let html = '';
+  let htmlUnit = '';
   for (let y = 1; y <= holdingInt; y++) {
     const frac = turnover > 0 ? 1 - Math.pow(1-turnover, y) : 1;
     const rentY = targetRent * Math.pow(1 + rentGrowth, y);
     const noiY = (rentY * units * 12 * (1 - optVacPct/100) + otherInc) * (1 - optOpexPct/100);
-    const blendedNOI = noiY * frac + noi * (1-frac);
+    // Current-rent NOI also grown by rentGrowth each year (in-place rents adjust annually)
+    const noiCurrY = noi * Math.pow(1 + rentGrowth, y);
+    const blendedNOI = noiY * frac + noiCurrY * (1-frac);
     const blendedEGI = blendedNOI / (1 - optOpexPct/100);
     const ds = cmhc.ads;
     const cf = blendedNOI - ds - annualReserve;
     cumCF += cf;
     const coc = totalCash > 0 ? cf / totalCash : 0;
     const bal = loanBalance(cmhc.insured, rate, effAmort, y*12);
+    const dscr = ds > 0 ? blendedNOI / ds : 0;
     const cfCls = cf >= 0 ? 'pos-cf' : 'neg-cf';
     const cumCls = cumCF >= 0 ? 'pos-cf' : 'neg-cf';
     const cocCls = coc >= 0 ? 'pos-cf' : 'neg-cf';
+    const dscrCls = dscr >= 1.2 ? 'pos-cf' : dscr >= 1 ? '' : 'neg-cf';
+    // Per-unit/per-month metrics
+    const avgRent = frac * rentY + (1 - frac) * currentRent * Math.pow(1 + rentGrowth, y);
+    const noiPUM = units > 0 ? blendedNOI / units / 12 : 0;
+    const cfPUM = units > 0 ? cf / units / 12 : 0;
+    const debtYield = bal > 0 ? blendedNOI / bal : 0;
+    const cfPUMCls = cfPUM >= 0 ? 'pos-cf' : 'neg-cf';
     html += `<tr>
       <td style="padding-left:18px;">${y}</td>
       <td>${fmtC(blendedEGI)}</td>
@@ -1499,11 +1615,22 @@ function updateCashFlow() {
       <td class="neg-cf">-${fmtC(annualReserve)}</td>
       <td class="${cfCls}">${fmtC(cf)}</td>
       <td class="${cocCls}">${fmtP(coc*100,1)}</td>
+      <td class="${dscrCls}">${fmtX(dscr,2)}</td>
       <td class="${cumCls}">${fmtC(cumCF)}</td>
       <td>${fmtC(bal)}</td>
     </tr>`;
+    htmlUnit += `<tr>
+      <td style="padding-left:18px;">${y}</td>
+      <td>${fmtP(frac*100, 0)}</td>
+      <td>${fmtC(avgRent)}</td>
+      <td>${fmtC(noiPUM)}</td>
+      <td class="${cfPUMCls}">${fmtC(cfPUM)}</td>
+      <td class="${dscrCls}">${fmtX(dscr,2)}</td>
+      <td>${fmtP(debtYield*100,1)}</td>
+    </tr>`;
   }
   document.getElementById('cf-body').innerHTML = html;
+  document.getElementById('cf-body-unit').innerHTML = htmlUnit;
 }
 
 // ─── Print / PDF ──────────────────────────────────────────────────────────────
@@ -1521,15 +1648,15 @@ function buildPrintReport() {
   const units         = parseFloat(document.getElementById('units').value) || 0;
   const unitType      = document.getElementById('unitType').value || '';
   const avgSqft       = parseFloat(document.getElementById('avgSqft').value) || 0;
-  const rollValue     = parseFloat(document.getElementById('rollValue').value) || 0;
+  const rollValue     = parseFloat(String(document.getElementById('rollValue').value).replace(/[^\d.-]/g,'')) || 0;
   const acqCostPct    = parseFloat(document.getElementById('acquisitionCostPct').value) || 0;
-  const currentRent   = parseFloat(document.getElementById('currentRent').value) || 0;
+  const currentRent   = parseFloat(String(document.getElementById('currentRent').value).replace(/[^\d.-]/g,'')) || 0;
   const vacancyRate   = parseFloat(document.getElementById('vacancyRate').value) || 0;
   const opexPct       = parseFloat(document.getElementById('operatingExpenses').value) || 0;
-  const targetRent    = parseFloat(document.getElementById('targetRent').value) || 0;
+  const targetRent    = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
   const rentGrowth    = parseFloat(document.getElementById('rentGrowth').value) || 0;
   const holdingPeriod = parseFloat(document.getElementById('holdingPeriod').value) || 0;
-  const renoCost      = parseFloat(document.getElementById('renoCost').value) || 0;
+  const renoCost      = parseFloat(String(document.getElementById('renoCost').value).replace(/[^\d.-]/g,'')) || 0;
   const pctReno       = parseFloat(document.getElementById('pctReno').value) || 0;
   const cmhcProg      = document.getElementById('cmhcProgram').selectedOptions[0].text;
   const ltvTarget     = parseFloat(document.getElementById('targetLtv').value) || 0;
@@ -1637,7 +1764,8 @@ function buildPrintReport() {
 
     <div class="pr-cf">
       <div class="pr-section-title">${document.getElementById('cf-title').textContent}</div>
-      <div style="overflow-x:auto;">${document.getElementById('cf-table').outerHTML}</div>
+      <div style="overflow-x:auto;margin-bottom:6px;">${document.getElementById('cf-table').outerHTML}</div>
+      <div style="overflow-x:auto;">${document.getElementById('cf-table-unit').outerHTML}</div>
     </div>
 
     <div class="pr-footer">
@@ -1683,6 +1811,18 @@ function toggleRefiMliPoints() {
   document.getElementById('refi-mli-points-row').style.display = show ? '' : 'none';
 }
 
+// ─── Currency formatting (fr-CA: space thousands separator) ──────────────────
+const CURRENCY_FIELDS = ['purchasePrice','rollValue','currentRent','otherIncome','targetRent','renoCost','contingency','closingFees','refiClosingFees'];
+function formatCurrency(str) {
+  const raw = String(str).replace(/[^\d.-]/g, '');
+  if (!raw || raw === '-') return str;
+  const neg = raw.startsWith('-');
+  const abs = raw.replace('-', '');
+  const parts = abs.split('.');
+  const intStr = (parts[0] || '0').replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  return (neg ? '-' : '') + intStr + (parts.length > 1 ? '.' + parts[1] : '');
+}
+
 function resetAll() {
   if (!confirm('Réinitialiser tous les paramètres aux valeurs par défaut ?')) return;
   const defaults = {
@@ -1697,7 +1837,7 @@ function resetAll() {
   };
   for (const [id, val] of Object.entries(defaults)) {
     const el = document.getElementById(id);
-    if (el) el.value = val;
+    if (el) el.value = CURRENCY_FIELDS.includes(id) ? formatCurrency(String(val)) : val;
   }
   document.getElementById('cmhcProgram').value = 'mli-market';
   document.getElementById('refiProgram').value = 'mli-market';
@@ -1715,6 +1855,7 @@ function resetAll() {
 }
 
 // Init
+CURRENCY_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = formatCurrency(el.value); });
 recalc();
 </script>
 
