@@ -718,10 +718,6 @@ footer .logo { color: var(--paper); }
               <span class="field-label">Taux du financement privé <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">1ère hypo: 8–12%, 2e hypo: 12–18%, ponte: 14–20%.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="privateRate" value="14" step="0.5" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
-            <div class="field-row">
-              <span class="field-label">Durée du financement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Généralement 1–3 ans (financement pont).</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="privatePeriod" value="2.5" step="0.5" min="0" onchange="recalc()"><span class="sfx">ans</span></div>
-            </div>
           </div>
         </div>
 
@@ -988,12 +984,12 @@ footer .logo { color: var(--paper); }
           <span style="color:var(--ink-soft);font-size:12px;">▼</span>
         </div>
         <div class="help-body">
-          <p><strong>Entrées F — Financement privé :</strong> % des rénovations financées par prêt privé, taux annuel (%), durée (ans). La portion non financée (1 − %) est l'équité réno apportée comptant.</p>
+          <p><strong>Entrées F — Financement privé :</strong> % des rénovations financées par prêt privé, taux annuel (%). La portion non financée (1 − %) est l'équité réno apportée comptant. Le prêt est tiré progressivement sur la période de détention (1/n par an).</p>
           <p style="margin-top:6px;"><strong>Entrée G — Réserves :</strong> provision mensuelle par unité ($) sur toute la période de détention.</p>
           <p style="margin-top:10px;"><strong>Formules :</strong></p>
           <ul style="line-height:2;">
             <li>Équité réno = Investissement total × (1 − % privé)</li>
-            <li>Coût financement privé = Montant privé × taux × durée</li>
+            <li>Coût financement privé = Montant privé × taux × (détention ÷ 2) — tirage progressif, intérêt sur le solde moyen</li>
             <li>Réserves totales = Provision × Unités × Détention × 12</li>
             <li>Réserves annuelles = Réserves totales / Détention</li>
           </ul>
@@ -1055,7 +1051,7 @@ footer .logo { color: var(--paper); }
             <li>Valeur estimée = NOI sortie / Cap rate refi</li>
             <li>Nouveau prêt SCHL = MIN(Plafond LTV, Plafond DSCR) sur valeur estimée — même double plafond qu'en E</li>
             <li>Prise de fonds brute = Nouveau prêt − Solde hypothécaire − Pénalité de bris</li>
-            <li>Prise de fonds nette = Brute + Frais fermeture − Taxe prov. − Frais de dossier − Coût financement privé</li>
+            <li>Prise de fonds nette = Brute + Frais fermeture − Taxe prov. − Frais de dossier − Remboursement capital privé (réno)</li>
             <li><strong>Multiple cash-out</strong> = Prise de fonds nette / Cash total initial</li>
           </ul>
           <p style="margin-top:10px;"><strong>Glossaire des indicateurs (onglets Analyse &amp; Flux) :</strong></p>
@@ -1065,7 +1061,7 @@ footer .logo { color: var(--paper); }
             <li><strong>Yield on cost</strong> = NOI opt / (Coût acq. + Investissement) — rendement sur capital total déployé</li>
             <li><strong>DSCR de base</strong> = NOI / (Prêt approuvé × constante hyp.) — sans prime capitalisée</li>
             <li><strong>DSCR assuré</strong> = NOI / Service de dette annuel (hypo. assurée) — indicateur officiel SCHL</li>
-            <li><strong>Cash-on-cash</strong> = Flux annuel / Cash total — rendement annuel sur la mise de fonds; le flux annuel inclut les intérêts du financement privé répartis sur la durée du pont</li>
+            <li><strong>Cash-on-cash</strong> = Flux annuel / Cash total — rendement annuel sur la mise de fonds; le flux annuel inclut les intérêts du financement privé répartis sur la période de détention (tirage progressif)</li>
             <li><strong>Rendement de la dette</strong> = NOI / Solde hypothécaire — rendement de l'actif du point de vue du prêteur</li>
             <li><strong>Rendement annualisé</strong> = (1 + rendement total)<sup>1/n</sup> − 1 — approximation du TRI</li>
             <li><strong>Multiple</strong> = Valeur finale / Capital investi</li>
@@ -1308,7 +1304,7 @@ function recalc() {
   const program = gs('cmhcProgram'), mliPts = g('mliPoints'), buildingType = gs('buildingType');
   const purpose = gs('loanPurpose'), targetLtv = g('targetLtv'), rate = g('interestRate');
   const term = parseFloat(gs('term')), amort = parseFloat(gs('amortization')), province = gs('province');
-  const privPct = g('privatePct'), privRate = g('privateRate'), privPeriod = g('privatePeriod');
+  const privPct = g('privatePct'), privRate = g('privateRate');
   const contingency = g('contingency');
   const capDrift = g('capRateDrift'), newRate = g('newMortgageRate'), margTax = g('marginalTax'), cgTaxRate = g('cgTaxRate');
   const commPct = g('commission'), closing = g('closingFees');
@@ -1351,7 +1347,7 @@ function recalc() {
   // F: Private financing
   const renoEquity = totalInvest * (1 - privPct/100);
   const privAmt = totalInvest * privPct/100;
-  const privCost = privAmt * privRate/100 * privPeriod;
+  const privCost = privAmt * privRate/100 * holding/2; // ramp draw: interest on avg balance over hold
 
   // G: Reserves
   const totalReserve = contingency * units * holding * 12;
@@ -1402,14 +1398,14 @@ function recalc() {
   const refi = computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units);
   const refiBreak = breakPenalty(balanceAtExit, rate, newRate, holding, term);
   const grossCashOut = refi.approvedLoan - balanceAtExit - refiBreak;
-  const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee - privCost;
+  const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee - privAmt;
   const refiMult = totalCash > 0 ? netCashOut / totalCash : 0;
 
   C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
     gri, egi, opex, noi, capRate, grm,
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
-    cmhc, renoEquity, privAmt, privCost, privRate, privPeriod,
+    cmhc, renoEquity, privAmt, privCost, privRate,
     totalReserve, annualReserve, totalCash,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, netPreTax, netPostTax, totalRet, annRet, exitMult,
     refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult,
@@ -1523,11 +1519,12 @@ function updateOutputs() {
     outRow('Balance hypothécaire à la sortie', '-'+fmtC(balanceAtExit), 'neg') +
     outRow('Pénalité de bris', '-'+fmtC(penalty), 'neg') +
     outRow('Commission de vente', '-'+fmtC(salesComm), 'neg') +
+    (C.privAmt > 0 ? outRow('Remboursement capital privé (réno)', '-'+fmtC(C.privAmt), 'neg') : '') +
     '<div class="divider"></div>' +
     `<div class="sub-label">Revenus d'exploitation (période de détention)</div>` +
     outRow('Revenus pondérés (roulement ajusté)', fmtC(weightedRev)) +
     outRow('Service de la dette total', '-'+fmtC(totalDS), 'neg') +
-    outRow('Financement privé', '-'+fmtC(C.privCost), 'neg') +
+    (C.privCost > 0 ? outRow('Financement privé (intérêts)', '-'+fmtC(C.privCost), 'neg') : '') +
     outRow('Réserves totales', '-'+fmtC(C.totalReserve), 'neg') +
     '<div class="divider"></div>' +
     outRow('Gain en capital brut', fmtC(grossProfit)) +
@@ -1564,7 +1561,7 @@ function updateOutputs() {
     outRow('Balance hypothécaire courante', '-'+fmtC(C.balanceAtExit), 'neg') +
     outRow('Pénalité de bris', '-'+fmtC(refiBreak), 'neg') +
     outRow('Sortie de fonds brute', fmtC(grossCashOut)) +
-    (C.privCost > 0 ? outRow('Financement privé (réno)', '-'+fmtC(C.privCost), 'neg') : '') +
+    (C.privAmt > 0 ? outRow('Remboursement capital privé (réno)', '-'+fmtC(C.privAmt), 'neg') : '') +
     outRow('SORTIE DE FONDS NETTE', fmtC(netCashOut), netCashOut >= 0 ? 'key-row pos' : 'key-row neg') +
     `<div class="metric-grid">
       ${metricBox('Prise de fonds nette', fmtC(netCashOut), '', netCashOut >= 0 ? 'green' : 'amber')}
@@ -1574,8 +1571,7 @@ function updateOutputs() {
 
 // ─── Cash flow table ──────────────────────────────────────────────────────────
 function updateCashFlow() {
-  const { noi, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc, totalCash, privAmt, privRate, privPeriod } = C;
-  const annualPrivInt = privAmt * privRate/100;  // annual interest on the bridge loan
+  const { noi, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc, totalCash, privAmt, privRate } = C;
   const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
   const targetRent = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
   const currentRent = parseFloat(String(document.getElementById('currentRent').value).replace(/[^\d.-]/g,'')) || 0;
@@ -1598,8 +1594,8 @@ function updateCashFlow() {
     const blendedNOI = noiY * frac + noiCurrY * (1-frac);
     const blendedEGI = blendedNOI / (1 - optOpexPct/100);
     const ds = cmhc.ads;
-    // Private bridge interest: full year during loan, prorated final year, 0 after
-    const privIntY = annualPrivInt * Math.max(0, Math.min(1, privPeriod - (y-1)));
+    // Private bridge interest: ramped draw — interest on mid-year cumulative balance
+    const privIntY = holding > 0 ? privAmt * privRate/100 * (y - 0.5) / holding : 0;
     const cf = blendedNOI - ds - annualReserve - privIntY;
     cumCF += cf;
     const coc = totalCash > 0 ? cf / totalCash : 0;
@@ -1842,7 +1838,7 @@ function resetAll() {
     mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
     capRateDrift:0.5, newMortgageRate:4.25, marginalTax:26.5, cgTaxRate:33, commission:2, closingFees:-1500,
     refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:-3000,
-    privatePct:100, privateRate:14, privatePeriod:2.5,
+    privatePct:100, privateRate:14,
   };
   for (const [id, val] of Object.entries(defaults)) {
     const el = document.getElementById(id);
