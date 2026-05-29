@@ -1360,7 +1360,8 @@ function recalc() {
   // I: Sale scenario — exit NOI phased by turnover (transparent: buyer pays for in-place, not full stabilization)
   const tr = turnover/100;
   const fracExit = tr > 0 ? 1 - Math.pow(1-tr, holding) : 1;
-  const exitNOI = optNOI * fracExit + noi * (1 - fracExit);
+  const noiExit = noi * Math.pow(1 + rentGrowth/100, holding);
+  const exitNOI = optNOI * fracExit + noiExit * (1 - fracExit);
   const exitCap = capRate + capDrift/100 * holding;
   const salePrice = exitCap > 0 ? exitNOI / exitCap : 0;
   const salePPU = units > 0 ? salePrice / units : 0;
