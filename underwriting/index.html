@@ -292,6 +292,161 @@ input[type="text"]:focus { border-color: var(--accent); }
 footer { background: var(--ink); color: #a8a8a3; padding: 50px 0 30px; font-size: 13px; }
 footer .footer-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2; }
 footer .logo { color: var(--paper); }
+
+/* ── Print button (screen only) ──────────────────────────────────────── */
+.print-btn {
+  font-family: 'Inter Tight', sans-serif;
+  font-size: 12px; font-weight: 500;
+  border: 1px solid var(--accent);
+  background: var(--paper);
+  color: var(--accent);
+  padding: 6px 14px; border-radius: 6px;
+  cursor: pointer; transition: all .18s;
+  letter-spacing: 0.02em;
+}
+.print-btn:hover { background: var(--accent); color: #fff; }
+#print-report { display: none; }
+
+/* ── @media print ────────────────────────────────────────────────────── */
+@media print {
+  @page { size: A4; margin: 14mm; }
+
+  nav, .dashboard, .tabs, .page, footer, body::before { display: none !important; }
+  body { background: #fff; }
+
+  #print-report {
+    display: block !important;
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 12px;
+    color: #1c1c1a;
+    background: #fff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Cover header */
+  .pr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #3a5c7a;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+  .pr-logo { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 500; color: #3a5c7a; display: flex; align-items: center; gap: 8px; }
+  .pr-title { font-family: 'Fraunces', serif; font-size: 13px; color: #4a4a47; font-weight: 400; margin-top: 4px; }
+  .pr-deal { font-size: 14px; font-weight: 700; color: #1c1c1a; margin-top: 3px; }
+  .pr-meta { font-size: 11px; color: #4a4a47; text-align: right; line-height: 1.7; }
+
+  /* KPI strip */
+  .pr-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .pr-kpi {
+    background: #f0f4f8;
+    border: 1px solid #c8d8e8;
+    border-radius: 6px;
+    padding: 8px 12px;
+    page-break-inside: avoid;
+  }
+  .pr-kpi-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: #4a4a47; margin-bottom: 2px; }
+  .pr-kpi-value { font-size: 15px; font-weight: 700; color: #1c1c1a; font-variant-numeric: tabular-nums; }
+  .pr-kpi-sub { font-size: 9px; color: #4a4a47; margin-top: 1px; font-variant-numeric: tabular-nums; }
+
+  /* Section titles */
+  .pr-section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 13px; font-weight: 500;
+    color: #3a5c7a;
+    border-bottom: 1px solid #c8d8e8;
+    padding-bottom: 5px;
+    margin: 18px 0 10px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Assumptions table */
+  .pr-assumptions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 20px;
+  }
+  .pr-assump-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px solid #e8e8e4;
+    font-size: 11px;
+  }
+  .pr-assump-label { color: #4a4a47; }
+  .pr-assump-value { font-weight: 600; color: #1c1c1a; font-variant-numeric: tabular-nums; }
+
+  /* Analysis grid */
+  .pr-analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .pr-card {
+    border: 1px solid #c8d8e8;
+    border-left: 2px solid #3a5c7a;
+    page-break-inside: avoid;
+  }
+  .pr-card-header {
+    background: #f0f4f8;
+    padding: 7px 12px;
+    border-bottom: 1px solid #c8d8e8;
+    font-family: 'Fraunces', serif;
+    font-size: 12px; font-weight: 500;
+    color: #1c1c1a;
+  }
+  .pr-card-body { padding: 10px 12px; }
+
+  /* Reuse out-row styling in print context */
+  #print-report .out-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px solid #e8e8e4; gap: 10px; }
+  #print-report .out-row:last-child { border-bottom: none; }
+  #print-report .out-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #4a4a47; }
+  #print-report .out-value { font-size: 12px; font-weight: 600; color: #1c1c1a; font-variant-numeric: tabular-nums; }
+  #print-report .out-row.key-row .out-label { color: #28405a; font-weight: 700; }
+  #print-report .out-row.key-row .out-value { font-size: 13px; color: #28405a; }
+  #print-report .out-row.neg .out-value { color: #8b3a2f; }
+  #print-report .out-row.pos .out-value { color: #3a5c7a; }
+  #print-report .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 6px; margin-top: 10px; }
+  #print-report .metric-box { border-radius: 5px; padding: 7px 10px; background: #f0f4f8; border: 1px solid #c8d8e8; page-break-inside: avoid; }
+  #print-report .metric-box .m-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 3px; color: #3a5c7a; }
+  #print-report .metric-box .m-value { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: #28405a; }
+  #print-report .metric-box .m-sub { font-size: 9px; margin-top: 1px; opacity: .7; font-variant-numeric: tabular-nums; }
+  #print-report .inline-badge { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 600; padding: 2px 7px; border-radius: 999px; background: #e8f0f7; color: #3a5c7a; border: 1px solid rgba(58,92,122,0.3); display:inline-flex; align-items:center; gap:4px; }
+  #print-report .divider { height: 1px; background: #e8e8e4; margin: 8px 0; }
+  #print-report .sub-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: #4a4a47; margin-bottom: 4px; margin-top: 3px; }
+  #print-report .mb-2 { margin-bottom: 6px; }
+
+  /* Cash flow section */
+  .pr-cf { page-break-before: always; }
+  #print-report .cf-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+  #print-report .cf-table th { text-align: right; font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; color: #4a4a47; padding: 6px 8px; border-bottom: 1px solid #c8d8e8; font-weight: 500; background: #f0f4f8; }
+  #print-report .cf-table th:first-child { text-align: left; }
+  #print-report .cf-table td { text-align: right; padding: 5px 8px; border-bottom: 1px solid #e8e8e4; font-variant-numeric: tabular-nums; font-weight: 500; }
+  #print-report .cf-table td:first-child { text-align: left; font-weight: 600; color: #4a4a47; padding-left: 8px; }
+  #print-report .cf-table tr:last-child td { border-bottom: none; }
+  #print-report .cf-table .pos-cf { color: #3a5c7a; }
+  #print-report .cf-table .neg-cf { color: #8b3a2f; }
+
+  /* Print footer */
+  .pr-footer {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #c8d8e8;
+    font-size: 10px;
+    color: #4a4a47;
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+  }
+}
 </style>
 </head>
 <body>
@@ -305,6 +460,7 @@ footer .logo { color: var(--paper); }
     </a>
     <div style="display:flex;align-items:center;gap:14px;">
       <span class="nav-tag">Outil interne</span>
+      <button class="print-btn" onclick="printReport()">⤓ Imprimer en PDF</button>
       <button class="reset-btn" onclick="resetAll()">↺ Réinitialiser</button>
     </div>
   </div>
@@ -394,6 +550,16 @@ footer .logo { color: var(--paper); }
             <div class="field-row">
               <span class="field-label">Frais d'acquisition <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Notaire, inspection, due diligence. Typiquement 1.5–3% du prix d'achat.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="acquisitionCostPct" value="2.5" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="divider" style="margin:10px 0 4px;"></div>
+            <div class="sub-label" style="padding:2px 0 2px;">Identité du rapport (PDF)</div>
+            <div class="field-row">
+              <span class="field-label">Nom / adresse de l'immeuble</span>
+              <div class="field-input"><input type="text" id="propertyName" placeholder="ex. 1234 rue Saint-Denis" style="width:200px;text-align:left;"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Préparé par</span>
+              <div class="field-input"><input type="text" id="preparedBy" placeholder="Votre nom" style="width:200px;text-align:left;"></div>
             </div>
           </div>
         </div>
@@ -743,7 +909,7 @@ footer .logo { color: var(--paper); }
           <p>Le prêt SCHL = <strong>MIN(plafond LTV, plafond DSCR)</strong></p>
           <p><strong>Contraint par LTV</strong> : l'actif ne justifie pas plus de dette. Négociez le prix ou augmentez la mise de fonds.</p>
           <p><strong>Contraint par DSCR</strong> : les revenus ne supportent pas plus de dette. Haussez les loyers, réduisez les dépenses, allongez l'amortissement, ou choisissez MLI Select.</p>
-          <p style="margin-top:8px;"><strong>DSCR cibles</strong> : MLI Market ≥ 1.30x (5 ans), MLI Select ≥ 1.10x. Visez 1.20x+ pour une marge de sécurité.</p>
+          <p style="margin-top:8px;"><strong>DSCR cibles (MLI Market)</strong> : 5–6 unités achat ≥ 1.10x · 5–6 unités refi ≥ 1.20x · 7+ unités terme ≥10 ans : 1.20x · 7+ unités terme &lt;10 ans : 1.30x. MLI Select : toujours ≥ 1.10x. Visez 1.20x+ pour une marge de sécurité.</p>
         </div>
       </div>
 
@@ -825,8 +991,11 @@ footer .logo { color: var(--paper); }
           <tbody>
             <tr><td>Amortissement max.</td><td class="highlight">40 ans</td></tr>
             <tr><td>LTV max.</td><td class="highlight">85 %</td></tr>
-            <tr><td>DSCR min. — terme ≥ 10 ans</td><td class="highlight">1,20x</td></tr>
-            <tr><td>DSCR min. — terme &lt; 10 ans</td><td class="highlight">1,30x</td></tr>
+            <tr><td>DSCR min. — 5–6 unités, achat</td><td class="highlight">1,10x</td></tr>
+            <tr><td>DSCR min. — 5–6 unités, refi</td><td class="highlight">1,20x</td></tr>
+            <tr><td>DSCR min. — 7+ unités, terme ≥ 10 ans</td><td class="highlight">1,20x</td></tr>
+            <tr><td>DSCR min. — 7+ unités, terme &lt; 10 ans</td><td class="highlight">1,30x</td></tr>
+            <tr><td>DSCR min. — Other Shelter</td><td class="highlight">1,20x</td></tr>
             <tr><td>Rabais prime</td><td>Aucun</td></tr>
             <tr><td>Unités min.</td><td>5</td></tr>
           </tbody>
@@ -844,7 +1013,7 @@ footer .logo { color: var(--paper); }
             <tr><td>Palier 1</td><td>100+</td><td class="highlight">50 ans</td><td>95 %</td><td class="gold-cell">–30 %</td></tr>
           </tbody>
         </table>
-        <div class="schl-note">DSCR min. : 1,10x (Standard Locatif) · 1,20x (Other Shelter)</div>
+        <div class="schl-note">DSCR min. : 1,10x (Standard Locatif, tous paliers) · 1,20x (Other Shelter)</div>
       </div>
 
       <!-- MLI Select — Sources de points -->
@@ -963,9 +1132,12 @@ function getProgramMaxLtv(program, pts) {
   if (pts >= 100) return 95;
   return 90;
 }
-function getMinDscr(program, buildingType, term) {
-  if (program === 'mli-select') return buildingType === 'other' ? 1.2 : 1.1;
-  return term >= 10 ? 1.2 : 1.3;
+function getMinDscr(program, buildingType, units, term) {
+  if (buildingType === 'other') return 1.2;
+  if (program === 'mli-select') return 1.1;
+  // MLI Market Standard Locatif — per CMHC Standard Rental Housing sheet
+  if (units <= 6) return 1.1;          // 5–6 units purchase (refi = 1.20, same as 7+ / ≥10yr)
+  return term >= 10 ? 1.2 : 1.3;      // 7+ units: term-based
 }
 function getMliDiscount(program, pts) {
   if (program !== 'mli-select') return 0;
@@ -995,7 +1167,7 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const effAmort = Math.min(amort, getMaxAmort(program, mliPts));
   const progMaxLtv = getProgramMaxLtv(program, mliPts);
   const effLtvCap = Math.min(targetLtvPct, progMaxLtv) / 100;
-  const minDscr = getMinDscr(program, buildingType, term);
+  const minDscr = getMinDscr(program, buildingType, units, term);
   const mc = mortgageConstant(ratePct, effAmort);
   const ltvMaxLoan = propertyValue * effLtvCap;
   const dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
@@ -1334,6 +1506,153 @@ function updateCashFlow() {
   document.getElementById('cf-body').innerHTML = html;
 }
 
+// ─── Print / PDF ──────────────────────────────────────────────────────────────
+function pr(label, value) {
+  return `<div class="pr-assump-row"><span class="pr-assump-label">${label}</span><span class="pr-assump-value">${value}</span></div>`;
+}
+
+function buildPrintReport() {
+  const propertyName = (document.getElementById('propertyName').value || '').trim();
+  const preparedBy   = (document.getElementById('preparedBy').value || '').trim();
+  const date = new Date().toLocaleDateString('fr-CA', {year:'numeric', month:'long', day:'numeric'});
+
+  // Read assumption inputs
+  const purchasePrice = parseFloat(document.getElementById('purchasePrice').value) || 0;
+  const units         = parseFloat(document.getElementById('units').value) || 0;
+  const unitType      = document.getElementById('unitType').value || '';
+  const avgSqft       = parseFloat(document.getElementById('avgSqft').value) || 0;
+  const rollValue     = parseFloat(document.getElementById('rollValue').value) || 0;
+  const acqCostPct    = parseFloat(document.getElementById('acquisitionCostPct').value) || 0;
+  const currentRent   = parseFloat(document.getElementById('currentRent').value) || 0;
+  const vacancyRate   = parseFloat(document.getElementById('vacancyRate').value) || 0;
+  const opexPct       = parseFloat(document.getElementById('operatingExpenses').value) || 0;
+  const targetRent    = parseFloat(document.getElementById('targetRent').value) || 0;
+  const rentGrowth    = parseFloat(document.getElementById('rentGrowth').value) || 0;
+  const holdingPeriod = parseFloat(document.getElementById('holdingPeriod').value) || 0;
+  const renoCost      = parseFloat(document.getElementById('renoCost').value) || 0;
+  const pctReno       = parseFloat(document.getElementById('pctReno').value) || 0;
+  const cmhcProg      = document.getElementById('cmhcProgram').selectedOptions[0].text;
+  const ltvTarget     = parseFloat(document.getElementById('targetLtv').value) || 0;
+  const interestRate  = parseFloat(document.getElementById('interestRate').value) || 0;
+  const amortYrs      = document.getElementById('amortization').value;
+  const termYrs       = document.getElementById('term').value;
+  const capRateDrift  = parseFloat(document.getElementById('capRateDrift').value) || 0;
+  const marginalTax   = parseFloat(document.getElementById('marginalTax').value) || 0;
+  const cgTaxRateVal  = parseFloat(document.getElementById('cgTaxRate').value) || 0;
+
+  // KPI values from global results object C
+  const { noi, capRate, optNOI, yoc, cmhc, totalCash, netPostTax, annRet, exitMult, netCashOut, refiMult } = C;
+
+  const logoSvg = `<svg width="26" height="26" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="12" y="8" width="16" height="18" rx="3" fill="#3a5c7a" opacity="0.4"/><rect x="2" y="4" width="16" height="22" rx="3" fill="#3a5c7a"/></svg>`;
+
+  document.getElementById('print-report').innerHTML = `
+    <div class="pr-header">
+      <div>
+        <div class="pr-logo">${logoSvg} Plex Québec</div>
+        <div class="pr-title">Analyse d'acquisition — Rapport de sous-écriture</div>
+        ${propertyName ? `<div class="pr-deal">${propertyName}</div>` : ''}
+      </div>
+      <div class="pr-meta">
+        ${preparedBy ? `Préparé par : <strong>${preparedBy}</strong><br>` : ''}
+        Date : ${date}
+      </div>
+    </div>
+
+    <div class="pr-kpi-grid">
+      <div class="pr-kpi">
+        <div class="pr-kpi-label">NOI Actuel</div>
+        <div class="pr-kpi-value">${fmtC(noi)}</div>
+        <div class="pr-kpi-sub">Cap rate : ${fmtP(capRate*100)}</div>
+      </div>
+      <div class="pr-kpi">
+        <div class="pr-kpi-label">NOI Optimisé</div>
+        <div class="pr-kpi-value">${fmtC(optNOI)}</div>
+        <div class="pr-kpi-sub">Yield on Cost : ${fmtP(yoc*100)}</div>
+      </div>
+      <div class="pr-kpi">
+        <div class="pr-kpi-label">Prêt Approuvé</div>
+        <div class="pr-kpi-value">${fmtC(cmhc.approvedLoan)}</div>
+        <div class="pr-kpi-sub">LTV ${fmtP(cmhc.effLtv*100,1)} · DSCR ${fmtX(cmhc.dscrInsured,2)}</div>
+      </div>
+      <div class="pr-kpi">
+        <div class="pr-kpi-label">Cash Requis</div>
+        <div class="pr-kpi-value">${fmtC(totalCash)}</div>
+        <div class="pr-kpi-sub">MP mensuel : ${fmtC(cmhc.mp)}</div>
+      </div>
+      <div class="pr-kpi">
+        <div class="pr-kpi-label">Profit Net (après impôt)</div>
+        <div class="pr-kpi-value">${fmtC(netPostTax)}</div>
+        <div class="pr-kpi-sub">${fmtP(annRet*100,1)}/an · ${fmtX(exitMult)}</div>
+      </div>
+      <div class="pr-kpi">
+        <div class="pr-kpi-label">Prise de fonds nette</div>
+        <div class="pr-kpi-value">${fmtC(netCashOut)}</div>
+        <div class="pr-kpi-sub">Multiple cash-out : ${fmtX(refiMult)}</div>
+      </div>
+    </div>
+
+    <div class="pr-section-title">Paramètres de l'analyse</div>
+    <div class="pr-assumptions">
+      ${pr('Prix d\'achat', fmtC(purchasePrice))}
+      ${pr('Loyer actuel / unité', fmtC(currentRent) + '/mois')}
+      ${pr('Nombre d\'unités', units)}
+      ${pr('Loyer cible / unité', fmtC(targetRent) + '/mois')}
+      ${pr('Type d\'unité', unitType)}
+      ${pr('Croissance loyer / an', fmtP(rentGrowth))}
+      ${pr('Superficie moy. / unité', avgSqft + ' pi²')}
+      ${pr('Taux d\'inoccupation', fmtP(vacancyRate))}
+      ${pr('Valeur au rôle', fmtC(rollValue))}
+      ${pr('Dépenses exploitation', fmtP(opexPct))}
+      ${pr('Frais d\'acquisition', fmtP(acqCostPct))}
+      ${pr('Coût réno / unité', fmtC(renoCost) + ' (' + pctReno + '% d\'unités)')}
+      ${pr('Programme SCHL', cmhcProg)}
+      ${pr('Période de détention', holdingPeriod + ' ans')}
+      ${pr('LTV cible', fmtP(ltvTarget))}
+      ${pr('Variation cap rate / an', fmtP(capRateDrift))}
+      ${pr('Taux d\'intérêt', fmtP(interestRate))}
+      ${pr('Taux marginal (locatif)', fmtP(marginalTax))}
+      ${pr('Terme / Amortissement', termYrs + ' ans / ' + amortYrs + ' ans')}
+      ${pr('Taux eff. gain en capital', fmtP(cgTaxRateVal))}
+    </div>
+
+    <div class="pr-section-title">Analyse détaillée</div>
+    <div class="pr-analysis-grid">
+      <div class="pr-card">
+        <div class="pr-card-header">Revenus Actuels</div>
+        <div class="pr-card-body">${document.getElementById('out-current').innerHTML}</div>
+      </div>
+      <div class="pr-card">
+        <div class="pr-card-header">Financement SCHL &amp; Mise de Fonds</div>
+        <div class="pr-card-body">${document.getElementById('out-acquisition').innerHTML}</div>
+      </div>
+      <div class="pr-card">
+        <div class="pr-card-header">Scénario de Vente</div>
+        <div class="pr-card-body">${document.getElementById('out-sale').innerHTML}</div>
+      </div>
+      <div class="pr-card">
+        <div class="pr-card-header">Scénario de Refinancement</div>
+        <div class="pr-card-body">${document.getElementById('out-refi').innerHTML}</div>
+      </div>
+    </div>
+
+    <div class="pr-cf">
+      <div class="pr-section-title">${document.getElementById('cf-title').textContent}</div>
+      <div style="overflow-x:auto;">${document.getElementById('cf-table').outerHTML}</div>
+    </div>
+
+    <div class="pr-footer">
+      <span>Document confidentiel — à titre indicatif seulement. Les projections sont des estimations et ne constituent pas un avis financier ou légal.</span>
+      <span style="white-space:nowrap;">Plex Québec · ${date}</span>
+    </div>
+  `;
+}
+
+function printReport() {
+  recalc();
+  buildPrintReport();
+  window.print();
+}
+
 // ─── UI helpers ───────────────────────────────────────────────────────────────
 function set(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
 
@@ -1408,5 +1727,9 @@ recalc();
     <div>© 2026 — Montréal, Québec. Tous droits réservés.</div>
   </div>
 </footer>
+
+<!-- Print report container — hidden on screen, shown only @media print -->
+<div id="print-report" aria-hidden="true"></div>
+
 </body>
 </html>
