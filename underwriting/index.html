@@ -714,8 +714,16 @@ footer .logo { color: var(--paper); }
               <div class="field-input"><select id="loanPurpose" onchange="recalc()"><option value="purchase">Achat / Refi</option><option value="construction">Construction</option></select></div>
             </div>
             <div class="field-row">
-              <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux utilisé par la SCHL pour estimer la valeur économique (= NOI ÷ taux). Laissez vide pour utiliser le prix d'achat comme valeur de prêt.</span></span></span>
+              <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux utilisé par la SCHL pour estimer la valeur économique (= NOI normalisé ÷ taux). Laissez vide pour utiliser le prix d'achat comme valeur de prêt.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="schlCapRate" value="" placeholder="—" step="0.05" min="0" max="20" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Dépenses normalisées SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Ratio de dépenses utilisé par la SCHL pour calculer la valeur économique. Vide = utilise les dépenses d'exploitation.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="schlOpexPct" value="" placeholder="—" step="0.1" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Inoccupation normalisée SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux d'inoccupation utilisé par la SCHL pour la valeur économique. Vide = utilise le taux d'inoccupation courant.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="schlVacancy" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">LTV cible <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Le prêt final = MIN(plafond LTV, plafond DSCR). Double plafond SCHL.</span></span></span>
@@ -1405,10 +1413,16 @@ function recalc() {
   const optNOI = optEGI - optOpex;
   const yoc = totalAcqCost + totalInvest > 0 ? optNOI / (totalAcqCost + totalInvest) : 0;
 
-  // E: CMHC
+  // E: CMHC — economic value & loan sized on CMHC-normalized NOI (may differ from operating NOI)
   const schlCapRate = g('schlCapRate');
-  const valeurEconomique = schlCapRate > 0 ? noi / (schlCapRate / 100) : purchasePrice;
-  const cmhc = computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, noi, units, valeurEconomique);
+  const schlOpexIn  = document.getElementById('schlOpexPct').value;
+  const schlVacIn   = document.getElementById('schlVacancy').value;
+  const schlOpex = schlOpexIn !== '' ? (parseFloat(schlOpexIn) || 0) : opexPct;
+  const schlVac  = schlVacIn  !== '' ? (parseFloat(schlVacIn)  || 0) : vacPct;
+  const schlEGI  = gri * (1 - schlVac / 100) + otherInc;
+  const schlNOI  = schlEGI * (1 - schlOpex / 100);
+  const valeurEconomique = schlCapRate > 0 ? schlNOI / (schlCapRate / 100) : purchasePrice;
+  const cmhc = computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, schlNOI, units, valeurEconomique);
 
   // F: Private financing
   const renoEquity = totalInvest * (1 - privPct/100);
@@ -1468,7 +1482,7 @@ function recalc() {
   const refiMult = totalCash > 0 ? netCashOut / totalCash : 0;
 
   C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
-    currentRent, gri, egi, opex, noi, capRate, grm,
+    currentRent, gri, egi, opex, noi, capRate, grm, schlNOI,
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost, privRate,
@@ -1543,8 +1557,10 @@ function updateOutputs() {
 
   // Acquisition / CMHC
   const c = cmhc;
+  const { schlNOI } = C;
   document.getElementById('out-acquisition').innerHTML =
     `<div class="mb-2"><span class="inline-badge">${c.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+    (schlNOI !== noi ? outRow('NOI normalisé SCHL', fmtC(schlNOI)) : '') +
     (c.lendingValue < purchasePrice ? outRow('Valeur économique SCHL', fmtC(c.lendingValue)) : '') +
     outRow('Plafond LTV (prêt max)', fmtC(c.ltvMaxLoan)) +
     outRow('Plafond DSCR (prêt max)', fmtC(c.dscrMaxLoan)) +
@@ -1996,6 +2012,8 @@ function resetAll() {
   document.getElementById('buildingType').value = 'standard';
   document.getElementById('loanPurpose').value = 'purchase';
   document.getElementById('schlCapRate').value = '';
+  document.getElementById('schlOpexPct').value = '';
+  document.getElementById('schlVacancy').value = '';
   document.getElementById('term').value = '5';
   document.getElementById('amortization').value = '40';
   document.getElementById('province').value = 'qc';
