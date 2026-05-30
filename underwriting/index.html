@@ -1590,7 +1590,7 @@ function updateOutputs() {
 // ─── Cash flow table ──────────────────────────────────────────────────────────
 function updateCashFlow() {
   const { noi, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc,
-          totalCash, privAmt, privRate, yoc,
+          totalCash, privAmt, privRate, yoc, totalAcqCost, totalInvest,
           salePrice, salesComm, balanceAtExit, penalty, cgTax, rentalTax, closing,
           grossCashOut, netCashOut, refiBreak, refi, refiClosing } = C;
   const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
