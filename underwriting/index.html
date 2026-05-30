@@ -1631,6 +1631,7 @@ function updateCashFlow() {
     const avgRent = frac * rentY + (1 - frac) * currentRent * Math.pow(1 + rentGrowth, y);
     const noiPUM = units > 0 ? blendedNOI / units / 12 : 0;
     const debtYield = bal > 0 ? blendedNOI / bal : 0;
+    const yocY = (totalAcqCost + totalInvest) > 0 ? blendedNOI / (totalAcqCost + totalInvest) : 0;
 
     // Exit-year flows (only on final holding year)
     const isExit = (y === holdingInt);
@@ -1674,7 +1675,7 @@ function updateCashFlow() {
       <td>${fmtC(avgRent)}</td>
       <td>${fmtC(noiPUM)}</td>
       <td class="${cocCls}">${fmtP(coc*100,1)}</td>
-      <td>${fmtP(yoc*100,1)}</td>
+      <td>${fmtP(yocY*100,1)}</td>
       <td class="${dscrCls}">${fmtX(dscr,2)}</td>
       <td>${fmtP(debtYield*100,1)}</td>
     </tr>`;
