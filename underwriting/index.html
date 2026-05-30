@@ -699,6 +699,10 @@ footer .logo { color: var(--paper); }
               <div class="field-input"><select id="loanPurpose" onchange="recalc()"><option value="purchase">Achat / Refi</option><option value="construction">Construction</option></select></div>
             </div>
             <div class="field-row">
+              <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux utilisé par la SCHL pour estimer la valeur économique (= NOI ÷ taux). Laissez vide pour utiliser le prix d'achat comme valeur de prêt.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="schlCapRate" value="" placeholder="—" step="0.05" min="0" max="20" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
               <span class="field-label">LTV cible <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Le prêt final = MIN(plafond LTV, plafond DSCR). Double plafond SCHL.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="targetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
@@ -1161,19 +1165,19 @@ footer .logo { color: var(--paper); }
         </table>
       </div>
 
-      <!-- Taux de prime — Other Shelter / Construction -->
+      <!-- Taux de prime — Other Shelter -->
       <div class="schl-card">
-        <div class="schl-card-header">Taux de prime — Other Shelter &amp; Construction</div>
+        <div class="schl-card-header">Taux de prime — Other Shelter (achat/refi &amp; construction)</div>
         <table class="schl-table">
-          <thead><tr><th>LTV</th><th>Other Shelter</th><th>Construction</th></tr></thead>
+          <thead><tr><th>LTV</th><th>Achat / Refi</th><th>Construction</th></tr></thead>
           <tbody>
-            <tr><td>≤ 65 %</td><td>3,25 %</td><td>3,25 %</td></tr>
-            <tr><td>≤ 70 %</td><td>3,75 %</td><td>3,75 %</td></tr>
-            <tr><td>≤ 75 %</td><td>4,25 %</td><td>4,25 %</td></tr>
-            <tr><td>≤ 80 %</td><td>5,00 %</td><td>5,00 %</td></tr>
-            <tr><td>≤ 85 %</td><td>6,00 %</td><td>6,00 %</td></tr>
-            <tr><td>≤ 90 %</td><td>6,75 %</td><td>6,75 %</td></tr>
-            <tr><td>≤ 95 %</td><td>—</td><td class="gold-cell">7,00 %</td></tr>
+            <tr><td>≤ 65 %</td><td>6,30 %</td><td>6,55 %</td></tr>
+            <tr><td>≤ 70 %</td><td>6,60 %</td><td>6,85 %</td></tr>
+            <tr><td>≤ 75 %</td><td>6,90 %</td><td>7,15 %</td></tr>
+            <tr><td>≤ 80 %</td><td>7,05 %</td><td>7,30 %</td></tr>
+            <tr><td>≤ 85 %</td><td>7,75 %</td><td>8,00 %</td></tr>
+            <tr><td>≤ 90 %</td><td>8,00 %</td><td>8,25 %</td></tr>
+            <tr><td>&gt; 90 %</td><td>8,75 %</td><td class="gold-cell">9,00 %</td></tr>
           </tbody>
         </table>
         <div class="schl-note">La surcharge d'amortissement s'applique identiquement (+0,25 % / 5 ans au-delà de 25 ans).</div>
@@ -1260,14 +1264,20 @@ function getMliDiscount(program, pts) {
   return 0;
 }
 function getBasePremiumRate(ltvPct, buildingType, purpose) {
-  // Rates post July 14, 2025 — Source: CMHC MLI
-  const rates = purpose === 'construction'
-    ? [[65,.0325],[70,.0375],[75,.0425],[80,.050],[85,.060],[90,.0675],[100,.070]]
-    : buildingType === 'standard'
-    ? [[65,.026],[70,.0285],[75,.0335],[80,.0435],[85,.0535],[90,.059],[100,.0615]]
-    : [[65,.0325],[70,.0375],[75,.0425],[80,.050],[85,.060],[90,.0675],[100,.070]];
-  for (const [maxLtv, rate] of rates) if (ltvPct <= maxLtv) return rate;
-  return rates[rates.length-1][1];
+  // Rates effective July 14, 2025 — Source: CMHC multi-unit MLI premium schedule
+  const tables = {
+    standard: {
+      purchase:     [[65,.026],[70,.0285],[75,.0335],[80,.0435],[85,.0535],[90,.059],[100,.0615]],
+      construction: [[65,.0325],[70,.0375],[75,.0425],[80,.050],[85,.060],[90,.0675],[100,.070]],
+    },
+    other: {
+      purchase:     [[65,.063],[70,.066],[75,.069],[80,.0705],[85,.0775],[90,.080],[100,.0875]],
+      construction: [[65,.0655],[70,.0685],[75,.0715],[80,.073],[85,.080],[90,.0825],[100,.090]],
+    },
+  };
+  const schedule = (tables[buildingType] || tables.standard)[purpose === 'construction' ? 'construction' : 'purchase'];
+  for (const [maxLtv, rate] of schedule) if (ltvPct <= maxLtv) return rate;
+  return schedule[schedule.length-1][1];
 }
 function getAmortSurcharge(amort) { return Math.max(0, Math.floor((amort-25)/5)) * 0.0025; }
 function getProvTax(province) {
@@ -1276,17 +1286,19 @@ function getProvTax(province) {
   return 0;
 }
 
-function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, ratePct, term, amort, province, propertyValue, noi, units) {
+function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, ratePct, term, amort, province, propertyValue, noi, units, lendingValue) {
+  // lendingValue = CMHC's lending value (economic value); defaults to propertyValue if not supplied
+  const lv = (lendingValue > 0 && lendingValue < propertyValue) ? lendingValue : propertyValue;
   const effAmort = Math.min(amort, getMaxAmort(program, mliPts));
   const progMaxLtv = getProgramMaxLtv(program, mliPts);
   const effLtvCap = Math.min(targetLtvPct, progMaxLtv) / 100;
   const minDscr = getMinDscr(program, buildingType, units, term);
   const mc = mortgageConstant(ratePct, effAmort);
-  const ltvMaxLoan = propertyValue * effLtvCap;
+  const ltvMaxLoan = lv * effLtvCap;           // capped on lending value, not price
   const dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
   const approvedLoan = Math.min(ltvMaxLoan, Math.max(0, dscrMaxLoan));
   const binding = dscrMaxLoan <= ltvMaxLoan ? 'DSCR' : 'LTV';
-  const effLtv = propertyValue > 0 ? approvedLoan / propertyValue : 0;
+  const effLtv = propertyValue > 0 ? approvedLoan / propertyValue : 0;  // loan ÷ price (% de financement)
   const baseRate = getBasePremiumRate(effLtv*100, buildingType, purpose);
   const surcharge = getAmortSurcharge(effAmort);
   const discount = getMliDiscount(program, mliPts);
@@ -1302,7 +1314,7 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const downPayment = propertyValue - approvedLoan;
   const appFee = Math.min(Math.max(units*150, units*100), 50000);
   const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
-  return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort};
+  return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
 
 // ─── Main calculation ─────────────────────────────────────────────────────────
@@ -1360,7 +1372,9 @@ function recalc() {
   const yoc = totalAcqCost + totalInvest > 0 ? optNOI / (totalAcqCost + totalInvest) : 0;
 
   // E: CMHC
-  const cmhc = computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, noi, units);
+  const schlCapRate = g('schlCapRate');
+  const valeurEconomique = schlCapRate > 0 ? noi / (schlCapRate / 100) : purchasePrice;
+  const cmhc = computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, noi, units, valeurEconomique);
 
   // F: Private financing
   const renoEquity = totalInvest * (1 - privPct/100);
@@ -1497,10 +1511,11 @@ function updateOutputs() {
   const c = cmhc;
   document.getElementById('out-acquisition').innerHTML =
     `<div class="mb-2"><span class="inline-badge">${c.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+    (c.lendingValue < purchasePrice ? outRow('Valeur économique SCHL', fmtC(c.lendingValue)) : '') +
     outRow('Plafond LTV (prêt max)', fmtC(c.ltvMaxLoan)) +
     outRow('Plafond DSCR (prêt max)', fmtC(c.dscrMaxLoan)) +
     outRow('Prêt approuvé', fmtC(c.approvedLoan), 'key-row') +
-    outRow('LTV effectif', fmtP(c.effLtv*100)) +
+    outRow('% de financement (/ prix)', fmtP(c.effLtv*100)) +
     outRow('DSCR (prêt de base)', fmtX(c.dscrBase)) +
     outRow('DSCR (hypo assurée)', fmtX(c.dscrInsured)) +
     '<div class="divider"></div>' +
@@ -1928,6 +1943,7 @@ function resetAll() {
   document.getElementById('refiProgram').value = 'mli-market';
   document.getElementById('buildingType').value = 'standard';
   document.getElementById('loanPurpose').value = 'purchase';
+  document.getElementById('schlCapRate').value = '';
   document.getElementById('term').value = '5';
   document.getElementById('amortization').value = '40';
   document.getElementById('province').value = 'qc';
