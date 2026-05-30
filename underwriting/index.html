@@ -591,9 +591,24 @@ footer .logo { color: var(--paper); }
             <span class="chevron">▼</span>
           </div>
           <div class="section-body open">
-            <div class="field-row">
-              <span class="field-label">Loyer mensuel / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loyer moyen actuel par unité.</span></span></span>
+            <div class="field-row" style="align-items:center;">
+              <span class="field-label">Mode de saisie des loyers</span>
+              <div class="field-input" style="display:flex;gap:16px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="rentMode" value="avg" checked onchange="toggleRentMode();recalc()"> Moyen / unité
+                </label>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="rentMode" value="annual" onchange="toggleRentMode();recalc()"> Annuel total
+                </label>
+              </div>
+            </div>
+            <div class="field-row" id="rent-avg-row">
+              <span class="field-label">Loyer mensuel moyen / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loyer moyen actuel par unité. Le total annuel est calculé automatiquement.</span></span></span>
               <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="currentRent" value="1000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row" id="rent-annual-row" style="display:none;">
+              <span class="field-label">Loyer annuel total (réel) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Rôle de loyer réel — total des loyers annuels de l'immeuble. Le moyen / unité est calculé automatiquement.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="currentRentAnnual" value="72000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taux d'inoccupation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">3% = marché serré, 5% = équilibré, 7%+ = surplus.</span></span></span>
@@ -1327,7 +1342,9 @@ function recalc() {
   // Inputs
   const purchasePrice = g('purchasePrice'), units = g('units'), avgSqft = g('avgSqft');
   const rollValue = g('rollValue'), acqCostPct = g('acquisitionCostPct');
-  const currentRent = g('currentRent'), vacPct = g('vacancyRate'), otherInc = g('otherIncome'), opexPct = g('operatingExpenses');
+  const rentMode = (document.querySelector('input[name="rentMode"]:checked') || {}).value || 'avg';
+  const rentAvgIn = g('currentRent'), rentAnnualIn = g('currentRentAnnual');
+  const vacPct = g('vacancyRate'), otherInc = g('otherIncome'), opexPct = g('operatingExpenses');
   const targetRent = g('targetRent'), rentGrowth = g('rentGrowth'), holding = g('holdingPeriod');
   const optVacPct = g('optimizedVacancy'), optOpexPct = g('optimizedExpenses'), turnover = g('turnoverRate');
   const renoCost = g('renoCost'), pctReno = g('pctReno'), cfkMonths = g('cfkMonths'), pctCfk = g('pctCfk');
@@ -1350,7 +1367,24 @@ function recalc() {
   const premiumOverRoll = rollValue > 0 ? purchasePrice / rollValue - 1 : 0;
 
   // B: Current NOI
-  const gri = currentRent * units * 12;
+  let currentRent, gri;
+  if (rentMode === 'annual') {
+    gri = rentAnnualIn;
+    currentRent = units > 0 ? rentAnnualIn / units / 12 : 0;
+  } else {
+    currentRent = rentAvgIn;
+    gri = currentRent * units * 12;
+  }
+  // Sync the inactive (display-only) field
+  const _rentAvgEl = document.getElementById('currentRent');
+  const _rentAnnualEl = document.getElementById('currentRentAnnual');
+  if (_rentAvgEl && _rentAnnualEl) {
+    if (rentMode === 'annual') {
+      _rentAvgEl.value = formatCurrency(String(Math.round(currentRent)));
+    } else {
+      _rentAnnualEl.value = formatCurrency(String(Math.round(gri)));
+    }
+  }
   const egi = gri * (1 - vacPct/100) + otherInc;
   const opex = egi * opexPct/100;
   const noi = egi - opex;
@@ -1434,7 +1468,7 @@ function recalc() {
   const refiMult = totalCash > 0 ? netCashOut / totalCash : 0;
 
   C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
-    gri, egi, opex, noi, capRate, grm,
+    currentRent, gri, egi, opex, noi, capRate, grm,
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost, privRate,
@@ -1604,13 +1638,12 @@ function updateOutputs() {
 
 // ─── Cash flow table ──────────────────────────────────────────────────────────
 function updateCashFlow() {
-  const { noi, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc,
+  const { noi, currentRent, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc,
           totalCash, privAmt, privRate, yoc, totalAcqCost, totalInvest,
           salePrice, salesComm, balanceAtExit, penalty, cgTax, rentalTax, closing,
           grossCashOut, netCashOut, refiBreak, refi, refiClosing } = C;
   const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
   const targetRent = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
-  const currentRent = parseFloat(String(document.getElementById('currentRent').value).replace(/[^\d.-]/g,'')) || 0;
   const rentGrowth = (parseFloat(document.getElementById('rentGrowth').value) || 0) / 100;
   const units = parseFloat(document.getElementById('units').value) || 0;
   const effAmort = cmhc.effAmort;
@@ -1749,7 +1782,7 @@ function buildPrintReport() {
   const avgSqft       = parseFloat(document.getElementById('avgSqft').value) || 0;
   const rollValue     = parseFloat(String(document.getElementById('rollValue').value).replace(/[^\d.-]/g,'')) || 0;
   const acqCostPct    = parseFloat(document.getElementById('acquisitionCostPct').value) || 0;
-  const currentRent   = parseFloat(String(document.getElementById('currentRent').value).replace(/[^\d.-]/g,'')) || 0;
+  const currentRent   = C.currentRent || 0;  // effective monthly avg/unit (mode-aware)
   const vacancyRate   = parseFloat(document.getElementById('vacancyRate').value) || 0;
   const opexPct       = parseFloat(document.getElementById('operatingExpenses').value) || 0;
   const targetRent    = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
@@ -1821,6 +1854,7 @@ function buildPrintReport() {
     <div class="pr-assumptions">
       ${pr('Prix d\'achat', fmtC(purchasePrice))}
       ${pr('Loyer actuel / unité', fmtC(currentRent) + '/mois')}
+      ${pr('Loyer annuel total', fmtC(C.gri))}
       ${pr('Nombre d\'unités', units)}
       ${pr('Loyer cible / unité', fmtC(targetRent) + '/mois')}
       ${pr('Type d\'unité', unitType)}
@@ -1902,6 +1936,24 @@ function toggleHelp(header) {
   header.querySelector('span').textContent = body.classList.contains('open') ? '▲' : '▼';
 }
 
+function toggleRentMode() {
+  const mode = (document.querySelector('input[name="rentMode"]:checked') || {}).value || 'avg';
+  const avgRow    = document.getElementById('rent-avg-row');
+  const annualRow = document.getElementById('rent-annual-row');
+  const avgInput    = document.getElementById('currentRent');
+  const annualInput = document.getElementById('currentRentAnnual');
+  if (mode === 'annual') {
+    if (avgRow)    avgRow.style.display    = 'none';
+    if (annualRow) annualRow.style.display = '';
+    if (avgInput)    { avgInput.disabled = true;  avgInput.style.opacity = '0.45'; }
+    if (annualInput) { annualInput.disabled = false; annualInput.style.opacity = ''; }
+  } else {
+    if (avgRow)    avgRow.style.display    = '';
+    if (annualRow) annualRow.style.display = 'none';
+    if (avgInput)    { avgInput.disabled = false; avgInput.style.opacity = ''; }
+    if (annualInput) { annualInput.disabled = true;  annualInput.style.opacity = '0.45'; }
+  }
+}
 function toggleMliPoints() {
   const show = document.getElementById('cmhcProgram').value === 'mli-select';
   document.getElementById('mli-points-row').style.display = show ? '' : 'none';
@@ -1912,7 +1964,7 @@ function toggleRefiMliPoints() {
 }
 
 // ─── Currency formatting (fr-CA: space thousands separator) ──────────────────
-const CURRENCY_FIELDS = ['purchasePrice','rollValue','currentRent','otherIncome','targetRent','renoCost','contingency','closingFees','refiClosingFees'];
+const CURRENCY_FIELDS = ['purchasePrice','rollValue','currentRent','currentRentAnnual','otherIncome','targetRent','renoCost','contingency','closingFees','refiClosingFees'];
 function formatCurrency(str) {
   const raw = String(str).replace(/[^\d.-]/g, '');
   if (!raw || raw === '-') return str;
@@ -1927,7 +1979,7 @@ function resetAll() {
   if (!confirm('Réinitialiser tous les paramètres aux valeurs par défaut ?')) return;
   const defaults = {
     purchasePrice:1175000, units:6, avgSqft:1000, rollValue:969400, acquisitionCostPct:2.5,
-    currentRent:1000, vacancyRate:5, otherIncome:0, operatingExpenses:30,
+    currentRent:1000, currentRentAnnual:72000, vacancyRate:5, otherIncome:0, operatingExpenses:30,
     targetRent:1450, rentGrowth:2, holdingPeriod:5, optimizedVacancy:5, optimizedExpenses:30, turnoverRate:17.5,
     renoCost:20000, pctReno:50, cfkMonths:0, pctCfk:20,
     mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
@@ -1950,13 +2002,18 @@ function resetAll() {
   document.getElementById('refiTerm').value = '5';
   document.getElementById('refiAmortization').value = '40';
   document.getElementById('unitType').value = '6 x 4½';
+  // Reset rent mode to average
+  const rentModeAvg = document.querySelector('input[name="rentMode"][value="avg"]');
+  if (rentModeAvg) rentModeAvg.checked = true;
   toggleMliPoints();
   toggleRefiMliPoints();
+  toggleRentMode();
   recalc();
 }
 
 // Init
 CURRENCY_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = formatCurrency(el.value); });
+toggleRentMode();
 recalc();
 </script>
 
