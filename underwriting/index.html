@@ -1419,7 +1419,7 @@ function recalc() {
   const optEGI = optGRI * (1 - optVacPct/100) + otherInc;
   const optOpex = optEGI * optOpexPct/100;
   const optNOI = optEGI - optOpex;
-  const yoc = totalAcqCost + totalInvest > 0 ? optNOI / (totalAcqCost + totalInvest) : 0;
+  // yoc is computed below (after brokerFee & cmhc are in scope) on a full all-in cost basis
 
   // E: CMHC — economic value & loan sized on CMHC-normalized NOI (may differ from operating NOI)
   const schlCapRate = g('schlCapRate');
@@ -1444,6 +1444,9 @@ function recalc() {
   // H: Total cash required
   const brokerFee = cmhc.approvedLoan * brokerFeePct/100;
   const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + cmhc.appFee + brokerFee;
+  // Full all-in project cost (denominateur Yield on Cost) = achat + frais acq + réno + courtier + frais SCHL
+  const allInCost = totalAcqCost + totalInvest + brokerFee + cmhc.provTax + cmhc.appFee;
+  const yoc = allInCost > 0 ? optNOI / allInCost : 0;
 
   // I: Sale scenario — exit NOI phased by turnover (transparent: buyer pays for in-place, not full stabilization)
   const tr = turnover/100;
@@ -1496,7 +1499,7 @@ function recalc() {
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost, privRate,
-    totalReserve, annualReserve, totalCash, brokerFee,
+    totalReserve, annualReserve, totalCash, brokerFee, allInCost,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, netPreTax, netPostTax, totalRet, annRet, exitMult,
     refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult, refiBrokerFee,
     holding, rate, term, optVacPct, optOpexPct, otherInc, closing, refiClosing };
@@ -1537,7 +1540,7 @@ function updateOutputs() {
     totalReno, cfk, totalInvest, renoPerSqft,
     optNOI, yoc, projRentExit, exitNOI, fracExit,
     cmhc, renoEquity, privCost,
-    totalReserve, annualReserve, totalCash, brokerFee,
+    totalReserve, annualReserve, totalCash, brokerFee, allInCost,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, rentalTax, netPreTax, netPostTax, totalRet, annRet, exitMult,
     refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult, refiBrokerFee } = C;
 
@@ -1667,7 +1670,7 @@ function updateOutputs() {
 // ─── Cash flow table ──────────────────────────────────────────────────────────
 function updateCashFlow() {
   const { noi, currentRent, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc,
-          totalCash, privAmt, privRate, yoc, totalAcqCost, totalInvest,
+          totalCash, privAmt, privRate, yoc, totalAcqCost, totalInvest, allInCost,
           salePrice, salesComm, balanceAtExit, penalty, cgTax, rentalTax, closing,
           grossCashOut, netCashOut, refiBreak, refi, refiClosing, refiBrokerFee } = C;
   const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
@@ -1707,7 +1710,7 @@ function updateCashFlow() {
     const avgRent = frac * rentY + (1 - frac) * currentRent * Math.pow(1 + rentGrowth, y);
     const noiPUM = units > 0 ? blendedNOI / units / 12 : 0;
     const debtYield = bal > 0 ? blendedNOI / bal : 0;
-    const yocY = (totalAcqCost + totalInvest) > 0 ? blendedNOI / (totalAcqCost + totalInvest) : 0;
+    const yocY = allInCost > 0 ? blendedNOI / allInCost : 0;
 
     // Exit-year flows (only on final holding year)
     const isExit = (y === holdingInt);
