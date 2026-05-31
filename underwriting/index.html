@@ -571,6 +571,10 @@ footer .logo { color: var(--paper); }
               <span class="field-label">Frais d'acquisition <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Notaire, inspection, due diligence. Typiquement 1.5–3% du prix d'achat.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="acquisitionCostPct" value="2.5" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
+            <div class="field-row">
+              <span class="field-label">Frais de courtier hypothécaire <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">% du prêt approuvé. Versé au courtier et ajouté au cash requis à la fermeture.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="brokerFeePct" value="1" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
             <div class="divider" style="margin:10px 0 4px;"></div>
             <div class="sub-label" style="padding:2px 0 2px;">Identité du rapport (PDF)</div>
             <div class="field-row">
@@ -852,6 +856,10 @@ footer .logo { color: var(--paper); }
             <div class="field-row">
               <span class="field-label">Frais de fermeture (refi)</span>
               <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="refiClosingFees" value="-3000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais de courtier (refi) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">% du prêt refi approuvé. Réduit la prise de fonds nette.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="refiBrokerFeePct" value="1" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
           </div>
         </div>
@@ -1349,7 +1357,7 @@ function recalc() {
 
   // Inputs
   const purchasePrice = g('purchasePrice'), units = g('units'), avgSqft = g('avgSqft');
-  const rollValue = g('rollValue'), acqCostPct = g('acquisitionCostPct');
+  const rollValue = g('rollValue'), acqCostPct = g('acquisitionCostPct'), brokerFeePct = g('brokerFeePct');
   const rentMode = (document.querySelector('input[name="rentMode"]:checked') || {}).value || 'avg';
   const rentAvgIn = g('currentRent'), rentAnnualIn = g('currentRentAnnual');
   const vacPct = g('vacancyRate'), otherInc = g('otherIncome'), opexPct = g('operatingExpenses');
@@ -1366,7 +1374,7 @@ function recalc() {
   const refiProg = gs('refiProgram'), refiMliPts = g('refiMliPoints'), refiCapRatePct = g('refiCapRate');
   const refiLtv = g('refiTargetLtv'), refiRate = g('refiInterestRate');
   const refiTerm = parseFloat(gs('refiTerm')), refiAmort = parseFloat(gs('refiAmortization'));
-  const refiClosing = g('refiClosingFees');
+  const refiClosing = g('refiClosingFees'), refiBrokerPct = g('refiBrokerFeePct');
 
   // A: Acquisition
   const acqCostDollar = purchasePrice * acqCostPct/100;
@@ -1434,7 +1442,8 @@ function recalc() {
   const annualReserve = holding > 0 ? totalReserve / holding : 0;
 
   // H: Total cash required
-  const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + cmhc.appFee;
+  const brokerFee = cmhc.approvedLoan * brokerFeePct/100;
+  const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + cmhc.appFee + brokerFee;
 
   // I: Sale scenario — exit NOI phased by turnover (transparent: buyer pays for in-place, not full stabilization)
   const tr = turnover/100;
@@ -1478,7 +1487,8 @@ function recalc() {
   const refi = computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units);
   const refiBreak = breakPenalty(balanceAtExit, rate, newRate, holding, term);
   const grossCashOut = refi.approvedLoan - balanceAtExit - refiBreak;
-  const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee - privAmt;
+  const refiBrokerFee = refi.approvedLoan * refiBrokerPct/100;
+  const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee - refiBrokerFee - privAmt;
   const refiMult = totalCash > 0 ? netCashOut / totalCash : 0;
 
   C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
@@ -1486,9 +1496,9 @@ function recalc() {
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost, privRate,
-    totalReserve, annualReserve, totalCash,
+    totalReserve, annualReserve, totalCash, brokerFee,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, netPreTax, netPostTax, totalRet, annRet, exitMult,
-    refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult,
+    refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult, refiBrokerFee,
     holding, rate, term, optVacPct, optOpexPct, otherInc, closing, refiClosing };
 
   updateDashboard();
@@ -1527,9 +1537,9 @@ function updateOutputs() {
     totalReno, cfk, totalInvest, renoPerSqft,
     optNOI, yoc, projRentExit, exitNOI, fracExit,
     cmhc, renoEquity, privCost,
-    totalReserve, annualReserve, totalCash,
+    totalReserve, annualReserve, totalCash, brokerFee,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, rentalTax, netPreTax, netPostTax, totalRet, annRet, exitMult,
-    refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult } = C;
+    refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult, refiBrokerFee } = C;
 
   // Current
   document.getElementById('out-current').innerHTML =
@@ -1582,6 +1592,7 @@ function updateOutputs() {
     outRow('Mise de fonds', fmtC(c.downPayment)) +
     outRow('Mise de fonds rénovations', fmtC(renoEquity)) +
     outRow('Frais d\'acquisition', fmtC(C.acqCostDollar)) +
+    outRow('Frais de courtier hypothécaire', fmtC(brokerFee)) +
     outRow('TVQ sur prime SCHL', fmtC(c.provTax)) +
     outRow('Frais de demande SCHL', fmtC(c.appFee)) +
     outRow('TOTAL CASH REQUIS', fmtC(totalCash), 'key-row') +
@@ -1644,6 +1655,7 @@ function updateOutputs() {
     outRow('Balance hypothécaire courante', '-'+fmtC(C.balanceAtExit), 'neg') +
     outRow('Pénalité de bris', '-'+fmtC(refiBreak), 'neg') +
     outRow('Sortie de fonds brute', fmtC(grossCashOut)) +
+    (refiBrokerFee > 0 ? outRow('Frais de courtier (refi)', '-'+fmtC(refiBrokerFee), 'neg') : '') +
     (C.privAmt > 0 ? outRow('Remboursement capital privé (réno)', '-'+fmtC(C.privAmt), 'neg') : '') +
     outRow('SORTIE DE FONDS NETTE', fmtC(netCashOut), netCashOut >= 0 ? 'key-row pos' : 'key-row neg') +
     `<div class="metric-grid">
@@ -1657,7 +1669,7 @@ function updateCashFlow() {
   const { noi, currentRent, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc,
           totalCash, privAmt, privRate, yoc, totalAcqCost, totalInvest,
           salePrice, salesComm, balanceAtExit, penalty, cgTax, rentalTax, closing,
-          grossCashOut, netCashOut, refiBreak, refi, refiClosing } = C;
+          grossCashOut, netCashOut, refiBreak, refi, refiClosing, refiBrokerFee } = C;
   const turnover = (parseFloat(document.getElementById('turnoverRate').value) || 0) / 100;
   const targetRent = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
   const rentGrowth = (parseFloat(document.getElementById('rentGrowth').value) || 0) / 100;
@@ -1711,7 +1723,7 @@ function updateCashFlow() {
     // Refi scenario: break penalty + SCHL TVQ + SCHL app fee + legal closing fees (refiClosing stored negative)
     const refiLoan      = isExit ? refi.approvedLoan : 0;
     const refiMortOut   = isExit ? balanceAtExit : 0;
-    const refiFrais     = isExit ? refiBreak + refi.provTax + refi.appFee - refiClosing : 0;
+    const refiFrais     = isExit ? refiBreak + refi.provTax + refi.appFee + refiBrokerFee - refiClosing : 0;
     const refiPrivOut   = isExit ? privAmt : 0;
     const refiPriseNette = isExit ? netCashOut : 0;
     const fluxRefi = cf + refiPriseNette;
@@ -1994,13 +2006,13 @@ function formatCurrency(str) {
 function resetAll() {
   if (!confirm('Réinitialiser tous les paramètres aux valeurs par défaut ?')) return;
   const defaults = {
-    purchasePrice:1175000, units:6, avgSqft:1000, rollValue:969400, acquisitionCostPct:2.5,
+    purchasePrice:1175000, units:6, avgSqft:1000, rollValue:969400, acquisitionCostPct:2.5, brokerFeePct:1,
     currentRent:1000, currentRentAnnual:72000, vacancyRate:5, otherIncome:0, operatingExpenses:30,
     targetRent:1450, rentGrowth:2, holdingPeriod:5, optimizedVacancy:5, optimizedExpenses:30, turnoverRate:17.5,
     renoCost:20000, pctReno:50, cfkMonths:0, pctCfk:20,
     mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
     capRateDrift:0.5, newMortgageRate:4.25, marginalTax:26.5, cgTaxRate:33, commission:2, closingFees:-1500,
-    refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:-3000,
+    refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:-3000, refiBrokerFeePct:1,
     privatePct:100, privateRate:14,
   };
   for (const [id, val] of Object.entries(defaults)) {
