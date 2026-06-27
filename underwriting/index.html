@@ -296,6 +296,23 @@ input[type="text"]:focus { border-color: var(--accent); }
 .mt-4 { margin-top: 16px; }
 .mb-2 { margin-bottom: 8px; }
 
+/* ── Mode toggle ─────────────────────────────────────────────────────── */
+.mode-toggle { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.mode-toggle-btn { font-family: 'Inter Tight', sans-serif; font-size: 12px; font-weight: 500; border: none; background: var(--paper); color: var(--ink-soft); padding: 6px 14px; cursor: pointer; transition: all .18s; letter-spacing: 0.02em; }
+.mode-toggle-btn.active { background: var(--accent); color: #fff; }
+.mode-toggle-btn:hover:not(.active) { background: var(--bg-warm); color: var(--ink); }
+
+/* ── Mode visibility ─────────────────────────────────────────────────── */
+.dev-only { display: none; }
+body.mode-dev .dev-only { display: block; }
+body.mode-dev .dev-only.grid-2 { display: grid; }
+body.mode-dev .acq-only { display: none; }
+
+/* ── Dev spread indicator ────────────────────────────────────────────── */
+.spread-pos { color: var(--positive); font-weight: 700; }
+.spread-warn { color: var(--warm); font-weight: 700; }
+.spread-neg { color: var(--negative); font-weight: 700; }
+
 /* ── Footer ──────────────────────────────────────────────────────────── */
 footer { background: var(--ink); color: #a8a8a3; padding: 50px 0 30px; font-size: 13px; }
 footer .footer-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2; }
@@ -479,7 +496,11 @@ footer .logo { color: var(--paper); }
       Plex Québec
     </a>
     <div style="display:flex;align-items:center;gap:14px;">
-      <span class="nav-tag">Outil interne</span>
+      <div class="mode-toggle">
+        <button class="mode-toggle-btn active" id="mode-btn-acq" onclick="setMode('acq')">Acquisition</button>
+        <button class="mode-toggle-btn" id="mode-btn-dev" onclick="setMode('dev')">Développement</button>
+      </div>
+      <span class="nav-tag" id="nav-tag">Outil interne</span>
       <button class="print-btn" onclick="printReport()">⤓ Imprimer en PDF</button>
       <button class="reset-btn" onclick="resetAll()">↺ Réinitialiser</button>
     </div>
@@ -490,32 +511,32 @@ footer .logo { color: var(--paper); }
 <div class="dashboard">
   <div class="dashboard-inner">
     <div class="kpi green" id="kpi-noi">
-      <div class="kpi-label">NOI Actuel</div>
+      <div class="kpi-label" id="kl-noi">NOI Actuel</div>
       <div class="kpi-value" id="kv-noi">—</div>
       <div class="kpi-sub" id="ks-noi">Cap rate: —</div>
     </div>
     <div class="kpi blue" id="kpi-noi-opt">
-      <div class="kpi-label">NOI Optimisé</div>
+      <div class="kpi-label" id="kl-noi-opt">NOI Optimisé</div>
       <div class="kpi-value" id="kv-noi-opt">—</div>
       <div class="kpi-sub" id="ks-noi-opt">Yield on Cost: —</div>
     </div>
     <div class="kpi" id="kpi-loan">
-      <div class="kpi-label">Prêt Approuvé</div>
+      <div class="kpi-label" id="kl-loan">Prêt Approuvé</div>
       <div class="kpi-value" id="kv-loan">—</div>
       <div class="kpi-sub" id="ks-loan">LTV — · DSCR —</div>
     </div>
     <div class="kpi amber" id="kpi-cash">
-      <div class="kpi-label">Cash Requis</div>
+      <div class="kpi-label" id="kl-cash">Cash Requis</div>
       <div class="kpi-value" id="kv-cash">—</div>
       <div class="kpi-sub" id="ks-cash">MP mensuel: —</div>
     </div>
     <div class="kpi green" id="kpi-profit">
-      <div class="kpi-label">Profit Net</div>
+      <div class="kpi-label" id="kl-profit">Profit Net</div>
       <div class="kpi-value" id="kv-profit">—</div>
       <div class="kpi-sub" id="ks-profit">— / an · —x</div>
     </div>
     <div class="kpi blue" id="kpi-refi">
-      <div class="kpi-label">Prise de fonds nette</div>
+      <div class="kpi-label" id="kl-refi">Prise de fonds nette</div>
       <div class="kpi-value" id="kv-refi">—</div>
       <div class="kpi-sub" id="ks-refi">Multiple cash-out: —</div>
     </div>
@@ -537,8 +558,8 @@ footer .logo { color: var(--paper); }
   <!-- ── Tab: Paramètres ─────────────────────────────────────────────── -->
   <div id="tab-inputs" class="tab-content active">
     <div class="grid-2">
-      <!-- LEFT COLUMN -->
-      <div class="space-y">
+      <!-- LEFT COLUMN (acquisition) -->
+      <div class="space-y acq-only">
 
         <!-- A: Property -->
         <div class="section-card">
@@ -691,8 +712,8 @@ footer .logo { color: var(--paper); }
 
       </div><!-- /left col -->
 
-      <!-- RIGHT COLUMN -->
-      <div class="space-y">
+      <!-- RIGHT COLUMN (acquisition) -->
+      <div class="space-y acq-only">
 
         <!-- E: CMHC -->
         <div class="section-card">
@@ -864,13 +885,283 @@ footer .logo { color: var(--paper); }
           </div>
         </div>
 
-      </div><!-- /right col -->
+      </div><!-- /right col (acq) -->
+
+      <!-- LEFT COLUMN (développement) -->
+      <div class="space-y dev-only">
+
+        <!-- DA: Terrain & Projet -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>DA | Terrain &amp; Projet</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Prix du terrain <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Prix d'achat brut du lot.</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dLandPrice" value="300000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais de fermeture terrain <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Notaire, taxes de bienvenue, due diligence. Typiquement 2–4%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dLandClosingPct" value="2.5" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Nombre d'unités à construire</span>
+              <div class="field-input"><input type="number" id="dUnits" value="6" step="1" min="1" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Type d'unité</span>
+              <div class="field-input"><input type="text" id="dUnitType" value="6 x 4½"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Superficie plancher / unité (GFA) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Superficie brute de plancher par unité — base de calcul des coûts de construction au pi².</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dGfaPerUnit" value="1000" step="50" min="0" onchange="recalc()"><span class="sfx">pi²</span></div>
+            </div>
+            <div class="divider" style="margin:10px 0 4px;"></div>
+            <div class="sub-label">Identité du rapport (PDF)</div>
+            <div class="field-row">
+              <span class="field-label">Nom / adresse du projet</span>
+              <div class="field-input"><input type="text" id="dProjectName" placeholder="ex. 1234 rue Saint-Denis" style="width:200px;text-align:left;"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Préparé par</span>
+              <div class="field-input"><input type="text" id="dPreparedBy" placeholder="Votre nom" style="width:200px;text-align:left;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB: Hard costs -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>DB | Coûts de Construction (Hard)</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row" style="align-items:center;">
+              <span class="field-label">Mode de saisie</span>
+              <div class="field-input">
+                <select id="dHardMode" onchange="toggleHardMode();recalc()">
+                  <option value="per-sqft">Par pi² (GFA)</option>
+                  <option value="per-unit">Par unité</option>
+                </select>
+              </div>
+            </div>
+            <div class="field-row" id="d-hard-sqft-row">
+              <span class="field-label">Coût de construction / pi² <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Plex standard QC : 150–200$/pi² (rénové), 200–280$/pi² (neuf), 280–350$/pi² (haut de gamme).</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dHardPerSqft" value="225" step="5" min="0" onchange="recalc()"><span class="sfx">$/pi²</span></div>
+            </div>
+            <div class="field-row" id="d-hard-unit-row" style="display:none;">
+              <span class="field-label">Coût de construction / unité</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dHardPerUnit" value="225000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Démolition / décontamination</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dDemolition" value="0" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Aménagement du site</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dSiteWork" value="0" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DC: Soft costs -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>DC | Coûts Indirects (Soft)</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">% indirect sur coûts hard <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Coûts indirects non listés (assurances, surveillance, etc.). Typiquement 3–10% des coûts hard.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dSoftPct" value="5" step="0.5" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Architecture &amp; génie</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dArchEng" value="40000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Permis &amp; redevances de développement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Permis de construction + redevances municipales (contribution aux infrastructures, etc.).</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dPermitsDev" value="15000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Légal &amp; marketing</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dLegalMkt" value="10000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taxes municipales (construction)</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dPropTaxConstr" value="8000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais de promotion <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">% du total terrain+hard+soft. Honoraires de promoteur. Typiquement 3–8%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dDevFeePct" value="5" step="0.5" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DD: Contingence -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>DD | Contingence</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">Contingence <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Construction résidentielle : 5–10% sur coûts hard. Projets complexes : 10–15%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dContingencyPct" value="10" step="0.5" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Base de calcul</span>
+              <div class="field-input">
+                <select id="dContingencyBasis" onchange="recalc()">
+                  <option value="hard">Hard seulement</option>
+                  <option value="hardsoft">Hard + Soft</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DE: Échéancier -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h3>DE | Échéancier</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body">
+            <div class="field-row">
+              <span class="field-label">Durée de construction <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Plex 6 unités : 8–14 mois. Varie selon complexité et permis.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dConstrMonths" value="12" step="1" min="1" onchange="recalc()"><span class="sfx">mois</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Mise en location (lease-up) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Période de remplissage post-construction. 3–6 mois typique pour un plex neuf.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dLeaseUpMonths" value="6" step="1" min="0" onchange="recalc()"><span class="sfx">mois</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">% moyen du prêt décaissé <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Solde moyen pendant la période de construction pour calculer les intérêts. Typiquement 50–60%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dAvgDrawPct" value="55" step="5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DG: Revenus stabilisés -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>DG | Revenus Stabilisés</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Loyer cible / unité / mois <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loyer de marché visé, stabilisé. Valider avec comparables (neuf, même secteur).</span></span></span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dStabRent" value="1600" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Autres revenus (annuel)</span>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dOtherIncomeDev" value="0" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux d'inoccupation stabilisé <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Marché serré : 3–5%. Pour une unité neuve, utiliser le taux de marché normalisé.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dStabVacancy" value="5" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Dépenses d'exploitation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Immeuble neuf : 25–32%. Exclut le service de la dette.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dStabOpexPct" value="28" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dev left col -->
+
+      <!-- RIGHT COLUMN (développement) -->
+      <div class="space-y dev-only">
+
+        <!-- DF: Financement MLI Select Construction -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>DF | Financement MLI Select Construction</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Programme SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">MLI Select recommandé pour construction neuve (palier 1 : amort. 50 ans, −30% prime).</span></span></span>
+              <div class="field-input"><select id="dCmhcProgram" onchange="toggleDevMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select" selected>MLI Select</option></select></div>
+            </div>
+            <div class="field-row" id="d-mli-points-row">
+              <span class="field-label">Points MLI Select <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Construction neuve : 50 pts de base. Certification énergie ou accessibilité peut ajouter 20–50 pts.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dMliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Type de bâtiment</span>
+              <div class="field-input"><select id="dBuildingType" onchange="recalc()"><option value="standard">Standard Locatif</option><option value="other">Other Shelter</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">LTC cible (prêt/coût) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loan-to-Cost : plafond du prêt de construction en % du TDC (ex. financement). Typiquement 75–85%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dTargetLtc" value="80" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">LTV cible (prêt perm. / GDV) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">LTV du prêt permanent sur la valeur complétée (GDV). Double plafond LTV/DSCR SCHL.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dTargetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux d'intérêt <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). S'applique au prêt de construction et au prêt permanent.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dConstrRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Terme</span>
+              <div class="field-input"><select id="dTerm" onchange="recalc()"><option value="1">1 an</option><option value="2">2 ans</option><option value="3">3 ans</option><option value="5" selected>5 ans</option><option value="7">7 ans</option><option value="10">10 ans</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Amortissement</span>
+              <div class="field-input"><select id="dAmortization" onchange="recalc()"><option value="25">25 ans</option><option value="30">30 ans</option><option value="35">35 ans</option><option value="40" selected>40 ans</option><option value="45">45 ans</option><option value="50">50 ans</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Province</span>
+              <div class="field-input"><select id="dProvince" onchange="recalc()"><option value="qc" selected>Québec</option><option value="on">Ontario</option><option value="mb">Manitoba</option><option value="sk">Saskatchewan</option><option value="other">Autre</option></select></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Frais de courtier hypothécaire <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">% du prêt de construction approuvé.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dBrokerFeePct" value="1" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DH: Valeur & Sortie -->
+        <div class="section-card">
+          <div class="section-header open" onclick="toggleSection(this)">
+            <h3>DH | Valeur &amp; Sortie</h3>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="section-body open">
+            <div class="field-row">
+              <span class="field-label">Cap rate de sortie / SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux de capitalisation du marché pour estimer la GDV (NOI stabilisé ÷ cap rate). Aussi utilisé pour la valeur économique SCHL.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dExitCap" value="5.0" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Marge cible (valeur résiduelle) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Marge sur coût visée pour calculer le prix maximum du terrain (valeur résiduelle).</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dTargetMargin" value="20" step="1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="divider" style="margin:10px 0 4px;"></div>
+            <div class="sub-label">Scénario de vente à l'achèvement</div>
+            <div class="field-row">
+              <span class="field-label">Commission de vente</span>
+              <div class="field-input has-sfx"><input type="number" id="dCommissionDev" value="2" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux effectif — gain en capital <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux effectif sur gain en capital (inclusion × taux marginal). Corp: 2/3 × ~50% ≈ 33%.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dCgTaxRateDev" value="33" step="0.5" min="0" max="60" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /dev right col -->
+
     </div><!-- /grid-2 -->
   </div><!-- /tab inputs -->
 
   <!-- ── Tab: Analyse ────────────────────────────────────────────────── -->
   <div id="tab-analysis" class="tab-content">
-    <div class="grid-2">
+    <!-- Acquisition analysis -->
+    <div class="grid-2 acq-only">
       <!-- Current Analysis -->
       <div class="output-card">
         <div class="output-header"><h3>Revenus Actuels</h3></div>
@@ -892,11 +1183,36 @@ footer .logo { color: var(--paper); }
         <div class="output-body" id="out-refi"></div>
       </div>
     </div>
+    <!-- Développement analysis -->
+    <div class="grid-2 dev-only">
+      <div class="output-card">
+        <div class="output-header"><h3>Coût Total de Développement (TDC)</h3></div>
+        <div class="output-body" id="dev-out-cost"></div>
+      </div>
+      <div class="output-card">
+        <div class="output-header"><h3>GDV &amp; Financement MLI Select</h3></div>
+        <div class="output-body" id="dev-out-financing"></div>
+      </div>
+      <div class="output-card">
+        <div class="output-header"><h3>Scénario Vente à l'Achèvement</h3></div>
+        <div class="output-body" id="dev-out-sell"></div>
+      </div>
+      <div class="output-card">
+        <div class="output-header"><h3>Détention &amp; Valeur Résiduelle du Terrain</h3></div>
+        <div class="output-body" id="dev-out-hold"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ── Tab: Flux ───────────────────────────────────────────────────── -->
   <div id="tab-cashflow" class="tab-content">
-    <div class="output-card">
+    <!-- Développement: résumé de projet (dev mode) -->
+    <div class="output-card dev-only">
+      <div class="output-header"><h3 id="dev-cf-title">Développement — Résumé financier</h3></div>
+      <div class="output-body" id="dev-cf-body"></div>
+    </div>
+    <!-- Acquisition: flux de trésorerie -->
+    <div class="output-card acq-only">
       <div class="output-header"><h3 id="cf-title">Projections — Flux de Trésorerie</h3></div>
       <div class="output-body" style="overflow-x:auto;padding:0;">
         <div class="sub-label" style="padding:10px 18px 4px;">Flux d'exploitation — annuels</div>
@@ -1119,6 +1435,62 @@ footer .logo { color: var(--paper); }
             <li><strong>Rendement annualisé</strong> = (1 + rendement total)<sup>1/n</sup> − 1 — approximation du TRI</li>
             <li><strong>Multiple</strong> = Valeur finale / Capital investi</li>
           </ul>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>Mode Développement — Vue d'ensemble</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p>Le mode <strong>Développement</strong> permet de sous-écrire un projet de construction neuve (ground-up) de plex. Il utilise les mêmes moteurs CMHC/SCHL et de valorisation que le mode Acquisition, mais ajoute la pile de coûts de construction et le financement MLI Select Construction.</p>
+          <p style="margin-top:8px;"><strong>Pipeline de calcul (sections DA–DH) :</strong></p>
+          <ol style="padding-left:16px;line-height:2;">
+            <li><strong>DA</strong> — Terrain : prix brut + frais de fermeture, unités, superficie (GFA)</li>
+            <li><strong>DB · DC · DD</strong> — Coûts hard (construction), soft (indirects), contingence</li>
+            <li><strong>DE</strong> — Échéancier : mois de construction + lease-up, % moyen décaissé</li>
+            <li><strong>DF</strong> — Financement MLI Select Construction : prêt de construction (LTC) + prêt permanent (LTV/DSCR), prime SCHL, carry intérêts</li>
+            <li><strong>DG</strong> — Revenus stabilisés : NOI à pleine occupation → GDV (Gross Development Value)</li>
+            <li><strong>DH</strong> — Sorties : cap rate, marge cible, commission, impôt GC</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="help-section">
+        <div class="help-header" onclick="toggleHelp(this)">
+          <h4>Développement — Formules et indicateurs clés</h4>
+          <span style="color:var(--ink-soft);font-size:12px;">▼</span>
+        </div>
+        <div class="help-body">
+          <p><strong>Coût Total de Développement (TDC) :</strong></p>
+          <ul style="line-height:2;">
+            <li>Terrain = Prix brut × (1 + frais fermeture%)</li>
+            <li>Hard = pi²/unité GFA × $/pi² + démolition + site work</li>
+            <li>Soft = Hard × % indirect + archi/génie + permis + légal + taxes constr. + frais de promotion</li>
+            <li>Contingence = (Hard ou Hard+Soft) × %</li>
+            <li>Carry = Prêt construction × % moyen décaissé × taux annuel × (mois constr. + lease-up) / 12</li>
+            <li><strong>TDC = Terrain + Hard + Soft + Contingence + Carry + Courtier + TVQ + Frais SCHL</strong></li>
+          </ul>
+          <p style="margin-top:10px;"><strong>GDV &amp; financement :</strong></p>
+          <ul style="line-height:2;">
+            <li>NOI stabilisé = EGI × (1 − dépenses%) où EGI = GRI × (1 − inoccupation%) + autres revenus</li>
+            <li><strong>GDV</strong> = NOI stabilisé / cap rate de sortie — valeur brute de développement à l'achèvement</li>
+            <li>Prêt take-out = MIN(Plafond LTV×GDV, Plafond DSCR) — même double plafond SCHL qu'en mode Acquisition</li>
+            <li>Prêt de construction = MIN(LTC% × TDC, Prêt take-out)</li>
+            <li>Équité requise = TDC − Prêt de construction</li>
+          </ul>
+          <p style="margin-top:10px;"><strong>Indicateurs de développement :</strong></p>
+          <ul style="line-height:2;">
+            <li><strong>Yield on Cost (YoC)</strong> = NOI stabilisé / TDC — le rendement opérationnel sur le coût total; analogue au cap rate mais sur le coût, pas la valeur marchande</li>
+            <li><strong>Spread de développement</strong> = YoC − Cap rate de sortie — la marge de rendement par rapport au marché; cible minimale ≥ 1,5–2,0 % pour justifier le risque de construction</li>
+            <li><strong>Profit sur coût</strong> = GDV − TDC &nbsp;·&nbsp; <strong>Marge sur coût</strong> = Profit / TDC</li>
+            <li><strong>Équité récupérée</strong> = Prêt take-out − Prêt construction − Courtier — cash qui revient au promoteur lors de la conversion au prêt permanent</li>
+            <li><strong>Cash restant</strong> = TDC − Prêt take-out — capital effectivement immobilisé dans l'actif</li>
+            <li><strong>Cash-on-Cash stabilisé</strong> = Flux opér. stabilisé / Cash restant — rendement annuel sur le capital immobilisé</li>
+            <li><strong>Valeur résiduelle du terrain</strong> = GDV / (1 + marge cible) − coûts non-terrain — prix maximum payable pour le lot afin d'atteindre la marge cible</li>
+          </ul>
+          <p style="margin-top:8px;"><span class="tip-arrow">→</span> Le <strong>spread de développement</strong> est l'indicateur go/no-go principal : s'il est négatif, le projet ne couvre pas le coût du risque de construction.</p>
         </div>
       </div>
 
@@ -1348,10 +1720,14 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
 
+// ─── App mode ─────────────────────────────────────────────────────────────────
+let appMode = 'acq';
+
 // ─── Main calculation ─────────────────────────────────────────────────────────
 let C = {};
 
 function recalc() {
+  if (appMode === 'dev') return recalcDev();
   const g = id => parseFloat(String(document.getElementById(id).value).replace(/[^\d.-]/g, '')) || 0;
   const gs = id => document.getElementById(id).value;
 
@@ -1511,19 +1887,49 @@ function recalc() {
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 function updateDashboard() {
-  const { noi, capRate, optNOI, yoc, cmhc, totalCash, netPostTax, annRet, exitMult, netCashOut, refiMult } = C;
-  set('kv-noi', fmtC(noi));
-  set('ks-noi', 'Cap rate: ' + fmtP(capRate*100));
-  set('kv-noi-opt', fmtC(optNOI));
-  set('ks-noi-opt', 'Yield on Cost: ' + fmtP(yoc*100));
-  set('kv-loan', fmtC(cmhc.approvedLoan));
-  set('ks-loan', 'LTV ' + fmtP(cmhc.effLtv*100,1) + ' · DSCR ' + fmtX(cmhc.dscrInsured,2));
-  set('kv-cash', fmtC(totalCash));
-  set('ks-cash', 'MP mensuel: ' + fmtC(cmhc.mp));
-  set('kv-profit', fmtC(netPostTax));
-  set('ks-profit', fmtP(annRet*100,1) + '/an · ' + fmtX(exitMult));
-  set('kv-refi', fmtC(netCashOut));
-  set('ks-refi', 'Multiple cash-out: ' + fmtX(refiMult));
+  if (appMode === 'dev') {
+    const { TDC, stabNOI, yocDev, devSpread, takeout, equityRequired, profit, marginOnCost, equityRecapture, cashLeftIn } = C;
+    set('kl-noi', 'NOI Stabilisé');
+    set('kv-noi', fmtC(stabNOI));
+    set('ks-noi', 'Yield on Cost: ' + fmtP(yocDev*100));
+    set('kl-noi-opt', 'Coût Total (TDC)');
+    set('kv-noi-opt', fmtC(TDC));
+    const spreadLabel = devSpread >= 0.015 ? '✓ Spread: +' : devSpread >= 0 ? '⚠ Spread: +' : '✗ Spread: ';
+    set('ks-noi-opt', spreadLabel + fmtP(devSpread*100) + ' vs marché');
+    set('kl-loan', 'Prêt Take-Out SCHL');
+    set('kv-loan', fmtC(takeout.approvedLoan));
+    set('ks-loan', 'LTV ' + fmtP(takeout.effLtv*100,1) + ' · DSCR ' + fmtX(takeout.dscrInsured,2));
+    set('kl-cash', 'Équité Requise');
+    set('kv-cash', fmtC(equityRequired));
+    const equityPct = TDC > 0 ? equityRequired/TDC*100 : 0;
+    set('ks-cash', fmtP(equityPct,1) + ' % du TDC');
+    set('kl-profit', 'Profit / Marge');
+    set('kv-profit', fmtC(profit));
+    set('ks-profit', fmtP(marginOnCost*100,1) + ' % marge · spread ' + fmtP(devSpread*100));
+    set('kl-refi', 'Équité Récupérée');
+    set('kv-refi', fmtC(equityRecapture));
+    set('ks-refi', 'Cash restant: ' + fmtC(cashLeftIn));
+  } else {
+    const { noi, capRate, optNOI, yoc, cmhc, totalCash, netPostTax, annRet, exitMult, netCashOut, refiMult } = C;
+    set('kl-noi', 'NOI Actuel');
+    set('kv-noi', fmtC(noi));
+    set('ks-noi', 'Cap rate: ' + fmtP(capRate*100));
+    set('kl-noi-opt', 'NOI Optimisé');
+    set('kv-noi-opt', fmtC(optNOI));
+    set('ks-noi-opt', 'Yield on Cost: ' + fmtP(yoc*100));
+    set('kl-loan', 'Prêt Approuvé');
+    set('kv-loan', fmtC(cmhc.approvedLoan));
+    set('ks-loan', 'LTV ' + fmtP(cmhc.effLtv*100,1) + ' · DSCR ' + fmtX(cmhc.dscrInsured,2));
+    set('kl-cash', 'Cash Requis');
+    set('kv-cash', fmtC(totalCash));
+    set('ks-cash', 'MP mensuel: ' + fmtC(cmhc.mp));
+    set('kl-profit', 'Profit Net');
+    set('kv-profit', fmtC(netPostTax));
+    set('ks-profit', fmtP(annRet*100,1) + '/an · ' + fmtX(exitMult));
+    set('kl-refi', 'Prise de fonds nette');
+    set('kv-refi', fmtC(netCashOut));
+    set('ks-refi', 'Multiple cash-out: ' + fmtX(refiMult));
+  }
 }
 
 // ─── Output cards ─────────────────────────────────────────────────────────────
@@ -1535,6 +1941,7 @@ function metricBox(label, value, sub='', cls='green') {
 }
 
 function updateOutputs() {
+  if (appMode === 'dev') { updateDevOutputs(); return; }
   const { purchasePrice, units, avgSqft, rollValue, pricePerUnit, premiumOverRoll,
     gri, egi, opex, noi, capRate, grm,
     totalReno, cfk, totalInvest, renoPerSqft,
@@ -1669,6 +2076,7 @@ function updateOutputs() {
 
 // ─── Cash flow table ──────────────────────────────────────────────────────────
 function updateCashFlow() {
+  if (appMode === 'dev') { updateDevCashFlow(); return; }
   const { noi, currentRent, cmhc, annualReserve, holding, rate, optVacPct, optOpexPct, otherInc,
           totalCash, privAmt, privRate, yoc, totalAcqCost, totalInvest, allInCost,
           salePrice, salesComm, balanceAtExit, penalty, cgTax, rentalTax, closing,
@@ -1941,7 +2349,12 @@ function buildPrintReport() {
 }
 
 function printReport() {
-  recalc();
+  recalc(); // branches to recalcDev() in dev mode
+  if (appMode === 'dev') {
+    // Dev mode: print from screen content (no dedicated print report yet)
+    window.print();
+    return;
+  }
   buildPrintReport();
   window.print();
 }
@@ -1995,7 +2408,10 @@ function toggleRefiMliPoints() {
 }
 
 // ─── Currency formatting (fr-CA: space thousands separator) ──────────────────
-const CURRENCY_FIELDS = ['purchasePrice','rollValue','currentRent','currentRentAnnual','otherIncome','targetRent','renoCost','contingency','closingFees','refiClosingFees'];
+const CURRENCY_FIELDS = [
+  'purchasePrice','rollValue','currentRent','currentRentAnnual','otherIncome','targetRent','renoCost','contingency','closingFees','refiClosingFees',
+  'dLandPrice','dHardPerUnit','dDemolition','dSiteWork','dArchEng','dPermitsDev','dLegalMkt','dPropTaxConstr','dStabRent','dOtherIncomeDev'
+];
 function formatCurrency(str) {
   const raw = String(str).replace(/[^\d.-]/g, '');
   if (!raw || raw === '-') return str;
@@ -2041,13 +2457,450 @@ function resetAll() {
   toggleMliPoints();
   toggleRefiMliPoints();
   toggleRentMode();
+  // Dev defaults
+  const devDefaults = {
+    dLandPrice:300000, dLandClosingPct:2.5, dUnits:6, dGfaPerUnit:1000,
+    dHardPerSqft:225, dHardPerUnit:225000, dDemolition:0, dSiteWork:0,
+    dSoftPct:5, dArchEng:40000, dPermitsDev:15000, dLegalMkt:10000, dPropTaxConstr:8000, dDevFeePct:5,
+    dContingencyPct:10,
+    dConstrMonths:12, dLeaseUpMonths:6, dAvgDrawPct:55,
+    dMliPoints:50, dTargetLtc:80, dTargetLtv:85, dConstrRate:4.25, dBrokerFeePct:1,
+    dStabRent:1600, dOtherIncomeDev:0, dStabVacancy:5, dStabOpexPct:28,
+    dExitCap:5.0, dTargetMargin:20, dCommissionDev:2, dCgTaxRateDev:33
+  };
+  const devCurrencyFields = ['dLandPrice','dHardPerUnit','dDemolition','dSiteWork','dArchEng','dPermitsDev','dLegalMkt','dPropTaxConstr','dStabRent','dOtherIncomeDev'];
+  for (const [id, val] of Object.entries(devDefaults)) {
+    const el = document.getElementById(id);
+    if (el) el.value = devCurrencyFields.includes(id) ? formatCurrency(String(val)) : val;
+  }
+  const dCmhcProg = document.getElementById('dCmhcProgram');
+  if (dCmhcProg) dCmhcProg.value = 'mli-select';
+  const dBldgType = document.getElementById('dBuildingType');
+  if (dBldgType) dBldgType.value = 'standard';
+  const dTermEl = document.getElementById('dTerm');
+  if (dTermEl) dTermEl.value = '5';
+  const dAmortEl = document.getElementById('dAmortization');
+  if (dAmortEl) dAmortEl.value = '40';
+  const dProvEl = document.getElementById('dProvince');
+  if (dProvEl) dProvEl.value = 'qc';
+  const dContBasis = document.getElementById('dContingencyBasis');
+  if (dContBasis) dContBasis.value = 'hard';
+  const dHardModeEl = document.getElementById('dHardMode');
+  if (dHardModeEl) dHardModeEl.value = 'per-sqft';
+  toggleDevMliPoints();
+  toggleHardMode();
   recalc();
 }
 
+// ─── Mode switch ─────────────────────────────────────────────────────────────
+function setMode(m) {
+  appMode = m;
+  localStorage.setItem('plexMode', m);
+  if (m === 'dev') {
+    document.body.classList.add('mode-dev');
+    const btnAcq = document.getElementById('mode-btn-acq');
+    const btnDev = document.getElementById('mode-btn-dev');
+    if (btnAcq) btnAcq.classList.remove('active');
+    if (btnDev) btnDev.classList.add('active');
+    const tag = document.getElementById('nav-tag');
+    if (tag) tag.textContent = 'Développement';
+  } else {
+    document.body.classList.remove('mode-dev');
+    const btnAcq = document.getElementById('mode-btn-acq');
+    const btnDev = document.getElementById('mode-btn-dev');
+    if (btnAcq) btnAcq.classList.add('active');
+    if (btnDev) btnDev.classList.remove('active');
+    const tag = document.getElementById('nav-tag');
+    if (tag) tag.textContent = 'Outil interne';
+  }
+  recalc();
+}
+
+function toggleDevMliPoints() {
+  const prog = document.getElementById('dCmhcProgram');
+  const row  = document.getElementById('d-mli-points-row');
+  if (prog && row) row.style.display = prog.value === 'mli-select' ? '' : 'none';
+}
+
+function toggleHardMode() {
+  const mode    = document.getElementById('dHardMode');
+  const sqftRow = document.getElementById('d-hard-sqft-row');
+  const unitRow = document.getElementById('d-hard-unit-row');
+  if (!mode) return;
+  if (mode.value === 'per-unit') {
+    if (sqftRow) sqftRow.style.display = 'none';
+    if (unitRow) unitRow.style.display = '';
+  } else {
+    if (sqftRow) sqftRow.style.display = '';
+    if (unitRow) unitRow.style.display = 'none';
+  }
+}
+
+// ─── Development calculation ──────────────────────────────────────────────────
+function recalcDev() {
+  const g  = id => parseFloat(String((document.getElementById(id) || {value:'0'}).value).replace(/[^\d.-]/g,'')) || 0;
+  const gs = id => ((document.getElementById(id) || {value:''}).value);
+
+  // DA: Terrain
+  const dLandPrice     = g('dLandPrice');
+  const dLandClosingPct= g('dLandClosingPct');
+  const dUnits         = g('dUnits') || 1;
+  const dGfaPerUnit    = g('dGfaPerUnit');
+
+  // DB: Hard costs
+  const dHardMode    = gs('dHardMode') || 'per-sqft';
+  const dHardPerSqft = g('dHardPerSqft');
+  const dHardPerUnit = g('dHardPerUnit');
+  const dDemolition  = g('dDemolition');
+  const dSiteWork    = g('dSiteWork');
+
+  // DC: Soft costs
+  const dSoftPct      = g('dSoftPct');
+  const dArchEng      = g('dArchEng');
+  const dPermitsDev   = g('dPermitsDev');
+  const dLegalMkt     = g('dLegalMkt');
+  const dPropTaxConstr= g('dPropTaxConstr');
+  const dDevFeePct    = g('dDevFeePct');
+
+  // DD: Contingency
+  const dContingencyPct  = g('dContingencyPct');
+  const dContingencyBasis= gs('dContingencyBasis') || 'hard';
+
+  // DE: Timeline
+  const dConstrMonths = g('dConstrMonths') || 1;
+  const dLeaseUpMonths= g('dLeaseUpMonths');
+  const dAvgDrawPct   = g('dAvgDrawPct');
+
+  // DF: Financing
+  const dCmhcProgram  = gs('dCmhcProgram') || 'mli-select';
+  const dMliPoints    = g('dMliPoints');
+  const dBuildingType = gs('dBuildingType') || 'standard';
+  const dTargetLtc    = g('dTargetLtc');
+  const dTargetLtv    = g('dTargetLtv');
+  const dConstrRate   = g('dConstrRate');
+  const dTerm         = parseFloat(gs('dTerm')) || 5;
+  const dAmortization = parseFloat(gs('dAmortization')) || 40;
+  const dProvince     = gs('dProvince') || 'qc';
+  const dBrokerFeePct = g('dBrokerFeePct');
+
+  // DG: Stabilized revenue
+  const dStabRent     = g('dStabRent');
+  const dOtherIncomeDev= g('dOtherIncomeDev');
+  const dStabVacancy  = g('dStabVacancy');
+  const dStabOpexPct  = g('dStabOpexPct');
+
+  // DH: Value & exit
+  const dExitCap      = g('dExitCap');
+  const dTargetMargin = g('dTargetMargin');
+  const dCommissionDev= g('dCommissionDev');
+  const dCgTaxRateDev = g('dCgTaxRateDev');
+
+  // ── Cost stack ──
+  const landClosingDollar = dLandPrice * dLandClosingPct / 100;
+  const land = dLandPrice + landClosingDollar;
+
+  const gfa = dGfaPerUnit * dUnits;
+  const hardBase = dHardMode === 'per-unit' ? dHardPerUnit * dUnits : dHardPerSqft * gfa;
+  const hard = hardBase + dDemolition + dSiteWork;
+
+  const softBase = hard * dSoftPct / 100 + dArchEng + dPermitsDev + dLegalMkt + dPropTaxConstr;
+  const devFee   = (land + hard + softBase) * dDevFeePct / 100;
+  const soft     = softBase + devFee;
+
+  const contingencyBase = dContingencyBasis === 'hardsoft' ? hard + soft : hard;
+  const contingency     = contingencyBase * dContingencyPct / 100;
+
+  const costExFin = land + hard + soft + contingency;
+
+  // ── Stabilized NOI ──
+  const stabGRI = dStabRent * dUnits * 12;
+  const stabEGI = stabGRI * (1 - dStabVacancy / 100) + dOtherIncomeDev;
+  const stabNOI = stabEGI * (1 - dStabOpexPct / 100);
+
+  // ── GDV & CMHC take-out ──
+  const GDV = dExitCap > 0 ? stabNOI / (dExitCap / 100) : 0;
+
+  // Purpose is always 'construction' for MLI Select Construction take-out
+  const takeout = computeCmhc(dCmhcProgram, dBuildingType, 'construction', dMliPoints,
+                               dTargetLtv, dConstrRate, dTerm, dAmortization, dProvince,
+                               GDV, stabNOI, dUnits, GDV);
+
+  // ── Construction loan ──
+  const constrLoanLtc = costExFin * dTargetLtc / 100;
+  const constrLoan    = Math.min(constrLoanLtc, takeout.approvedLoan);
+
+  // ── Interest carry (average draw approximation) ──
+  const carryMonths   = dConstrMonths + dLeaseUpMonths;
+  const annualR       = monthlyRate(dConstrRate) * 12;
+  const financingCarry= constrLoan * (dAvgDrawPct / 100) * annualR * carryMonths / 12;
+
+  // ── Closing costs at permanent conversion ──
+  const brokerFee = constrLoan * dBrokerFeePct / 100;
+
+  // ── Total Development Cost ──
+  const TDC = costExFin + financingCarry + brokerFee + takeout.provTax + takeout.appFee;
+
+  // ── Development metrics ──
+  const yocDev       = TDC > 0 ? stabNOI / TDC : 0;
+  const exitCapDec   = dExitCap / 100;
+  const devSpread    = yocDev - exitCapDec;
+  const profit       = GDV - TDC;
+  const marginOnCost = TDC > 0 ? profit / TDC : 0;
+  const equityRequired = TDC - constrLoan;
+
+  // ── Build-to-hold + refi take-out ──
+  const equityRecapture = takeout.approvedLoan - constrLoan - brokerFee;
+  const cashLeftIn      = TDC - takeout.approvedLoan;
+  const stabCashFlow    = stabNOI - takeout.ads;
+  const cashOnCash      = cashLeftIn > 0 ? stabCashFlow / cashLeftIn : 0;
+
+  // ── Build-to-sell ──
+  const saleNetDev       = GDV * (1 - dCommissionDev / 100);
+  const saleProfitPreDev = saleNetDev - TDC;
+  const saleCgTaxDev     = Math.max(0, saleProfitPreDev) * dCgTaxRateDev / 100;
+  const saleProfitPostDev= saleProfitPreDev - saleCgTaxDev;
+  const saleRoEDev       = equityRequired > 0 ? saleProfitPostDev / equityRequired : 0;
+
+  // ── Residual land value ──
+  const targetMarginDec = dTargetMargin / 100;
+  const maxTDC          = GDV > 0 && (1 + targetMarginDec) > 0 ? GDV / (1 + targetMarginDec) : 0;
+  const nonLandCost     = hard + soft + contingency + financingCarry + brokerFee + takeout.provTax + takeout.appFee;
+  const residualLandGross= maxTDC - nonLandCost;
+  const residualLand     = dLandClosingPct > 0
+    ? residualLandGross / (1 + dLandClosingPct / 100)
+    : residualLandGross;
+
+  C = {
+    appMode: 'dev',
+    dUnits, gfa, dConstrMonths, dLeaseUpMonths, carryMonths, dConstrRate, dTerm, dAmortization,
+    land, landClosingDollar, dLandPrice, hard, hardBase, softBase, devFee, soft, contingency, costExFin,
+    financingCarry, brokerFee, TDC,
+    stabGRI, stabEGI, stabNOI, stabOpexPct: dStabOpexPct, GDV, dExitCap, exitCapDec,
+    takeout, constrLoan, constrLoanLtc, equityRequired,
+    yocDev, devSpread, profit, marginOnCost,
+    equityRecapture, cashLeftIn, stabCashFlow, cashOnCash,
+    saleNetDev, saleProfitPreDev, saleCgTaxDev, saleProfitPostDev, saleRoEDev, dCommissionDev, dCgTaxRateDev,
+    residualLand, residualLandGross, maxTDC, targetMarginDec,
+    dTargetMargin, dLandClosingPct
+  };
+
+  updateDashboard();
+  updateOutputs();
+  updateCashFlow();
+}
+
+// ─── Development output cards ─────────────────────────────────────────────────
+function updateDevOutputs() {
+  const {
+    dUnits, gfa, land, landClosingDollar, dLandPrice,
+    hard, hardBase, softBase, devFee, soft, contingency, costExFin,
+    financingCarry, brokerFee, TDC,
+    stabGRI, stabEGI, stabNOI, stabOpexPct, GDV, dExitCap, exitCapDec,
+    takeout, constrLoan, constrLoanLtc, equityRequired,
+    yocDev, devSpread, profit, marginOnCost,
+    equityRecapture, cashLeftIn, stabCashFlow, cashOnCash,
+    saleNetDev, saleProfitPreDev, saleCgTaxDev, saleProfitPostDev, saleRoEDev, dCommissionDev, dCgTaxRateDev,
+    residualLand, residualLandGross, maxTDC, targetMarginDec, dTargetMargin
+  } = C;
+
+  // 1. Cost waterfall
+  const elCost = document.getElementById('dev-out-cost');
+  if (elCost) elCost.innerHTML =
+    outRow('Terrain (prix brut)', fmtC(dLandPrice)) +
+    outRow('Frais de fermeture terrain', fmtC(landClosingDollar), 'neg') +
+    outRow('Terrain (coût total)', fmtC(land), 'key-row') +
+    '<div class="divider"></div>' +
+    outRow('Construction (hard)', fmtC(hardBase)) +
+    outRow('Démolition + site work', fmtC(hard - hardBase)) +
+    outRow('Total hard', fmtC(hard), 'key-row') +
+    '<div class="divider"></div>' +
+    outRow('Coûts indirects (archi, permis, légal…)', fmtC(softBase)) +
+    outRow('Frais de promotion', fmtC(devFee)) +
+    outRow('Total soft', fmtC(soft), 'key-row') +
+    '<div class="divider"></div>' +
+    outRow('Contingence', fmtC(contingency)) +
+    outRow('Coût ex-financement', fmtC(costExFin), 'key-row') +
+    '<div class="divider"></div>' +
+    outRow('Carry intérêts construction', fmtC(financingCarry), 'neg') +
+    outRow('Frais de courtier hypothécaire', fmtC(brokerFee), 'neg') +
+    outRow('TVQ sur prime SCHL', fmtC(takeout.provTax), 'neg') +
+    outRow('Frais de demande SCHL', fmtC(takeout.appFee), 'neg') +
+    outRow('COÛT TOTAL DE DÉVELOPPEMENT', fmtC(TDC), 'key-row') +
+    `<div class="metric-grid">
+      ${metricBox('TDC', fmtC(TDC), 'ex-financement: '+fmtC(costExFin), 'blue')}
+      ${metricBox('TDC / unité', fmtC(dUnits > 0 ? TDC/dUnits : 0), 'GFA: '+fmtN(gfa)+' pi²', 'blue')}
+    </div>`;
+
+  // 2. GDV & financing
+  const elFin = document.getElementById('dev-out-financing');
+  if (elFin) {
+    const spreadCls = devSpread >= 0.015 ? 'pos' : devSpread >= 0 ? 'warn' : 'neg';
+    elFin.innerHTML =
+      `<div class="sub-label">Revenus stabilisés</div>` +
+      outRow('Revenu brut potentiel (GRI)', fmtC(stabGRI)) +
+      outRow('Revenus effectifs bruts (EGI)', fmtC(stabEGI)) +
+      outRow('Dépenses exploitation', fmtC(stabEGI * stabOpexPct / 100), 'neg') +
+      outRow('NOI Stabilisé', fmtC(stabNOI), 'key-row pos') +
+      '<div class="divider"></div>' +
+      `<div class="sub-label">Valeur brute de développement (GDV)</div>` +
+      outRow('Cap rate de sortie', fmtP(dExitCap)) +
+      outRow('GDV = NOI ÷ cap rate', fmtC(GDV), 'key-row') +
+      outRow('GDV / unité', fmtC(dUnits > 0 ? GDV/dUnits : 0)) +
+      '<div class="divider"></div>' +
+      `<div class="mb-2"><span class="inline-badge">${takeout.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+      outRow('Plafond LTC (prêt constr.)', fmtC(constrLoanLtc)) +
+      outRow('Plafond LTV take-out', fmtC(takeout.ltvMaxLoan)) +
+      outRow('Plafond DSCR take-out', fmtC(takeout.dscrMaxLoan)) +
+      outRow('Prêt take-out approuvé', fmtC(takeout.approvedLoan), 'key-row') +
+      outRow('Prêt de construction', fmtC(constrLoan)) +
+      outRow('LTV effectif (/ GDV)', fmtP(takeout.effLtv*100)) +
+      outRow('DSCR (hypo assurée)', fmtX(takeout.dscrInsured)) +
+      outRow('Paiement mensuel (perm.)', fmtC(takeout.mp)) +
+      outRow('Prime SCHL nette', fmtC(takeout.premium)) +
+      outRow('TVQ sur prime', fmtC(takeout.provTax)) +
+      '<div class="divider"></div>' +
+      outRow('Équité requise (TDC − prêt constr.)', fmtC(equityRequired), 'key-row') +
+      `<div class="metric-grid">
+        ${metricBox('Yield on Cost', fmtP(yocDev*100), 'vs cap rate '+fmtP(dExitCap), 'green')}
+        ${metricBox('Spread', (devSpread >= 0 ? '+' : '') + fmtP(devSpread*100), devSpread >= 0.015 ? 'Go ✓' : devSpread >= 0 ? 'Limite ⚠' : 'No-go ✗', spreadCls)}
+      </div>`;
+  }
+
+  // 3. Build-to-sell
+  const elSell = document.getElementById('dev-out-sell');
+  if (elSell) elSell.innerHTML =
+    outRow('GDV (valeur marchande)', fmtC(GDV)) +
+    outRow('Commission ('+fmtP(dCommissionDev)+')', '-'+fmtC(GDV * dCommissionDev / 100), 'neg') +
+    outRow('Produit net de vente', fmtC(saleNetDev), 'key-row') +
+    outRow('TDC', '-'+fmtC(TDC), 'neg') +
+    outRow('Profit brut avant impôt', fmtC(saleProfitPreDev), saleProfitPreDev >= 0 ? 'key-row pos' : 'key-row neg') +
+    outRow('Impôt gain en capital ('+fmtP(dCgTaxRateDev)+')', '-'+fmtC(saleCgTaxDev), 'neg') +
+    outRow('PROFIT NET APRÈS IMPÔT', fmtC(saleProfitPostDev), saleProfitPostDev >= 0 ? 'key-row pos' : 'key-row neg') +
+    `<div class="metric-grid">
+      ${metricBox('Marge sur coût', fmtP(marginOnCost*100), 'profit/TDC', marginOnCost >= 0.15 ? 'green' : marginOnCost >= 0 ? 'amber' : 'blue')}
+      ${metricBox('RoE (vente)', fmtP(saleRoEDev*100), 'sur équité requise', saleRoEDev >= 0.15 ? 'green' : 'amber')}
+      ${metricBox('Profit / unité', fmtC(dUnits > 0 ? saleProfitPostDev/dUnits : 0), 'net après impôt', 'blue')}
+    </div>`;
+
+  // 4. Hold + residual land
+  const elHold = document.getElementById('dev-out-hold');
+  if (elHold) elHold.innerHTML =
+    `<div class="sub-label">Détention — prêt permanent SCHL</div>` +
+    outRow('Prêt take-out approuvé', fmtC(takeout.approvedLoan)) +
+    outRow('Prêt de construction (remb.)', '-'+fmtC(constrLoan), 'neg') +
+    outRow('Frais de courtier (remb.)', '-'+fmtC(brokerFee), 'neg') +
+    outRow('Équité récupérée à conversion', fmtC(equityRecapture), equityRecapture >= 0 ? 'key-row pos' : 'key-row neg') +
+    outRow('Cash restant dans l\'actif', fmtC(cashLeftIn), 'key-row') +
+    '<div class="divider"></div>' +
+    outRow('NOI stabilisé', fmtC(stabNOI)) +
+    outRow('Service de dette annuel', '-'+fmtC(takeout.ads), 'neg') +
+    outRow('Flux opér. stabilisé', fmtC(stabCashFlow), stabCashFlow >= 0 ? 'key-row pos' : 'key-row neg') +
+    outRow('Cash-on-Cash stabilisé', fmtP(cashOnCash*100), cashOnCash > 0 ? 'pos' : 'neg') +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Valeur résiduelle du terrain (marge cible : ${fmtP(dTargetMargin)})</div>` +
+    outRow('GDV max TDC admissible', fmtC(maxTDC)) +
+    outRow('Coûts non-terrain', '-'+fmtC(maxTDC - residualLandGross), 'neg') +
+    outRow('Valeur résiduelle brute', fmtC(residualLandGross)) +
+    outRow('PRIX MAX DU TERRAIN', fmtC(residualLand), residualLand > 0 ? 'key-row pos' : 'key-row neg') +
+    `<div class="metric-grid">
+      ${metricBox('Cash-on-Cash', fmtP(cashOnCash*100), 'flux/cash restant', cashOnCash >= 0.06 ? 'green' : 'amber')}
+      ${metricBox('Valeur résiduelle', fmtC(residualLand), 'prix max terrain', residualLand > 0 ? 'green' : 'amber')}
+    </div>`;
+}
+
+// ─── Development cash flow summary ───────────────────────────────────────────
+function updateDevCashFlow() {
+  const {
+    dUnits, dConstrMonths, dLeaseUpMonths, carryMonths,
+    land, hard, soft, contingency, costExFin, financingCarry, brokerFee, TDC,
+    constrLoan, equityRequired, stabNOI, stabCashFlow, takeout,
+    GDV, profit, marginOnCost, equityRecapture, cashLeftIn, cashOnCash,
+    dConstrRate
+  } = C;
+
+  const holdingInt = dConstrMonths + dLeaseUpMonths;
+
+  function wfRow(lbl, val, cls) {
+    return `<div class="cf-wf-row${cls ? ' '+cls : ''}"><span>${lbl}</span><span>${val}</span></div>`;
+  }
+
+  // Construction timeline summary
+  const sellCard = [
+    wfRow('GDV (valeur marchande)', fmtC(GDV), 'pos-cf'),
+    wfRow('TDC (tout inclus)', '-'+fmtC(TDC), 'neg-cf'),
+    wfRow('= Profit brut', fmtC(profit), 'cf-wf-sep '+(profit >= 0 ? 'pos-cf' : 'neg-cf')),
+    wfRow('Marge sur coût', fmtP(marginOnCost*100), marginOnCost >= 0 ? 'pos-cf' : 'neg-cf'),
+  ].join('');
+
+  const holdCard = [
+    wfRow('Prêt take-out', '+'+fmtC(takeout.approvedLoan), 'pos-cf'),
+    wfRow('Prêt constr. (remb.)', '-'+fmtC(constrLoan), 'neg-cf'),
+    wfRow('= Équité récupérée', fmtC(equityRecapture), 'cf-wf-sep '+(equityRecapture >= 0 ? 'pos-cf' : 'neg-cf')),
+    wfRow('Cash restant', fmtC(cashLeftIn), cashLeftIn >= 0 ? 'pos-cf' : 'neg-cf'),
+    wfRow('Flux opér. / an', fmtC(stabCashFlow), stabCashFlow >= 0 ? 'pos-cf' : 'neg-cf'),
+    wfRow('Cash-on-Cash', fmtP(cashOnCash*100), cashOnCash >= 0 ? 'pos-cf' : 'neg-cf'),
+  ].join('');
+
+  const closingHtml = `<div class="cf-closing">
+    <div class="cf-wf"><div class="cf-wf-head">Vente à l'achèvement</div>${sellCard}</div>
+    <div class="cf-wf"><div class="cf-wf-head">Détention + prêt permanent</div>${holdCard}</div>
+  </div>`;
+
+  // Cost stack timeline table
+  const costItems = [
+    ['Terrain', land],
+    ['Construction (hard)', hard],
+    ['Coûts indirects (soft)', soft],
+    ['Contingence', contingency],
+    ['Carry intérêts', financingCarry],
+    ['Frais courtier + SCHL', brokerFee + C.takeout.provTax + C.takeout.appFee],
+  ];
+  let cumul = 0;
+  let costRows = '';
+  for (const [lbl, val] of costItems) {
+    cumul += val;
+    costRows += `<tr><td style="padding-left:18px;">${lbl}</td><td class="pos-cf">+${fmtC(val)}</td><td>${fmtC(cumul)}</td></tr>`;
+  }
+
+  const devCfEl = document.getElementById('dev-cf-body');
+  if (!devCfEl) return;
+  devCfEl.innerHTML =
+    `<div class="sub-label" style="padding:10px 18px 4px;">Pile de coûts</div>
+     <table class="cf-table">
+       <thead><tr>
+         <th style="text-align:left;padding-left:18px;">Poste de coût</th>
+         <th>Montant</th>
+         <th>Cumul</th>
+       </tr></thead>
+       <tbody>${costRows}<tr><td style="padding-left:18px;font-weight:700;">TOTAL (TDC)</td><td class="pos-cf" style="font-weight:700;">${fmtC(TDC)}</td><td style="font-weight:700;">${fmtC(TDC)}</td></tr></tbody>
+     </table>
+     <div class="sub-label" style="padding:16px 18px 4px;">Sorties à l'achèvement</div>
+     ${closingHtml}
+     <div class="sub-label" style="padding:16px 18px 4px;">Métriques</div>
+     <table class="cf-table">
+       <thead><tr>
+         <th style="text-align:left;padding-left:18px;">Indicateur</th>
+         <th>Valeur</th>
+         <th>Détail</th>
+       </tr></thead>
+       <tbody>
+         <tr><td style="padding-left:18px;">Yield on Cost</td><td class="pos-cf">${fmtP(C.yocDev*100)}</td><td>NOI / TDC</td></tr>
+         <tr><td style="padding-left:18px;">Spread de développement</td><td class="${C.devSpread >= 0 ? 'pos-cf' : 'neg-cf'}">${(C.devSpread >= 0 ? '+' : '')+fmtP(C.devSpread*100)}</td><td>YoC − cap rate</td></tr>
+         <tr><td style="padding-left:18px;">Marge sur coût</td><td class="${C.marginOnCost >= 0 ? 'pos-cf' : 'neg-cf'}">${fmtP(C.marginOnCost*100)}</td><td>Profit / TDC</td></tr>
+         <tr><td style="padding-left:18px;">Équité requise</td><td>${fmtC(C.equityRequired)}</td><td>${fmtP(C.equityRequired/C.TDC*100,1)} % du TDC</td></tr>
+         <tr><td style="padding-left:18px;">Cash-on-Cash (détention)</td><td class="${C.cashOnCash >= 0 ? 'pos-cf' : 'neg-cf'}">${fmtP(C.cashOnCash*100,1)}</td><td>Flux / cash restant</td></tr>
+         <tr><td style="padding-left:18px;">Valeur résiduelle terrain</td><td class="${C.residualLand >= 0 ? 'pos-cf' : 'neg-cf'}">${fmtC(C.residualLand)}</td><td>Marge cible ${fmtP(C.dTargetMargin)}</td></tr>
+       </tbody>
+     </table>`;
+}
+
 // Init
+appMode = localStorage.getItem('plexMode') || 'acq';
 CURRENCY_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = formatCurrency(el.value); });
 toggleRentMode();
-recalc();
+toggleDevMliPoints();
+toggleHardMode();
+setMode(appMode);
 </script>
 
 <footer>
