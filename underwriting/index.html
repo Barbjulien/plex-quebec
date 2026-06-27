@@ -1067,6 +1067,18 @@ footer .logo { color: var(--paper); }
               <span class="field-label">Dépenses d'exploitation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Immeuble neuf : 25–32%. Exclut le service de la dette.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="dStabOpexPct" value="28" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
+            <div class="field-row">
+              <span class="field-label">Inoccupation normalisée SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux d'inoccupation normalisé SCHL pour calculer la valeur économique servant de plafond au prêt permanent. Vide = utiliser l'inoccupation stabilisée ci-dessus.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dSchlVacancy" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Dépenses normalisées SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Dépenses normalisées SCHL pour la valeur économique. Vide = utiliser les dépenses stabilisées ci-dessus.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dSchlOpexPct" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Cap rate SCHL (valeur économique) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Cap rate normalisé SCHL pour plafonner la valeur économique du prêt permanent (analogue au mode Acquisition). Vide = valeur économique = GDV (aucune contrainte).</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dSchlCapRate" value="" placeholder="—" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
           </div>
         </div>
 
@@ -1103,8 +1115,12 @@ footer .logo { color: var(--paper); }
               <div class="field-input has-sfx"><input type="number" id="dTargetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
-              <span class="field-label">Taux d'intérêt <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). S'applique au prêt de construction et au prêt permanent.</span></span></span>
+              <span class="field-label">Taux prêt construction <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). Taux du prêt de construction — utilisé uniquement pour le carry d'intérêts.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="dConstrRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux prêt permanent (take-out) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). Taux du prêt permanent SCHL — dimensionne le DSCR du take-out. Typiquement 150–250 pdb sous le taux de construction.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dPermRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Terme</span>
@@ -1469,15 +1485,16 @@ footer .logo { color: var(--paper); }
             <li>Hard = pi²/unité GFA × $/pi² + démolition + site work</li>
             <li>Soft = Hard × % indirect + archi/génie + permis + légal + taxes constr. + frais de promotion</li>
             <li>Contingence = (Hard ou Hard+Soft) × %</li>
-            <li>Carry = Prêt construction × % moyen décaissé × taux annuel × (mois constr. + lease-up) / 12</li>
+            <li>Carry = <em>Prêt construction préliminaire</em> × % moyen décaissé × taux constr. × (mois constr. + lease-up) / 12 — le carry est ensuite capitalisé dans la base LTC (réserve d'intérêts)</li>
             <li><strong>TDC = Terrain + Hard + Soft + Contingence + Carry + Courtier + TVQ + Frais SCHL</strong></li>
           </ul>
-          <p style="margin-top:10px;"><strong>GDV &amp; financement :</strong></p>
+          <p style="margin-top:10px;"><strong>GDV, valeur économique &amp; financement :</strong></p>
           <ul style="line-height:2;">
             <li>NOI stabilisé = EGI × (1 − dépenses%) où EGI = GRI × (1 − inoccupation%) + autres revenus</li>
             <li><strong>GDV</strong> = NOI stabilisé / cap rate de sortie — valeur brute de développement à l'achèvement</li>
-            <li>Prêt take-out = MIN(Plafond LTV×GDV, Plafond DSCR) — même double plafond SCHL qu'en mode Acquisition</li>
-            <li>Prêt de construction = MIN(LTC% × TDC, Prêt take-out)</li>
+            <li><strong>Valeur économique SCHL</strong> = NOI normalisé / cap rate SCHL — plafond de la valeur servant au calcul LTV (analogue au mode Acquisition). Si vide, valeur économique = GDV</li>
+            <li>Prêt take-out = MIN(Plafond LTV × valeur écon., Plafond DSCR) dimensionné au <em>taux prêt permanent</em> (distinct du taux construction)</li>
+            <li>Prêt de construction = MIN(LTC% × (TDC ex-fin + Carry), Prêt take-out) — le carry est inclus dans la base LTC</li>
             <li>Équité requise = TDC − Prêt de construction</li>
           </ul>
           <p style="margin-top:10px;"><strong>Indicateurs de développement :</strong></p>
@@ -2464,7 +2481,7 @@ function resetAll() {
     dSoftPct:5, dArchEng:40000, dPermitsDev:15000, dLegalMkt:10000, dPropTaxConstr:8000, dDevFeePct:5,
     dContingencyPct:10,
     dConstrMonths:12, dLeaseUpMonths:6, dAvgDrawPct:55,
-    dMliPoints:50, dTargetLtc:80, dTargetLtv:85, dConstrRate:4.25, dBrokerFeePct:1,
+    dMliPoints:50, dTargetLtc:80, dTargetLtv:85, dConstrRate:4.25, dPermRate:4.25, dBrokerFeePct:1,
     dStabRent:1600, dOtherIncomeDev:0, dStabVacancy:5, dStabOpexPct:28,
     dExitCap:5.0, dTargetMargin:20, dCommissionDev:2, dCgTaxRateDev:33
   };
@@ -2487,6 +2504,11 @@ function resetAll() {
   if (dContBasis) dContBasis.value = 'hard';
   const dHardModeEl = document.getElementById('dHardMode');
   if (dHardModeEl) dHardModeEl.value = 'per-sqft';
+  // Clear SCHL normalization fields back to blank (= fall back to stabilized assumptions)
+  ['dSchlVacancy', 'dSchlOpexPct', 'dSchlCapRate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   toggleDevMliPoints();
   toggleHardMode();
   recalc();
@@ -2582,6 +2604,7 @@ function recalcDev() {
   const dAmortization = parseFloat(gs('dAmortization')) || 40;
   const dProvince     = gs('dProvince') || 'qc';
   const dBrokerFeePct = g('dBrokerFeePct');
+  const dPermRate     = g('dPermRate') || dConstrRate;  // separate perm take-out rate; falls back to construction rate
 
   // DG: Stabilized revenue
   const dStabRent     = g('dStabRent');
@@ -2617,22 +2640,32 @@ function recalcDev() {
   const stabEGI = stabGRI * (1 - dStabVacancy / 100) + dOtherIncomeDev;
   const stabNOI = stabEGI * (1 - dStabOpexPct / 100);
 
-  // ── GDV & CMHC take-out ──
+  // ── GDV & SCHL economic value (lending-value floor, parity with acquisition mode) ──
   const GDV = dExitCap > 0 ? stabNOI / (dExitCap / 100) : 0;
+  const _schlVacIn  = (document.getElementById('dSchlVacancy') || {value:''}).value;
+  const _schlOpexIn = (document.getElementById('dSchlOpexPct') || {value:''}).value;
+  const dSchlCapRate = g('dSchlCapRate');
+  const schlVacDev  = _schlVacIn  !== '' ? (parseFloat(_schlVacIn)  || 0) : dStabVacancy;
+  const schlOpexDev = _schlOpexIn !== '' ? (parseFloat(_schlOpexIn) || 0) : dStabOpexPct;
+  const schlEgiDev  = stabGRI * (1 - schlVacDev / 100) + dOtherIncomeDev;
+  const schlNoiDev  = schlEgiDev * (1 - schlOpexDev / 100);
+  const econValueDev = dSchlCapRate > 0 ? schlNoiDev / (dSchlCapRate / 100) : GDV;
 
-  // Purpose is always 'construction' for MLI Select Construction take-out
+  // ── CMHC take-out — permanent loan sized on dPermRate / schlNoiDev DSCR / econValueDev LTV cap ──
   const takeout = computeCmhc(dCmhcProgram, dBuildingType, 'construction', dMliPoints,
-                               dTargetLtv, dConstrRate, dTerm, dAmortization, dProvince,
-                               GDV, stabNOI, dUnits, GDV);
+                               dTargetLtv, dPermRate, dTerm, dAmortization, dProvince,
+                               GDV, schlNoiDev, dUnits, econValueDev);
 
-  // ── Construction loan ──
-  const constrLoanLtc = costExFin * dTargetLtc / 100;
-  const constrLoan    = Math.min(constrLoanLtc, takeout.approvedLoan);
-
-  // ── Interest carry (average draw approximation) ──
-  const carryMonths   = dConstrMonths + dLeaseUpMonths;
-  const annualR       = monthlyRate(dConstrRate) * 12;
-  const financingCarry= constrLoan * (dAvgDrawPct / 100) * annualR * carryMonths / 12;
+  // ── Construction loan + interest reserve (one-pass approximation) ──
+  // Carry is computed off the preliminary LTC-sized loan (costExFin only), then
+  // capitalized into the funded LTC basis so the loan covers the interest reserve.
+  // The second-order error (≈ carry × LTC × annualR × months/12) is negligible.
+  const carryMonths     = dConstrMonths + dLeaseUpMonths;
+  const annualR         = monthlyRate(dConstrRate) * 12;
+  const constrLoanPrelim = costExFin * dTargetLtc / 100;
+  const financingCarry  = constrLoanPrelim * (dAvgDrawPct / 100) * annualR * carryMonths / 12;
+  const constrLoanLtc   = (costExFin + financingCarry) * dTargetLtc / 100;
+  const constrLoan      = Math.min(constrLoanLtc, takeout.approvedLoan);
 
   // ── Closing costs at permanent conversion ──
   const brokerFee = constrLoan * dBrokerFeePct / 100;
@@ -2672,10 +2705,10 @@ function recalcDev() {
 
   C = {
     appMode: 'dev',
-    dUnits, gfa, dConstrMonths, dLeaseUpMonths, carryMonths, dConstrRate, dTerm, dAmortization,
+    dUnits, gfa, dConstrMonths, dLeaseUpMonths, carryMonths, dConstrRate, dPermRate, dTerm, dAmortization,
     land, landClosingDollar, dLandPrice, hard, hardBase, softBase, devFee, soft, contingency, costExFin,
     financingCarry, brokerFee, TDC,
-    stabGRI, stabEGI, stabNOI, stabOpexPct: dStabOpexPct, GDV, dExitCap, exitCapDec,
+    stabGRI, stabEGI, stabNOI, stabOpexPct: dStabOpexPct, schlNoiDev, econValueDev, GDV, dExitCap, exitCapDec,
     takeout, constrLoan, constrLoanLtc, equityRequired,
     yocDev, devSpread, profit, marginOnCost,
     equityRecapture, cashLeftIn, stabCashFlow, cashOnCash,
@@ -2695,12 +2728,13 @@ function updateDevOutputs() {
     dUnits, gfa, land, landClosingDollar, dLandPrice,
     hard, hardBase, softBase, devFee, soft, contingency, costExFin,
     financingCarry, brokerFee, TDC,
-    stabGRI, stabEGI, stabNOI, stabOpexPct, GDV, dExitCap, exitCapDec,
+    stabGRI, stabEGI, stabNOI, stabOpexPct, schlNoiDev, econValueDev, GDV, dExitCap, exitCapDec,
     takeout, constrLoan, constrLoanLtc, equityRequired,
     yocDev, devSpread, profit, marginOnCost,
     equityRecapture, cashLeftIn, stabCashFlow, cashOnCash,
     saleNetDev, saleProfitPreDev, saleCgTaxDev, saleProfitPostDev, saleRoEDev, dCommissionDev, dCgTaxRateDev,
-    residualLand, residualLandGross, maxTDC, targetMarginDec, dTargetMargin
+    residualLand, residualLandGross, maxTDC, targetMarginDec, dTargetMargin,
+    dPermRate
   } = C;
 
   // 1. Cost waterfall
@@ -2746,8 +2780,10 @@ function updateDevOutputs() {
       outRow('Cap rate de sortie', fmtP(dExitCap)) +
       outRow('GDV = NOI ÷ cap rate', fmtC(GDV), 'key-row') +
       outRow('GDV / unité', fmtC(dUnits > 0 ? GDV/dUnits : 0)) +
+      outRow('Valeur économique SCHL', fmtC(econValueDev), econValueDev < GDV ? 'warn' : '') +
       '<div class="divider"></div>' +
       `<div class="mb-2"><span class="inline-badge">${takeout.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+      outRow('Taux prêt permanent', fmtP(dPermRate)) +
       outRow('Plafond LTC (prêt constr.)', fmtC(constrLoanLtc)) +
       outRow('Plafond LTV take-out', fmtC(takeout.ltvMaxLoan)) +
       outRow('Plafond DSCR take-out', fmtC(takeout.dscrMaxLoan)) +
