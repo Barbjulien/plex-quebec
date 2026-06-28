@@ -715,45 +715,64 @@ footer .logo { color: var(--paper); }
       <!-- RIGHT COLUMN (acquisition) -->
       <div class="space-y acq-only">
 
-        <!-- E: CMHC -->
+        <!-- E: Financement hypothécaire -->
         <div class="section-card">
           <div class="section-header open" onclick="toggleSection(this)">
-            <h3>E | Financement SCHL</h3>
+            <h3>E | Financement Hypothécaire</h3>
             <span class="chevron">▼</span>
           </div>
           <div class="section-body open">
             <div class="field-row">
-              <span class="field-label">Programme SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">MLI Market: amort max 40 ans, LTV 85%. MLI Select: jusqu'à 50 ans / 90% selon les points.</span></span></span>
-              <div class="field-input"><select id="cmhcProgram" onchange="toggleMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select">MLI Select</option></select></div>
+              <span class="field-label">Type de financement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">CMHC : double plafond LTV/DSCR, prime assurance, amort. jusqu'à 50 ans. Conventionnel : LTV et DSCR simples, sans prime, amort. typique 25–30 ans.</span></span></span>
+              <div class="field-input"><select id="acqFinType" onchange="toggleAcqFinTypes(); recalc()"><option value="cmhc" selected>CMHC / SCHL</option><option value="conventional">Conventionnel</option></select></div>
             </div>
-            <div class="field-row" id="mli-points-row" style="display:none">
-              <span class="field-label">Points MLI Select <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">50–69 pts: Palier 3 (amort 40, rabais 10%), 70–99: Palier 2 (45, 20%), 100+: Palier 1 (50, 30%)</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="mliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+            <!-- CMHC-specific fields -->
+            <div id="e-cmhc-rows">
+              <div class="field-row">
+                <span class="field-label">Programme SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">MLI Market: amort max 40 ans, LTV 85%. MLI Select: jusqu'à 50 ans / 90% selon les points.</span></span></span>
+                <div class="field-input"><select id="cmhcProgram" onchange="toggleMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select">MLI Select</option></select></div>
+              </div>
+              <div class="field-row" id="mli-points-row" style="display:none">
+                <span class="field-label">Points MLI Select <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">50–69 pts: Palier 3 (amort 40, rabais 10%), 70–99: Palier 2 (45, 20%), 100+: Palier 1 (50, 30%)</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="mliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Type de bâtiment</span>
+                <div class="field-input"><select id="buildingType" onchange="recalc()"><option value="standard">Standard Locatif</option><option value="other">Other Shelter</option></select></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">But du prêt</span>
+                <div class="field-input"><select id="loanPurpose" onchange="recalc()"><option value="purchase">Achat / Refi</option><option value="construction">Construction</option></select></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux utilisé par la SCHL pour estimer la valeur économique (= NOI normalisé ÷ taux). Laissez vide pour utiliser le prix d'achat comme valeur de prêt.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="schlCapRate" value="" placeholder="—" step="0.05" min="0" max="20" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Dépenses normalisées SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Ratio de dépenses utilisé par la SCHL pour calculer la valeur économique. Vide = utilise les dépenses d'exploitation.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="schlOpexPct" value="" placeholder="—" step="0.1" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Inoccupation normalisée SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux d'inoccupation utilisé par la SCHL pour la valeur économique. Vide = utilise le taux d'inoccupation courant.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="schlVacancy" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">LTV cible <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Le prêt final = MIN(plafond LTV, plafond DSCR). Double plafond SCHL.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="targetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
             </div>
-            <div class="field-row">
-              <span class="field-label">Type de bâtiment</span>
-              <div class="field-input"><select id="buildingType" onchange="recalc()"><option value="standard">Standard Locatif</option><option value="other">Other Shelter</option></select></div>
+            <!-- Conventional-specific fields -->
+            <div id="e-conv-rows" style="display:none">
+              <div class="field-row">
+                <span class="field-label">LTV cible (conv.) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">LTV du prêt conventionnel sur le prix d'achat. Typiquement 65–75% pour les prêteurs institutionnels.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="acqConvLtv" value="75" step="0.5" min="0" max="80" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">DSCR minimum (conv.) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">DSCR minimum exigé par le prêteur conventionnel. Typiquement 1.20–1.30×.</span></span></span>
+                <div class="field-input"><input type="number" id="acqConvDscr" value="1.20" step="0.05" min="1.0" max="2.5" onchange="recalc()"></div>
+              </div>
             </div>
-            <div class="field-row">
-              <span class="field-label">But du prêt</span>
-              <div class="field-input"><select id="loanPurpose" onchange="recalc()"><option value="purchase">Achat / Refi</option><option value="construction">Construction</option></select></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux utilisé par la SCHL pour estimer la valeur économique (= NOI normalisé ÷ taux). Laissez vide pour utiliser le prix d'achat comme valeur de prêt.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="schlCapRate" value="" placeholder="—" step="0.05" min="0" max="20" onchange="recalc()"><span class="sfx">%</span></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">Dépenses normalisées SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Ratio de dépenses utilisé par la SCHL pour calculer la valeur économique. Vide = utilise les dépenses d'exploitation.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="schlOpexPct" value="" placeholder="—" step="0.1" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">Inoccupation normalisée SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux d'inoccupation utilisé par la SCHL pour la valeur économique. Vide = utilise le taux d'inoccupation courant.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="schlVacancy" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">LTV cible <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Le prêt final = MIN(plafond LTV, plafond DSCR). Double plafond SCHL.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="targetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
-            </div>
+            <!-- Shared fields -->
             <div class="field-row">
               <span class="field-label">Taux d'intérêt <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (obligatoire au Canada).</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="interestRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
@@ -847,20 +866,39 @@ footer .logo { color: var(--paper); }
           </div>
           <div class="section-body">
             <div class="field-row">
-              <span class="field-label">Programme SCHL (refi)</span>
-              <div class="field-input"><select id="refiProgram" onchange="toggleRefiMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select">MLI Select</option></select></div>
+              <span class="field-label">Type de financement (refi) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">CMHC : double plafond LTV/DSCR, prime assurance. Conventionnel : LTV et DSCR simples, sans prime.</span></span></span>
+              <div class="field-input"><select id="refiFinType" onchange="toggleRefiFinTypes(); recalc()"><option value="cmhc" selected>CMHC / SCHL</option><option value="conventional">Conventionnel</option></select></div>
             </div>
-            <div class="field-row" id="refi-mli-points-row" style="display:none">
-              <span class="field-label">Points MLI Select (refi)</span>
-              <div class="field-input has-sfx"><input type="number" id="refiMliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+            <!-- CMHC-specific refi fields -->
+            <div id="k-cmhc-rows">
+              <div class="field-row">
+                <span class="field-label">Programme SCHL (refi)</span>
+                <div class="field-input"><select id="refiProgram" onchange="toggleRefiMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select">MLI Select</option></select></div>
+              </div>
+              <div class="field-row" id="refi-mli-points-row" style="display:none">
+                <span class="field-label">Points MLI Select (refi)</span>
+                <div class="field-input has-sfx"><input type="number" id="refiMliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">LTV cible (refi)</span>
+                <div class="field-input has-sfx"><input type="number" id="refiTargetLtv" value="75" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
             </div>
+            <!-- Conventional-specific refi fields -->
+            <div id="k-conv-rows" style="display:none">
+              <div class="field-row">
+                <span class="field-label">LTV cible conv. (refi) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">LTV du prêt refi conventionnel. Typiquement 65–75%.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="refiConvLtv" value="75" step="0.5" min="0" max="80" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">DSCR minimum conv. (refi) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">DSCR minimum exigé par le prêteur conventionnel. Typiquement 1.20–1.30×.</span></span></span>
+                <div class="field-input"><input type="number" id="refiConvDscr" value="1.20" step="0.05" min="1.0" max="2.5" onchange="recalc()"></div>
+              </div>
+            </div>
+            <!-- Shared refi fields -->
             <div class="field-row">
               <span class="field-label">Cap rate au refi <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Sert à estimer la valeur marchande pour le refinancement.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="refiCapRate" value="4.75" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">LTV cible (refi)</span>
-              <div class="field-input has-sfx"><input type="number" id="refiTargetLtv" value="75" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taux d'intérêt (refi)</span>
@@ -899,11 +937,11 @@ footer .logo { color: var(--paper); }
           <div class="section-body open">
             <div class="field-row">
               <span class="field-label">Prix du terrain <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Prix d'achat brut du lot.</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dLandPrice" value="300000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dLandPrice" value="400000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Frais de fermeture terrain <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Notaire, taxes de bienvenue, due diligence. Typiquement 2–4%.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dLandClosingPct" value="2.5" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dLandClosingPct" value="3.0" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Nombre d'unités à construire</span>
@@ -911,7 +949,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Type d'unité</span>
-              <div class="field-input"><input type="text" id="dUnitType" value="6 x 4½"></div>
+              <div class="field-input"><input type="text" id="dUnitType" value="6 x 4½ (2 càc)"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Superficie plancher / unité (GFA) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Superficie brute de plancher par unité — base de calcul des coûts de construction au pi².</span></span></span>
@@ -948,7 +986,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row" id="d-hard-sqft-row">
               <span class="field-label">Coût de construction / pi² <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Plex standard QC : 150–200$/pi² (rénové), 200–280$/pi² (neuf), 280–350$/pi² (haut de gamme).</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dHardPerSqft" value="225" step="5" min="0" onchange="recalc()"><span class="sfx">$/pi²</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dHardPerSqft" value="300" step="5" min="0" onchange="recalc()"><span class="sfx">$/pi²</span></div>
             </div>
             <div class="field-row" id="d-hard-unit-row" style="display:none;">
               <span class="field-label">Coût de construction / unité</span>
@@ -960,7 +998,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Aménagement du site</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dSiteWork" value="0" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dSiteWork" value="40000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
           </div>
         </div>
@@ -978,15 +1016,15 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Architecture &amp; génie</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dArchEng" value="40000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dArchEng" value="90000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Permis &amp; redevances de développement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Permis de construction + redevances municipales (contribution aux infrastructures, etc.).</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dPermitsDev" value="15000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dPermitsDev" value="25000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Légal &amp; marketing</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dLegalMkt" value="10000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dLegalMkt" value="15000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taxes municipales (construction)</span>
@@ -1035,7 +1073,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Mise en location (lease-up) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Période de remplissage post-construction. 3–6 mois typique pour un plex neuf.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dLeaseUpMonths" value="6" step="1" min="0" onchange="recalc()"><span class="sfx">mois</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dLeaseUpMonths" value="4" step="1" min="0" onchange="recalc()"><span class="sfx">mois</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">% moyen du prêt décaissé <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Solde moyen pendant la période de construction pour calculer les intérêts. Typiquement 50–60%.</span></span></span>
@@ -1053,31 +1091,31 @@ footer .logo { color: var(--paper); }
           <div class="section-body open">
             <div class="field-row">
               <span class="field-label">Loyer cible / unité / mois <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loyer de marché visé, stabilisé. Valider avec comparables (neuf, même secteur).</span></span></span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dStabRent" value="1600" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dStabRent" value="2100" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Autres revenus (annuel)</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dOtherIncomeDev" value="0" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="dOtherIncomeDev" value="3600" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taux d'inoccupation stabilisé <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Marché serré : 3–5%. Pour une unité neuve, utiliser le taux de marché normalisé.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dStabVacancy" value="5" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dStabVacancy" value="3" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Dépenses d'exploitation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Immeuble neuf : 25–32%. Exclut le service de la dette.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dStabOpexPct" value="28" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dStabOpexPct" value="30" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Inoccupation normalisée SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux d'inoccupation normalisé SCHL pour calculer la valeur économique servant de plafond au prêt permanent. Vide = utiliser l'inoccupation stabilisée ci-dessus.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dSchlVacancy" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dSchlVacancy" value="5" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Dépenses normalisées SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Dépenses normalisées SCHL pour la valeur économique. Vide = utiliser les dépenses stabilisées ci-dessus.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dSchlOpexPct" value="" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dSchlOpexPct" value="35" placeholder="—" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Cap rate SCHL (valeur économique) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Cap rate normalisé SCHL pour plafonner la valeur économique du prêt permanent (analogue au mode Acquisition). Vide = valeur économique = GDV (aucune contrainte).</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dSchlCapRate" value="" placeholder="—" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dSchlCapRate" value="5.0" placeholder="—" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
           </div>
         </div>
@@ -1087,48 +1125,74 @@ footer .logo { color: var(--paper); }
       <!-- RIGHT COLUMN (développement) -->
       <div class="space-y dev-only">
 
-        <!-- DF: Financement MLI Select Construction -->
+        <!-- DF: Financement Construction & Take-Out -->
         <div class="section-card">
           <div class="section-header open" onclick="toggleSection(this)">
-            <h3>DF | Financement MLI Select Construction</h3>
+            <h3>DF | Financement Construction</h3>
             <span class="chevron">▼</span>
           </div>
           <div class="section-body open">
+            <!-- Construction loan type -->
             <div class="field-row">
-              <span class="field-label">Programme SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">MLI Select recommandé pour construction neuve (palier 1 : amort. 50 ans, −30% prime).</span></span></span>
-              <div class="field-input"><select id="dCmhcProgram" onchange="toggleDevMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select" selected>MLI Select</option></select></div>
-            </div>
-            <div class="field-row" id="d-mli-points-row">
-              <span class="field-label">Points MLI Select <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Construction neuve : 50 pts de base. Certification énergie ou accessibilité peut ajouter 20–50 pts.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dMliPoints" value="50" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+              <span class="field-label">Type — prêt construction <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Conventionnel : banque/caisse, LTC typique 65–80%, pas d'assurance. CMHC : LTC jusqu'à 95%, prime assurance sur le take-out au taux construction.</span></span></span>
+              <div class="field-input"><select id="dConstrFinType" onchange="toggleDevFinTypes(); recalc()"><option value="conventional" selected>Conventionnel</option><option value="cmhc">CMHC / SCHL</option></select></div>
             </div>
             <div class="field-row">
-              <span class="field-label">Type de bâtiment</span>
-              <div class="field-input"><select id="dBuildingType" onchange="recalc()"><option value="standard">Standard Locatif</option><option value="other">Other Shelter</option></select></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">LTC cible (prêt/coût) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loan-to-Cost : plafond du prêt de construction en % du TDC (ex. financement). Typiquement 75–85%.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dTargetLtc" value="80" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
-            </div>
-            <div class="field-row">
-              <span class="field-label">LTV cible (prêt perm. / GDV) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">LTV du prêt permanent sur la valeur complétée (GDV). Double plafond LTV/DSCR SCHL.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dTargetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+              <span class="field-label">LTC cible (prêt/coût) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Loan-to-Cost : plafond du prêt de construction en % du TDC (ex. financement). Typiquement 65–80% conventionnel, 80–95% CMHC.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dTargetLtc" value="75" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taux prêt construction <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). Taux du prêt de construction — utilisé uniquement pour le carry d'intérêts.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dConstrRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dConstrRate" value="4.50" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
+            <div class="divider" style="margin:10px 0 4px;"></div>
+            <!-- Take-out loan type -->
             <div class="field-row">
-              <span class="field-label">Taux prêt permanent (take-out) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). Taux du prêt permanent SCHL — dimensionne le DSCR du take-out. Typiquement 150–250 pdb sous le taux de construction.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dPermRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+              <span class="field-label">Type — prêt take-out <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">CMHC : double plafond LTV/DSCR, prime capitalisée, amort. jusqu'à 50 ans. Conventionnel : LTV et DSCR simples, sans prime, amort. typique 25–30 ans.</span></span></span>
+              <div class="field-input"><select id="dTakeoutFinType" onchange="toggleDevFinTypes(); recalc()"><option value="cmhc" selected>CMHC / SCHL</option><option value="conventional">Conventionnel</option></select></div>
+            </div>
+            <!-- CMHC take-out specific fields -->
+            <div id="d-cmhc-takeout-rows">
+              <div class="field-row">
+                <span class="field-label">Programme SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">MLI Select recommandé pour construction neuve (palier 1 : amort. 50 ans, −30% prime).</span></span></span>
+                <div class="field-input"><select id="dCmhcProgram" onchange="toggleDevMliPoints(); recalc()"><option value="mli-market">MLI Market</option><option value="mli-select" selected>MLI Select</option></select></div>
+              </div>
+              <div class="field-row" id="d-mli-points-row">
+                <span class="field-label">Points MLI Select <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Construction neuve : 50 pts de base. Certification énergie ou accessibilité peut ajouter 20–50 pts.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="dMliPoints" value="70" step="5" min="0" max="150" onchange="recalc()"><span class="sfx">pts</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Type de bâtiment</span>
+                <div class="field-input"><select id="dBuildingType" onchange="recalc()"><option value="standard">Standard Locatif</option><option value="other">Other Shelter</option></select></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">LTV cible (prêt perm. / GDV) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">LTV du prêt permanent sur la valeur complétée (GDV). Double plafond LTV/DSCR SCHL.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="dTargetLtv" value="85" step="0.5" min="0" max="95" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+            </div>
+            <!-- Conventional take-out specific fields -->
+            <div id="d-conv-takeout-rows" style="display:none">
+              <div class="field-row">
+                <span class="field-label">LTV cible (conv. take-out) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">LTV du prêt permanent conventionnel sur la valeur complétée (GDV). Banque/caisse : typiquement 65–75%.</span></span></span>
+                <div class="field-input has-sfx"><input type="number" id="dConvTakeoutLtv" value="75" step="0.5" min="0" max="80" onchange="recalc()"><span class="sfx">%</span></div>
+              </div>
+              <div class="field-row">
+                <span class="field-label">DSCR minimum (conv. take-out) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">DSCR minimum exigé par le prêteur conventionnel. Typiquement 1.20–1.30× pour les prêteurs institutionnels.</span></span></span>
+                <div class="field-input"><input type="number" id="dConvTakeoutDscr" value="1.20" step="0.05" min="1.0" max="2.5" onchange="recalc()"></div>
+              </div>
+            </div>
+            <!-- Shared permanent loan fields -->
+            <div class="field-row">
+              <span class="field-label">Taux prêt permanent (take-out) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Composition semi-annuelle (Canada). Dimensionne le DSCR du take-out.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="dPermRate" value="4.50" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Terme</span>
-              <div class="field-input"><select id="dTerm" onchange="recalc()"><option value="1">1 an</option><option value="2">2 ans</option><option value="3">3 ans</option><option value="5" selected>5 ans</option><option value="7">7 ans</option><option value="10">10 ans</option></select></div>
+              <div class="field-input"><select id="dTerm" onchange="recalc()"><option value="1">1 an</option><option value="2">2 ans</option><option value="3">3 ans</option><option value="5">5 ans</option><option value="7">7 ans</option><option value="10" selected>10 ans</option></select></div>
             </div>
             <div class="field-row">
               <span class="field-label">Amortissement</span>
-              <div class="field-input"><select id="dAmortization" onchange="recalc()"><option value="25">25 ans</option><option value="30">30 ans</option><option value="35">35 ans</option><option value="40" selected>40 ans</option><option value="45">45 ans</option><option value="50">50 ans</option></select></div>
+              <div class="field-input"><select id="dAmortization" onchange="recalc()"><option value="25">25 ans</option><option value="30">30 ans</option><option value="35">35 ans</option><option value="40">40 ans</option><option value="45" selected>45 ans</option><option value="50">50 ans</option></select></div>
             </div>
             <div class="field-row">
               <span class="field-label">Province</span>
@@ -1154,17 +1218,17 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Marge cible (valeur résiduelle) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Marge sur coût visée pour calculer le prix maximum du terrain (valeur résiduelle).</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dTargetMargin" value="20" step="1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dTargetMargin" value="15" step="1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="divider" style="margin:10px 0 4px;"></div>
             <div class="sub-label">Scénario de vente à l'achèvement</div>
             <div class="field-row">
               <span class="field-label">Commission de vente</span>
-              <div class="field-input has-sfx"><input type="number" id="dCommissionDev" value="2" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dCommissionDev" value="4" step="0.25" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Taux effectif — gain en capital <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux effectif sur gain en capital (inclusion × taux marginal). Corp: 2/3 × ~50% ≈ 33%.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="dCgTaxRateDev" value="33" step="0.5" min="0" max="60" onchange="recalc()"><span class="sfx">%</span></div>
+              <div class="field-input has-sfx"><input type="number" id="dCgTaxRateDev" value="27" step="0.5" min="0" max="60" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
           </div>
         </div>
@@ -1206,7 +1270,7 @@ footer .logo { color: var(--paper); }
         <div class="output-body" id="dev-out-cost"></div>
       </div>
       <div class="output-card">
-        <div class="output-header"><h3>GDV &amp; Financement MLI Select</h3></div>
+        <div class="output-header"><h3>GDV &amp; Financement</h3></div>
         <div class="output-body" id="dev-out-financing"></div>
       </div>
       <div class="output-card">
@@ -1737,6 +1801,27 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
 
+function computeConventional(targetLtvPct, ratePct, amort, minDscr, propertyValue, noi, lendingValue) {
+  // Non-insured (conventional) loan sizer. Returns the same shape as computeCmhc() so every
+  // downstream call site works unchanged. premium / provTax / appFee are 0 (no insurance).
+  const lv = (lendingValue > 0 && lendingValue < propertyValue) ? lendingValue : propertyValue;
+  const mc = mortgageConstant(ratePct, amort);
+  const ltvMaxLoan  = lv * (targetLtvPct / 100);
+  const dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
+  const approvedLoan = Math.min(ltvMaxLoan, Math.max(0, dscrMaxLoan));
+  const binding = dscrMaxLoan <= ltvMaxLoan ? 'DSCR' : 'LTV';
+  const effLtv = propertyValue > 0 ? approvedLoan / propertyValue : 0;
+  const r = monthlyRate(ratePct), n = amort * 12;
+  const mp = r === 0 ? approvedLoan / n : approvedLoan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+  const ads = mp * 12;
+  const dscrInsured = ads > 0 ? noi / ads : 0;
+  const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
+  return { mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv,
+           baseRate:0, surcharge:0, discount:0, netRate:0, premium:0, insured:approvedLoan,
+           mp, ads, dscrInsured, dscrBase,
+           provTax:0, appFee:0, effAmort:amort, downPayment:propertyValue-approvedLoan, lendingValue:lv };
+}
+
 // ─── App mode ─────────────────────────────────────────────────────────────────
 let appMode = 'acq';
 
@@ -1757,6 +1842,12 @@ function recalc() {
   const targetRent = g('targetRent'), rentGrowth = g('rentGrowth'), holding = g('holdingPeriod');
   const optVacPct = g('optimizedVacancy'), optOpexPct = g('optimizedExpenses'), turnover = g('turnoverRate');
   const renoCost = g('renoCost'), pctReno = g('pctReno'), cfkMonths = g('cfkMonths'), pctCfk = g('pctCfk');
+  const acqFinType  = gs('acqFinType')  || 'cmhc';   // 'cmhc' | 'conventional'
+  const refiFinType = gs('refiFinType') || 'cmhc';   // 'cmhc' | 'conventional'
+  const acqConvLtv  = g('acqConvLtv')  || 75;
+  const acqConvDscr = g('acqConvDscr') || 1.20;
+  const refiConvLtv = g('refiConvLtv') || 75;
+  const refiConvDscr= g('refiConvDscr') || 1.20;
   const program = gs('cmhcProgram'), mliPts = g('mliPoints'), buildingType = gs('buildingType');
   const purpose = gs('loanPurpose'), targetLtv = g('targetLtv'), rate = g('interestRate');
   const term = parseFloat(gs('term')), amort = parseFloat(gs('amortization')), province = gs('province');
@@ -1823,7 +1914,9 @@ function recalc() {
   const schlEGI  = gri * (1 - schlVac / 100) + otherInc;
   const schlNOI  = schlEGI * (1 - schlOpex / 100);
   const valeurEconomique = schlCapRate > 0 ? schlNOI / (schlCapRate / 100) : purchasePrice;
-  const cmhc = computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, schlNOI, units, valeurEconomique);
+  const cmhc = acqFinType === 'cmhc'
+    ? computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, schlNOI, units, valeurEconomique)
+    : computeConventional(acqConvLtv, rate, amort, acqConvDscr, purchasePrice, schlNOI, valeurEconomique);
 
   // F: Private financing
   const renoEquity = totalInvest * (1 - privPct/100);
@@ -1880,7 +1973,9 @@ function recalc() {
 
   // K: Refinance — uses turnover-blended exitNOI (consistent with in-place income at refi date)
   const refiPropVal = refiCapRatePct > 0 ? exitNOI / (refiCapRatePct/100) : 0;
-  const refi = computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units);
+  const refi = refiFinType === 'cmhc'
+    ? computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units)
+    : computeConventional(refiConvLtv, refiRate, refiAmort, refiConvDscr, refiPropVal, exitNOI, 0);
   const refiBreak = breakPenalty(balanceAtExit, rate, newRate, holding, term);
   const grossCashOut = refi.approvedLoan - balanceAtExit - refiBreak;
   const refiBrokerFee = refi.approvedLoan * refiBrokerPct/100;
@@ -1888,6 +1983,7 @@ function recalc() {
   const refiMult = totalCash > 0 ? netCashOut / totalCash : 0;
 
   C = { purchasePrice, units, avgSqft, rollValue, acqCostDollar, totalAcqCost, pricePerUnit, premiumOverRoll,
+    acqFinType, refiFinType,
     currentRent, gri, egi, opex, noi, capRate, grm, schlNOI,
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
@@ -1905,7 +2001,7 @@ function recalc() {
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 function updateDashboard() {
   if (appMode === 'dev') {
-    const { TDC, stabNOI, yocDev, devSpread, takeout, equityRequired, profit, marginOnCost, equityRecapture, cashLeftIn } = C;
+    const { TDC, stabNOI, yocDev, devSpread, takeout, equityRequired, profit, marginOnCost, equityRecapture, cashLeftIn, dTakeoutFinType } = C;
     set('kl-noi', 'NOI Stabilisé');
     set('kv-noi', fmtC(stabNOI));
     set('ks-noi', 'Yield on Cost: ' + fmtP(yocDev*100));
@@ -1913,7 +2009,7 @@ function updateDashboard() {
     set('kv-noi-opt', fmtC(TDC));
     const spreadLabel = devSpread >= 0.015 ? '✓ Spread: +' : devSpread >= 0 ? '⚠ Spread: +' : '✗ Spread: ';
     set('ks-noi-opt', spreadLabel + fmtP(devSpread*100) + ' vs marché');
-    set('kl-loan', 'Prêt Take-Out SCHL');
+    set('kl-loan', dTakeoutFinType === 'cmhc' ? 'Prêt Take-Out SCHL' : 'Prêt Take-Out Conv.');
     set('kv-loan', fmtC(takeout.approvedLoan));
     set('ks-loan', 'LTV ' + fmtP(takeout.effLtv*100,1) + ' · DSCR ' + fmtX(takeout.dscrInsured,2));
     set('kl-cash', 'Équité Requise');
@@ -1960,6 +2056,7 @@ function metricBox(label, value, sub='', cls='green') {
 function updateOutputs() {
   if (appMode === 'dev') { updateDevOutputs(); return; }
   const { purchasePrice, units, avgSqft, rollValue, pricePerUnit, premiumOverRoll,
+    acqFinType, refiFinType,
     gri, egi, opex, noi, capRate, grm,
     totalReno, cfk, totalInvest, renoPerSqft,
     optNOI, yoc, projRentExit, exitNOI, fracExit,
@@ -1967,6 +2064,8 @@ function updateOutputs() {
     totalReserve, annualReserve, totalCash, brokerFee, allInCost,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, rentalTax, netPreTax, netPostTax, totalRet, annRet, exitMult,
     refiPropVal, refi, refiBreak, grossCashOut, netCashOut, refiMult, refiBrokerFee } = C;
+  const isCmhcAcq  = acqFinType  !== 'conventional';
+  const isCmhcRefi = refiFinType !== 'conventional';
 
   // Current
   document.getElementById('out-current').innerHTML =
@@ -1992,27 +2091,28 @@ function updateOutputs() {
     outRow('Cash for Keys total', fmtC(cfk)) +
     outRow('Investissement total', fmtC(totalInvest), 'key-row');
 
-  // Acquisition / CMHC
+  // Acquisition / Financement
   const c = cmhc;
   const { schlNOI } = C;
   document.getElementById('out-acquisition').innerHTML =
     `<div class="mb-2"><span class="inline-badge">${c.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
-    (schlNOI !== noi ? outRow('NOI normalisé SCHL', fmtC(schlNOI)) : '') +
-    (c.lendingValue < purchasePrice ? outRow('Valeur économique SCHL', fmtC(c.lendingValue)) : '') +
+    `<div class="sub-label">Prêt ${isCmhcAcq ? 'CMHC / SCHL' : 'conventionnel'}</div>` +
+    (isCmhcAcq && schlNOI !== noi ? outRow('NOI normalisé SCHL', fmtC(schlNOI)) : '') +
+    (isCmhcAcq && c.lendingValue < purchasePrice ? outRow('Valeur économique SCHL', fmtC(c.lendingValue)) : '') +
     outRow('Plafond LTV (prêt max)', fmtC(c.ltvMaxLoan)) +
     outRow('Plafond DSCR (prêt max)', fmtC(c.dscrMaxLoan)) +
     outRow('Prêt approuvé', fmtC(c.approvedLoan), 'key-row') +
     outRow('% de financement (/ prix)', fmtP(c.effLtv*100)) +
     outRow('DSCR (prêt de base)', fmtX(c.dscrBase)) +
-    outRow('DSCR (hypo assurée)', fmtX(c.dscrInsured)) +
-    '<div class="divider"></div>' +
-    `<div class="sub-label">Prime SCHL</div>` +
-    outRow('Taux de base', fmtP(c.baseRate*100)) +
-    (c.surcharge > 0 ? outRow('Surcharge amortissement', '+'+fmtP(c.surcharge*100)) : '') +
-    (c.discount > 0 ? outRow('Rabais MLI Select', '-'+fmtP(c.discount*100)) : '') +
-    outRow('Taux net', fmtP(c.netRate*100)) +
-    outRow('Prime SCHL nette', fmtC(c.premium), 'key-row') +
-    outRow('Hypothèque assurée', fmtC(c.insured)) +
+    outRow(isCmhcAcq ? 'DSCR (hypo assurée)' : 'DSCR', fmtX(c.dscrInsured)) +
+    (isCmhcAcq ? '<div class="divider"></div>' +
+      `<div class="sub-label">Prime SCHL</div>` +
+      outRow('Taux de base', fmtP(c.baseRate*100)) +
+      (c.surcharge > 0 ? outRow('Surcharge amortissement', '+'+fmtP(c.surcharge*100)) : '') +
+      (c.discount > 0 ? outRow('Rabais MLI Select', '-'+fmtP(c.discount*100)) : '') +
+      outRow('Taux net', fmtP(c.netRate*100)) +
+      outRow('Prime SCHL nette', fmtC(c.premium), 'key-row') +
+      outRow('Hypothèque assurée', fmtC(c.insured)) : '') +
     outRow('Paiement mensuel', fmtC(c.mp)) +
     '<div class="divider"></div>' +
     `<div class="sub-label">Cash requis à la fermeture</div>` +
@@ -2020,8 +2120,8 @@ function updateOutputs() {
     outRow('Mise de fonds rénovations', fmtC(renoEquity)) +
     outRow('Frais d\'acquisition', fmtC(C.acqCostDollar)) +
     outRow('Frais de courtier hypothécaire', fmtC(brokerFee)) +
-    outRow('TVQ sur prime SCHL', fmtC(c.provTax)) +
-    outRow('Frais de demande SCHL', fmtC(c.appFee)) +
+    (isCmhcAcq && c.provTax > 0 ? outRow('TVQ sur prime SCHL', fmtC(c.provTax)) : '') +
+    (isCmhcAcq && c.appFee  > 0 ? outRow('Frais de demande SCHL', fmtC(c.appFee)) : '') +
     outRow('TOTAL CASH REQUIS', fmtC(totalCash), 'key-row') +
     `<div class="metric-grid">
       ${metricBox('Cash Requis', fmtC(totalCash), '', 'amber')}
@@ -2063,6 +2163,7 @@ function updateOutputs() {
   const r = refi;
   document.getElementById('out-refi').innerHTML =
     `<div class="mb-2"><span class="inline-badge">${r.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+    `<div class="sub-label">Prêt refi ${isCmhcRefi ? 'CMHC / SCHL' : 'conventionnel'}</div>` +
     outRow('Valeur estimée au refi', fmtC(refiPropVal)) +
     outRow('NOI au refinancement (roulement ajusté)', fmtC(exitNOI)) +
     outRow('NOI optimisé (réf. stabilisé)', fmtC(optNOI)) +
@@ -2070,13 +2171,13 @@ function updateOutputs() {
     outRow('Plafond DSCR', fmtC(r.dscrMaxLoan)) +
     outRow('Prêt refi approuvé', fmtC(r.approvedLoan), 'key-row') +
     outRow('LTV effectif', fmtP(r.effLtv*100)) +
-    outRow('DSCR sur hypo assurée', fmtX(r.dscrInsured)) +
+    outRow(isCmhcRefi ? 'DSCR sur hypo assurée' : 'DSCR', fmtX(r.dscrInsured)) +
     outRow('Paiement mensuel (refi)', fmtC(r.mp)) +
-    '<div class="divider"></div>' +
-    `<div class="sub-label">Prime SCHL (refi)</div>` +
-    outRow('Prime SCHL nette', fmtC(r.premium)) +
-    outRow('TVQ sur prime', '-'+fmtC(r.provTax), 'neg') +
-    outRow('Frais de demande SCHL', '-'+fmtC(r.appFee), 'neg') +
+    (isCmhcRefi ? '<div class="divider"></div>' +
+      `<div class="sub-label">Prime SCHL (refi)</div>` +
+      outRow('Prime SCHL nette', fmtC(r.premium)) +
+      (r.provTax > 0 ? outRow('TVQ sur prime', '-'+fmtC(r.provTax), 'neg') : '') +
+      (r.appFee  > 0 ? outRow('Frais de demande SCHL', '-'+fmtC(r.appFee), 'neg') : '') : '') +
     '<div class="divider"></div>' +
     `<div class="sub-label">Sortie de fonds nette</div>` +
     outRow('Balance hypothécaire courante', '-'+fmtC(C.balanceAtExit), 'neg') +
@@ -2447,6 +2548,7 @@ function resetAll() {
     targetRent:1450, rentGrowth:2, holdingPeriod:5, optimizedVacancy:5, optimizedExpenses:30, turnoverRate:17.5,
     renoCost:20000, pctReno:50, cfkMonths:0, pctCfk:20,
     mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
+    acqConvLtv:75, acqConvDscr:1.20, refiConvLtv:75, refiConvDscr:1.20,
     capRateDrift:0.5, newMortgageRate:4.25, marginalTax:26.5, cgTaxRate:33, commission:2, closingFees:-1500,
     refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:-3000, refiBrokerFeePct:1,
     privatePct:100, privateRate:14,
@@ -2481,7 +2583,7 @@ function resetAll() {
     dSoftPct:5, dArchEng:40000, dPermitsDev:15000, dLegalMkt:10000, dPropTaxConstr:8000, dDevFeePct:5,
     dContingencyPct:10,
     dConstrMonths:12, dLeaseUpMonths:6, dAvgDrawPct:55,
-    dMliPoints:50, dTargetLtc:80, dTargetLtv:85, dConstrRate:4.25, dPermRate:4.25, dBrokerFeePct:1,
+    dMliPoints:70, dTargetLtc:75, dTargetLtv:85, dConstrRate:4.50, dPermRate:4.50, dBrokerFeePct:1, dConvTakeoutLtv:75, dConvTakeoutDscr:1.20,
     dStabRent:1600, dOtherIncomeDev:0, dStabVacancy:5, dStabOpexPct:28,
     dExitCap:5.0, dTargetMargin:20, dCommissionDev:2, dCgTaxRateDev:33
   };
@@ -2495,22 +2597,33 @@ function resetAll() {
   const dBldgType = document.getElementById('dBuildingType');
   if (dBldgType) dBldgType.value = 'standard';
   const dTermEl = document.getElementById('dTerm');
-  if (dTermEl) dTermEl.value = '5';
+  if (dTermEl) dTermEl.value = '10';
   const dAmortEl = document.getElementById('dAmortization');
-  if (dAmortEl) dAmortEl.value = '40';
+  if (dAmortEl) dAmortEl.value = '45';
   const dProvEl = document.getElementById('dProvince');
   if (dProvEl) dProvEl.value = 'qc';
   const dContBasis = document.getElementById('dContingencyBasis');
   if (dContBasis) dContBasis.value = 'hard';
   const dHardModeEl = document.getElementById('dHardMode');
   if (dHardModeEl) dHardModeEl.value = 'per-sqft';
+  // Reset financing type toggles
+  const dConstrFinTypeEl = document.getElementById('dConstrFinType');
+  if (dConstrFinTypeEl) dConstrFinTypeEl.value = 'conventional';
+  const dTakeoutFinTypeEl = document.getElementById('dTakeoutFinType');
+  if (dTakeoutFinTypeEl) dTakeoutFinTypeEl.value = 'cmhc';
+  const acqFinTypeEl = document.getElementById('acqFinType');
+  if (acqFinTypeEl) acqFinTypeEl.value = 'cmhc';
+  const refiFinTypeEl = document.getElementById('refiFinType');
+  if (refiFinTypeEl) refiFinTypeEl.value = 'cmhc';
   // Clear SCHL normalization fields back to blank (= fall back to stabilized assumptions)
   ['dSchlVacancy', 'dSchlOpexPct', 'dSchlCapRate'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
-  toggleDevMliPoints();
+  toggleDevFinTypes();
   toggleHardMode();
+  toggleAcqFinTypes();
+  toggleRefiFinTypes();
   recalc();
 }
 
@@ -2542,6 +2655,33 @@ function toggleDevMliPoints() {
   const prog = document.getElementById('dCmhcProgram');
   const row  = document.getElementById('d-mli-points-row');
   if (prog && row) row.style.display = prog.value === 'mli-select' ? '' : 'none';
+}
+
+function toggleDevFinTypes() {
+  const takeoutType = (document.getElementById('dTakeoutFinType') || {value:'cmhc'}).value;
+  const cmhcBlock = document.getElementById('d-cmhc-takeout-rows');
+  const convBlock = document.getElementById('d-conv-takeout-rows');
+  if (cmhcBlock) cmhcBlock.style.display = takeoutType === 'cmhc' ? '' : 'none';
+  if (convBlock) convBlock.style.display = takeoutType === 'conventional' ? '' : 'none';
+  toggleDevMliPoints();
+}
+
+function toggleAcqFinTypes() {
+  const type = (document.getElementById('acqFinType') || {value:'cmhc'}).value;
+  const cmhcBlock = document.getElementById('e-cmhc-rows');
+  const convBlock = document.getElementById('e-conv-rows');
+  if (cmhcBlock) cmhcBlock.style.display = type === 'cmhc' ? '' : 'none';
+  if (convBlock) convBlock.style.display = type === 'conventional' ? '' : 'none';
+  if (type === 'cmhc') toggleMliPoints();
+}
+
+function toggleRefiFinTypes() {
+  const type = (document.getElementById('refiFinType') || {value:'cmhc'}).value;
+  const cmhcBlock = document.getElementById('k-cmhc-rows');
+  const convBlock = document.getElementById('k-conv-rows');
+  if (cmhcBlock) cmhcBlock.style.display = type === 'cmhc' ? '' : 'none';
+  if (convBlock) convBlock.style.display = type === 'conventional' ? '' : 'none';
+  if (type === 'cmhc') toggleRefiMliPoints();
 }
 
 function toggleHardMode() {
@@ -2594,6 +2734,10 @@ function recalcDev() {
   const dAvgDrawPct   = g('dAvgDrawPct');
 
   // DF: Financing
+  const dConstrFinType  = gs('dConstrFinType')  || 'conventional'; // 'conventional' | 'cmhc'
+  const dTakeoutFinType = gs('dTakeoutFinType') || 'cmhc';         // 'cmhc' | 'conventional'
+  const dConvTakeoutLtv = g('dConvTakeoutLtv') || 75;
+  const dConvTakeoutDscr= g('dConvTakeoutDscr') || 1.20;
   const dCmhcProgram  = gs('dCmhcProgram') || 'mli-select';
   const dMliPoints    = g('dMliPoints');
   const dBuildingType = gs('dBuildingType') || 'standard';
@@ -2651,10 +2795,19 @@ function recalcDev() {
   const schlNoiDev  = schlEgiDev * (1 - schlOpexDev / 100);
   const econValueDev = dSchlCapRate > 0 ? schlNoiDev / (dSchlCapRate / 100) : GDV;
 
-  // ── CMHC take-out — permanent loan sized on dPermRate / schlNoiDev DSCR / econValueDev LTV cap ──
-  const takeout = computeCmhc(dCmhcProgram, dBuildingType, 'construction', dMliPoints,
-                               dTargetLtv, dPermRate, dTerm, dAmortization, dProvince,
-                               GDV, schlNoiDev, dUnits, econValueDev);
+  // ── Take-out loan — permanent, sized on dPermRate / schlNoiDev DSCR / GDV LTV cap ──
+  // When construction is conventional the building is complete at take-out → use 'purchase' premium band.
+  let takeout;
+  if (dTakeoutFinType === 'cmhc') {
+    const premiumPurpose = dConstrFinType === 'conventional' ? 'purchase' : 'construction';
+    takeout = computeCmhc(dCmhcProgram, dBuildingType, premiumPurpose, dMliPoints,
+                          dTargetLtv, dPermRate, dTerm, dAmortization, dProvince,
+                          GDV, schlNoiDev, dUnits, econValueDev);
+  } else {
+    // Conventional take-out: no CMHC insurance. NOI basis same as CMHC path for consistency.
+    takeout = computeConventional(dConvTakeoutLtv, dPermRate, dAmortization, dConvTakeoutDscr,
+                                  GDV, schlNoiDev, econValueDev);
+  }
 
   // ── Construction loan + interest reserve (one-pass approximation) ──
   // Carry is computed off the preliminary LTC-sized loan (costExFin only), then
@@ -2705,6 +2858,7 @@ function recalcDev() {
 
   C = {
     appMode: 'dev',
+    dConstrFinType, dTakeoutFinType,
     dUnits, gfa, dConstrMonths, dLeaseUpMonths, carryMonths, dConstrRate, dPermRate, dTerm, dAmortization,
     land, landClosingDollar, dLandPrice, hard, hardBase, softBase, devFee, soft, contingency, costExFin,
     financingCarry, brokerFee, TDC,
@@ -2725,6 +2879,7 @@ function recalcDev() {
 // ─── Development output cards ─────────────────────────────────────────────────
 function updateDevOutputs() {
   const {
+    dConstrFinType, dTakeoutFinType,
     dUnits, gfa, land, landClosingDollar, dLandPrice,
     hard, hardBase, softBase, devFee, soft, contingency, costExFin,
     financingCarry, brokerFee, TDC,
@@ -2736,6 +2891,7 @@ function updateDevOutputs() {
     residualLand, residualLandGross, maxTDC, targetMarginDec, dTargetMargin,
     dPermRate
   } = C;
+  const isCmhcTakeout = dTakeoutFinType === 'cmhc';
 
   // 1. Cost waterfall
   const elCost = document.getElementById('dev-out-cost');
@@ -2757,8 +2913,8 @@ function updateDevOutputs() {
     '<div class="divider"></div>' +
     outRow('Carry intérêts construction', fmtC(financingCarry), 'neg') +
     outRow('Frais de courtier hypothécaire', fmtC(brokerFee), 'neg') +
-    outRow('TVQ sur prime SCHL', fmtC(takeout.provTax), 'neg') +
-    outRow('Frais de demande SCHL', fmtC(takeout.appFee), 'neg') +
+    (isCmhcTakeout && takeout.provTax > 0 ? outRow('TVQ sur prime SCHL', fmtC(takeout.provTax), 'neg') : '') +
+    (isCmhcTakeout && takeout.appFee  > 0 ? outRow('Frais de demande SCHL', fmtC(takeout.appFee), 'neg') : '') +
     outRow('COÛT TOTAL DE DÉVELOPPEMENT', fmtC(TDC), 'key-row') +
     `<div class="metric-grid">
       ${metricBox('TDC', fmtC(TDC), 'ex-financement: '+fmtC(costExFin), 'blue')}
@@ -2783,6 +2939,7 @@ function updateDevOutputs() {
       outRow('Valeur économique SCHL', fmtC(econValueDev), econValueDev < GDV ? 'warn' : '') +
       '<div class="divider"></div>' +
       `<div class="mb-2"><span class="inline-badge">${takeout.binding === 'DSCR' ? '⚠ Contraint par DSCR' : '⚠ Contraint par LTV'}</span></div>` +
+      `<div class="sub-label">Take-out ${isCmhcTakeout ? 'CMHC / SCHL' : 'conventionnel'} · Construction ${dConstrFinType === 'cmhc' ? 'CMHC' : 'conv.'}</div>` +
       outRow('Taux prêt permanent', fmtP(dPermRate)) +
       outRow('Plafond LTC (prêt constr.)', fmtC(constrLoanLtc)) +
       outRow('Plafond LTV take-out', fmtC(takeout.ltvMaxLoan)) +
@@ -2790,10 +2947,10 @@ function updateDevOutputs() {
       outRow('Prêt take-out approuvé', fmtC(takeout.approvedLoan), 'key-row') +
       outRow('Prêt de construction', fmtC(constrLoan)) +
       outRow('LTV effectif (/ GDV)', fmtP(takeout.effLtv*100)) +
-      outRow('DSCR (hypo assurée)', fmtX(takeout.dscrInsured)) +
+      outRow(isCmhcTakeout ? 'DSCR (hypo assurée)' : 'DSCR', fmtX(takeout.dscrInsured)) +
       outRow('Paiement mensuel (perm.)', fmtC(takeout.mp)) +
-      outRow('Prime SCHL nette', fmtC(takeout.premium)) +
-      outRow('TVQ sur prime', fmtC(takeout.provTax)) +
+      (isCmhcTakeout ? outRow('Prime SCHL nette', fmtC(takeout.premium)) : '') +
+      (isCmhcTakeout ? outRow('TVQ sur prime', fmtC(takeout.provTax)) : '') +
       '<div class="divider"></div>' +
       outRow('Équité requise (TDC − prêt constr.)', fmtC(equityRequired), 'key-row') +
       `<div class="metric-grid">
@@ -2821,7 +2978,7 @@ function updateDevOutputs() {
   // 4. Hold + residual land
   const elHold = document.getElementById('dev-out-hold');
   if (elHold) elHold.innerHTML =
-    `<div class="sub-label">Détention — prêt permanent SCHL</div>` +
+    `<div class="sub-label">Détention — prêt permanent ${isCmhcTakeout ? 'SCHL' : 'conventionnel'}</div>` +
     outRow('Prêt take-out approuvé', fmtC(takeout.approvedLoan)) +
     outRow('Prêt de construction (remb.)', '-'+fmtC(constrLoan), 'neg') +
     outRow('Frais de courtier (remb.)', '-'+fmtC(brokerFee), 'neg') +
@@ -2934,8 +3091,10 @@ function updateDevCashFlow() {
 appMode = localStorage.getItem('plexMode') || 'acq';
 CURRENCY_FIELDS.forEach(id => { const el = document.getElementById(id); if (el) el.value = formatCurrency(el.value); });
 toggleRentMode();
-toggleDevMliPoints();
+toggleDevFinTypes();
 toggleHardMode();
+toggleAcqFinTypes();
+toggleRefiFinTypes();
 setMode(appMode);
 </script>
 
