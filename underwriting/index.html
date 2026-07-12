@@ -681,17 +681,17 @@ footer .logo { color: var(--paper); }
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('ranges', this)">Repères</button>
-    <button class="tab-btn" onclick="showTab('inputs', this)">Paramètres</button>
+    <button class="tab-btn active" onclick="showTab('inputs', this)">Paramètres</button>
     <button class="tab-btn" onclick="showTab('analysis', this)">Analyse</button>
     <button class="tab-btn" onclick="showTab('cashflow', this)">Flux</button>
     <button class="tab-btn" onclick="showTab('help', this)">Guide</button>
     <button class="tab-btn" onclick="showTab('schl', this)">SCHL</button>
     <button class="tab-btn" onclick="showTab('playbook', this)">Playbook</button>
+    <button class="tab-btn" onclick="showTab('ranges', this)">Repères</button>
   </div>
 
   <!-- ── Tab: Paramètres ─────────────────────────────────────────────── -->
-  <div id="tab-inputs" class="tab-content">
+  <div id="tab-inputs" class="tab-content active">
     <div class="grid-2">
       <!-- LEFT COLUMN (acquisition) -->
       <div class="space-y acq-only">
@@ -2479,7 +2479,7 @@ footer .logo { color: var(--paper); }
   </div><!-- /tab-playbook -->
 
   <!-- ── Tab: Repères ───────────────────────────────────────────────────── -->
-  <div id="tab-ranges" class="tab-content active">
+  <div id="tab-ranges" class="tab-content">
 
     <!-- ── Return ladder (always visible, both modes) ── -->
     <div class="schl-card" style="margin-bottom:20px">
