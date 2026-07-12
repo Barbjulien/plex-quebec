@@ -98,7 +98,7 @@ nav {
   font-family: 'Fraunces', serif;
   font-size: 14px; font-weight: 400;
   background: none; border: none; cursor: pointer;
-  color: var(--ink-soft); padding: 10px 18px;
+  color: var(--ink-soft); padding: 10px 13px;
   border-bottom: 2px solid transparent; margin-bottom: -1px;
   transition: all .18s; letter-spacing: -0.01em;
 }
@@ -484,6 +484,139 @@ footer .logo { color: var(--paper); }
     gap: 20px;
   }
 }
+
+/* ── Playbook tab styles (scoped under .playbook) ────────────────────────────── */
+.playbook { max-width: 860px; padding-top: 10px; }
+
+/* Chip nav */
+.pb-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 32px; }
+.pb-chip {
+  font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 20px;
+  background: var(--bg-warm); border: 1px solid var(--line);
+  color: var(--ink-soft); text-decoration: none; transition: all .15s;
+  letter-spacing: 0.03em;
+}
+.pb-chip:hover, .pb-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pb-chip .pn { color: var(--gold); font-weight: 700; margin-right: 3px; font-size: 10px; }
+.pb-chip:hover .pn, .pb-chip.active .pn { color: rgba(255,255,255,0.7); }
+
+/* Hero */
+.playbook .pb-hero { margin-bottom: 36px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.playbook .pb-eyebrow { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--gold); font-weight: 500; margin-bottom: 10px; }
+.playbook .pb-hero h1 { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 400; line-height: 1.15; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 12px; }
+.playbook .pb-hero h1 em { font-style: italic; color: var(--accent); }
+.playbook .pb-hero-lead { font-size: 14px; color: var(--ink-soft); max-width: 660px; line-height: 1.7; }
+
+/* Sections */
+.playbook .pb-section { margin-bottom: 48px; scroll-margin-top: 130px; }
+.playbook .pb-label {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.18em;
+  color: var(--gold); font-weight: 600; margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.playbook .pb-label::after { content: ""; flex: 1; height: 1px; background: var(--gold-light); }
+.playbook .pb-section h2 { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 400; letter-spacing: -0.02em; color: var(--ink); margin-bottom: 16px; line-height: 1.2; }
+.playbook .pb-section h3 { font-family: 'Fraunces', serif; font-size: 15px; font-weight: 500; color: var(--accent); margin: 22px 0 9px; letter-spacing: -0.01em; }
+.playbook .pb-section h4 { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); margin: 16px 0 7px; }
+.playbook .pb-section p { margin-bottom: 11px; line-height: 1.65; }
+.playbook .pb-section p:last-child { margin-bottom: 0; }
+
+/* Cards */
+.playbook .pb-card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin-bottom: 14px; }
+.playbook .pb-card-title { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 500; color: var(--accent); margin-bottom: 10px; }
+
+/* Estimate callout */
+.playbook .pb-est { border-left: 3px solid var(--gold); background: var(--gold-light); border-radius: 0 8px 8px 0; padding: 13px 15px; margin: 13px 0; }
+.playbook .pb-est-tag { font-size: 9px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+.playbook .pb-est-tag::before { content: "⚠"; font-size: 10px; }
+.playbook .pb-est p { font-size: 13px; color: var(--ink); margin-bottom: 5px; }
+.playbook .pb-est p:last-child { margin-bottom: 0; }
+
+/* Verdict pills */
+.playbook .pb-verdict-row { display: flex; gap: 9px; flex-wrap: wrap; margin: 9px 0; }
+.playbook .pb-verdict { font-size: 11px; font-weight: 600; padding: 5px 11px; border-radius: 20px; letter-spacing: 0.04em; }
+.playbook .pb-verdict.go { background: var(--positive-light); color: var(--positive); }
+.playbook .pb-verdict.warn { background: var(--warm-light); color: var(--warm); }
+.playbook .pb-verdict.stop { background: var(--negative-light); color: var(--negative); }
+
+/* KPI row */
+.playbook .pb-kpi-row { display: flex; gap: 9px; flex-wrap: wrap; margin: 13px 0; }
+.playbook .pb-kpi-box { flex: 1; min-width: 110px; background: var(--accent-deep); border-radius: 8px; padding: 11px 13px; color: #fff; }
+.playbook .pb-kpi-box .kl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.playbook .pb-kpi-box .kv { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.playbook .pb-kpi-box .ks { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+.playbook .pb-kpi-box.gold { background: var(--gold); }
+.playbook .pb-kpi-box.green { background: var(--positive); }
+
+/* Tables */
+.playbook .pb-section table { width: 100%; border-collapse: collapse; margin: 13px 0; font-size: 12.5px; }
+.playbook .pb-section th { background: var(--bg-warm); text-align: left; padding: 8px 11px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); border-bottom: 1px solid var(--line); }
+.playbook .pb-section td { padding: 8px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.playbook .pb-section tr:last-child td { border-bottom: none; }
+.playbook .pb-section tr:hover td { background: var(--bg-warm); }
+
+/* Lists */
+.playbook .pb-section ul, .playbook .pb-section ol { padding-left: 20px; margin: 9px 0 13px; }
+.playbook .pb-section li { margin-bottom: 5px; }
+.playbook .pb-section li:last-child { margin-bottom: 0; }
+.playbook .pb-section ul.checklist { list-style: none; padding-left: 0; }
+.playbook .pb-section ul.checklist li { padding-left: 22px; position: relative; }
+.playbook .pb-section ul.checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--gold); font-size: 13px; }
+
+/* Steps */
+.playbook .pb-steps { counter-reset: pbstep; list-style: none; padding: 0; margin: 13px 0; }
+.playbook .pb-steps li { counter-increment: pbstep; padding: 11px 13px 11px 50px; position: relative; border-left: 2px solid var(--line); margin-bottom: 7px; background: var(--paper); border-radius: 0 8px 8px 0; }
+.playbook .pb-steps li::before { content: counter(pbstep); position: absolute; left: -14px; top: 10px; width: 27px; height: 27px; border-radius: 50%; background: var(--accent-deep); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.playbook .pb-steps li strong { display: block; margin-bottom: 3px; }
+
+/* Submarket grid */
+.playbook .pb-sm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; margin-top: 15px; }
+@media (max-width: 700px) { .playbook .pb-sm-grid { grid-template-columns: 1fr; } }
+.playbook .pb-sm-card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 15px 17px; }
+.playbook .pb-sm-card .sm-name { font-family: 'Fraunces', serif; font-size: 14px; font-weight: 500; color: var(--accent); margin-bottom: 7px; }
+.playbook .pb-sm-card .sm-tag { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; padding: 2px 7px; border-radius: 10px; margin-bottom: 7px; }
+.playbook .pb-sm-card .sm-tag.value-add { background: var(--warm-light); color: var(--warm); }
+.playbook .pb-sm-card .sm-tag.stabilized { background: var(--positive-light); color: var(--positive); }
+.playbook .pb-sm-card .sm-tag.emerging { background: #e8eef4; color: var(--accent); }
+.playbook .pb-sm-stats { display: flex; gap: 9px; flex-wrap: wrap; margin: 9px 0; }
+.playbook .pb-sm-stat { background: var(--bg-warm); border-radius: 6px; padding: 5px 9px; font-size: 11px; }
+.playbook .pb-sm-stat .sl { color: var(--ink-soft); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; }
+.playbook .pb-sm-stat .sv { font-weight: 600; color: var(--ink); }
+.playbook .pb-sm-card p { font-size: 12px; color: var(--ink-soft); line-height: 1.55; }
+
+/* Decision tree */
+.playbook .pb-dtree { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 13px 0; }
+.playbook .pb-dtree-row { display: flex; align-items: baseline; gap: 14px; padding: 11px 15px; border-bottom: 1px solid var(--line); font-size: 13px; }
+.playbook .pb-dtree-row:last-child { border-bottom: none; }
+.playbook .pb-dtree-row:nth-child(odd) { background: var(--bg-warm); }
+.playbook .pb-dtree-if { font-weight: 600; color: var(--accent); min-width: 28px; font-size: 11px; }
+.playbook .pb-dtree-cond { flex: 1; }
+.playbook .pb-dtree-then { font-weight: 600; color: var(--positive); min-width: 110px; text-align: right; }
+.playbook .pb-dtree-then.warn { color: var(--warm); }
+.playbook .pb-dtree-then.stop { color: var(--negative); }
+
+/* Stress table */
+.playbook .pb-stress-table th:first-child { width: 160px; }
+.playbook .cell-go { color: var(--positive); font-weight: 600; }
+.playbook .cell-warn { color: var(--warm); font-weight: 600; }
+.playbook .cell-stop { color: var(--negative); font-weight: 600; }
+
+/* Tool ref badge */
+.playbook .pb-tool-ref { display: inline-flex; align-items: center; font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); background: #e8eef4; border-radius: 4px; padding: 2px 7px; vertical-align: middle; margin-left: 4px; }
+
+/* Disclaimer */
+.playbook .pb-disclaimer { background: var(--accent-deep); color: rgba(255,255,255,0.82); border-radius: 10px; padding: 15px 18px; margin-bottom: 32px; font-size: 12.5px; line-height: 1.6; }
+.playbook .pb-disclaimer strong { color: #fff; }
+
+/* Divider (scoped — won't affect tool's .divider) */
+.playbook .pb-divider { border: none; border-top: 1px solid var(--line); margin: 32px 0; }
+
+/* CTA footer */
+.playbook .pb-cta { margin-top: 32px; padding: 22px; background: var(--accent-deep); border-radius: 10px; color: #fff; }
+.playbook .pb-cta-title { font-family: 'Fraunces', serif; font-size: 17px; font-weight: 400; margin-bottom: 7px; }
+.playbook .pb-cta p { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.7; }
+.playbook .pb-cta-btn { display: inline-block; margin-top: 13px; padding: 8px 17px; background: var(--gold); color: #fff; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 13px; cursor: pointer; border: none; font-family: inherit; }
+.playbook .pb-cta-btn:hover { background: var(--warm); }
 </style>
 </head>
 <body>
@@ -548,15 +681,17 @@ footer .logo { color: var(--paper); }
 
   <!-- Tabs -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="showTab('inputs', this)">Paramètres</button>
+    <button class="tab-btn active" onclick="showTab('ranges', this)">Repères</button>
+    <button class="tab-btn" onclick="showTab('inputs', this)">Paramètres</button>
     <button class="tab-btn" onclick="showTab('analysis', this)">Analyse</button>
     <button class="tab-btn" onclick="showTab('cashflow', this)">Flux</button>
     <button class="tab-btn" onclick="showTab('help', this)">Guide</button>
     <button class="tab-btn" onclick="showTab('schl', this)">SCHL</button>
+    <button class="tab-btn" onclick="showTab('playbook', this)">Playbook</button>
   </div>
 
   <!-- ── Tab: Paramètres ─────────────────────────────────────────────── -->
-  <div id="tab-inputs" class="tab-content active">
+  <div id="tab-inputs" class="tab-content">
     <div class="grid-2">
       <!-- LEFT COLUMN (acquisition) -->
       <div class="space-y acq-only">
@@ -1685,6 +1820,917 @@ footer .logo { color: var(--paper); }
 
     </div><!-- /schl-grid -->
   </div><!-- /tab-schl -->
+
+  <!-- ── Tab: Playbook ─────────────────────────────────────────────────── -->
+  <div id="tab-playbook" class="tab-content">
+  <div class="playbook">
+
+    <!-- Hero -->
+    <div class="pb-hero">
+      <div class="pb-eyebrow">Guide stratégique d'underwriting · Strategic Underwriting Playbook</div>
+      <h1>Rive-Sud Plex<br><em>6 à 12 unités</em></h1>
+      <p class="pb-hero-lead">Tout ce qu'il faut savoir pour analyser, filtrer et décider sur n'importe quel plex de la Rive-Sud de Montréal — de la visite rapide jusqu'à l'offre signée. Ce guide accompagne les onglets <strong>Guide</strong> et <strong>SCHL</strong> sans les répéter.</p>
+    </div>
+
+    <!-- Chip nav -->
+    <div class="pb-chips" id="pb-chip-nav">
+      <a href="#pb-intro" class="pb-chip"><span class="pn">0</span>Ce guide</a>
+      <a href="#pb-workflow" class="pb-chip"><span class="pn">1</span>Workflow 10 min</a>
+      <a href="#pb-submarkets" class="pb-chip"><span class="pn">2</span>Sous-marchés</a>
+      <a href="#pb-rules" class="pb-chip"><span class="pn">3</span>Règles du pouce</a>
+      <a href="#pb-inputs" class="pb-chip"><span class="pn">4</span>Hypothèses</a>
+      <a href="#pb-financing" class="pb-chip"><span class="pn">5</span>Financement</a>
+      <a href="#pb-scenarios" class="pb-chip"><span class="pn">6</span>Scénarios</a>
+      <a href="#pb-stress" class="pb-chip"><span class="pn">7</span>Stress tests</a>
+      <a href="#pb-diligence" class="pb-chip"><span class="pn">8</span>Diligence QC</a>
+      <a href="#pb-redflags" class="pb-chip"><span class="pn">9</span>Drapeaux rouges</a>
+      <a href="#pb-metrics" class="pb-chip"><span class="pn">10</span>Indicateurs</a>
+    </div>
+
+    <!-- ─── 0. CE GUIDE ─────────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-intro">
+      <div class="pb-label">0 · Comment utiliser ce guide / How to use</div>
+      <h2>Ce guide vs. l'outil</h2>
+      <p>Les onglets <em>Guide</em> et <em>SCHL</em> documentent déjà les formules, les programmes SCHL, et les benchmarks génériques. <strong>Ce Playbook ne les répète pas.</strong> Il ajoute la couche de jugement : comment conduire une analyse de A à Z, quelles hypothèses défendre sur la Rive-Sud, comment distinguer un bon deal d'un piège esthétique.</p>
+      <div class="pb-disclaimer">
+        <strong>Convention « À valider / Indicative »</strong> — Toutes les données de marché (loyers, prix/porte, cap rates par secteur) sont signalées par un bloc doré ⚠ <em>À valider</em>. Ces chiffres proviennent de la connaissance de formation et doivent être confirmés avec des comparables récents (Centris, SCHL, courtiers locaux). Les règles de financement SCHL sont exactes en date de juillet 2025 — vérifiez les mises à jour.
+      </div>
+      <div class="pb-card">
+        <div class="pb-card-title">Structure du document</div>
+        <ol>
+          <li><strong>Workflow 10 min</strong> — séquence de saisie et KPIs à lire en priorité</li>
+          <li><strong>Carte des sous-marchés</strong> — profil de chaque ville Rive-Sud (données indicatives)</li>
+          <li><strong>Règles du pouce</strong> — filtres rapides pour rejeter un deal en 60 secondes</li>
+          <li><strong>Choisir les hypothèses</strong> — jugement sur les 7 intrants qui font ou brisent l'analyse</li>
+          <li><strong>Financement pratique</strong> — arbre décisionnel CMHC vs. conventionnel + stratégie de points MLI Select</li>
+          <li><strong>Scénarios types</strong> — 4 archétypes avec cibles et indicateurs go/no-go</li>
+          <li><strong>Tests de stress</strong> — sensibilités manuelles sans modifier l'outil</li>
+          <li><strong>Diligence raisonnable QC</strong> — liste de vérification spécifique au Québec</li>
+          <li><strong>Drapeaux rouges</strong> — tueurs de transaction à repérer dès la mise en marché</li>
+          <li><strong>Lire les indicateurs</strong> — interprétation au-delà du glossaire de l'outil</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ─── 1. WORKFLOW ─────────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-workflow">
+      <div class="pb-label">1 · Workflow 10 minutes / The 10-Minute Underwrite</div>
+      <h2>De la mise en marché à la décision</h2>
+
+      <h3>Étape 0 — Filtre rapide (60 secondes, pas d'outil)</h3>
+      <p>Avant d'ouvrir l'outil, faites ce calcul mental :</p>
+      <div class="pb-card">
+        <strong>Test NOI instantané :</strong> Loyer mensuel moyen × unités × 12 × 0,65 ÷ prix demandé<br>
+        <span style="color:var(--ink-soft); font-size:12px;">(0,65 = facteur brut : 5% vacance + 30% dépenses = 65% de rétention. Ajustez selon l'état.)</span>
+        <div class="pb-verdict-row" style="margin-top:11px;">
+          <span class="pb-verdict go">≥ 5,0% → mérite analyse</span>
+          <span class="pb-verdict warn">4,0–4,9% → angle valeur ajoutée seulement</span>
+          <span class="pb-verdict stop">&lt; 4,0% → cap rate trop mince, sauf secteur prime</span>
+        </div>
+      </div>
+
+      <h3>Séquence de saisie recommandée</h3>
+      <ol class="pb-steps">
+        <li>
+          <strong>Section A — Propriété <span class="pb-tool-ref">A</span></strong>
+          Prix, unités, superficie, valeur au rôle. Le ratio prix/rôle s'affiche immédiatement — un signal précoce de cherté.
+        </li>
+        <li>
+          <strong>Section B — Revenus actuels <span class="pb-tool-ref">B</span></strong>
+          Loyers <em>in-place</em> (actuels au registre, pas les demandés). Utilisez le mode « Annuel total » si les loyers varient beaucoup d'une unité à l'autre.
+        </li>
+        <li>
+          <strong>Section E — Financement <span class="pb-tool-ref">E</span></strong>
+          Choisissez CMHC ou conventionnel, entrez taux + amortissement. Lisez la contrainte liante (DSCR ou LTV) dès maintenant — si bloqué en DSCR à ce stade, aucune optimisation des loyers ne sauvera le financement.
+        </li>
+        <li>
+          <strong>Section C — Revenus optimisés <span class="pb-tool-ref">C</span></strong>
+          Entrez le loyer cible (validé par comps). Ajustez le taux de roulement honnêtement (voir §4). La Yield on Cost apparaît dans le bandeau.
+        </li>
+        <li>
+          <strong>Section D — Rénovations <span class="pb-tool-ref">D</span></strong>
+          Entrez le budget rénos et les CFK. Impacte le cash requis et la Yield on Cost.
+        </li>
+        <li>
+          <strong>Section H — Scénario de vente <span class="pb-tool-ref">H</span></strong>
+          Entrez la dérive de cap rate et les paramètres fiscaux. C'est votre thèse de sortie.
+        </li>
+        <li>
+          <strong>Section K — Refinancement <span class="pb-tool-ref">K</span></strong>
+          Si stratégie BRRRR, paramétrez le refi. Lisez la prise de fonds nette et le multiple cash-out.
+        </li>
+      </ol>
+
+      <h3>Les 4 KPIs à lire en priorité</h3>
+      <div class="pb-kpi-row">
+        <div class="pb-kpi-box">
+          <div class="kl">1 · Cap rate actuel</div>
+          <div class="kv">≥ 4,5%</div>
+          <div class="ks">Min viable Rive-Sud</div>
+        </div>
+        <div class="pb-kpi-box gold">
+          <div class="kl">2 · Contrainte liante</div>
+          <div class="kv">DSCR ou LTV?</div>
+          <div class="ks">Détermine le levier disponible</div>
+        </div>
+        <div class="pb-kpi-box">
+          <div class="kl">3 · Cash requis total</div>
+          <div class="kv">≤ capacité</div>
+          <div class="ks">Mise + réno + frais + TVQ SCHL</div>
+        </div>
+        <div class="pb-kpi-box green">
+          <div class="kl">4 · Rendement annualisé</div>
+          <div class="kv">≥ 8–10%</div>
+          <div class="ks">Après impôt, 5 ans</div>
+        </div>
+      </div>
+
+      <h3>Quand consulter l'onglet Flux?</h3>
+      <p>Passez à l'onglet <em>Flux</em> quand la structure de base tient (cap actuel raisonnable, financement approuvé, cash disponible). Le Flux montre si le deal est <strong>cash-flow positif dès l'année 1</strong> ou s'il brûle pendant la montée en loyers. Un DSCR &lt; 1,0 une année donnée signale un risque de couverture — vérifiez si c'est transitoire (rénos) ou structurel.</p>
+    </div>
+
+    <!-- ─── 2. SOUS-MARCHÉS ─────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-submarkets">
+      <div class="pb-label">2 · Carte des sous-marchés / Submarket Map</div>
+      <h2>Rive-Sud — Profils par secteur</h2>
+
+      <div class="pb-est">
+        <div class="pb-est-tag">À valider / Indicative — données estimatives 2024-2025</div>
+        <p>Les chiffres ci-dessous sont des <strong>estimations de formation</strong>, non des données de marché en temps réel. Validez avec Centris, l'ICi (SCHL), les rapports de courtiers locaux (RE/MAX, Royal LePage, Sutton), et des appels aux courtiers hypothécaires spécialisés multi-logements de la Rive-Sud avant d'utiliser ces fourchettes dans une analyse formelle.</p>
+      </div>
+
+      <div class="pb-sm-grid">
+        <div class="pb-sm-card">
+          <div class="sm-name">Vieux-Longueuil</div>
+          <div class="sm-tag value-add">Valeur ajoutée</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte (6-12 u.)</div><div class="sv">155k–200k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate courant</div><div class="sv">4,5–5,5%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ marché rénové</div><div class="sv">1 200–1 500$</div></div>
+          </div>
+          <p>Stock des années 1960–80 : duplex transformés en plex, construction solide mais mécanique vieillissante. Fort potentiel de réversion des loyers sous-marché. Accès au métro Longueuil et futur REM — pression haussière sur les loyers. Attention à la pyrite sur dalles (quartiers Est).</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Saint-Hubert</div>
+          <div class="sm-tag value-add">Valeur ajoutée</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">145k–190k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">4,5–5,8%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 150–1 400$</div></div>
+          </div>
+          <p>Marché résidentiel familial stable. Plex de 4–8 unités abondants, souvent sous-optimisés par des propriétaires non-professionnels. Loyers in-place fréquemment 30–40% sous le marché. Bon stock de cibles pour stratégie value-add à horizon 5–7 ans.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Greenfield Park</div>
+          <div class="sm-tag stabilized">Stabilisé</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">160k–210k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">4,2–5,0%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 300–1 600$</div></div>
+          </div>
+          <p>Marché plus serré, locataires stables et loyers plus élevés. Stock plus récent (1970–90). Moins d'opportunités valeur-ajoutée mais moins de risque de réversion locataire. Convient à une stratégie cash-cow + refi.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Brossard</div>
+          <div class="sm-tag stabilized">Stabilisé / Croissance</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">175k–250k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">3,8–4,8%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 400–1 800$</div></div>
+          </div>
+          <p>Impact REM fort : pression sur les prix et les loyers. Cap rates compressés. Difficile de faire fonctionner le DSCR SCHL au prix courant. Privilégiez des secteurs éloignés des stations si la valeur ajoutée est la thèse.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Saint-Lambert / LeMoyne</div>
+          <div class="sm-tag stabilized">Stabilisé Premium</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">190k–270k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">3,5–4,5%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 500–1 900$</div></div>
+          </div>
+          <p>Quartier mature, clientèle professionnelle. Peu de plex de 6+ unités. Cap rates parmi les plus bas de la Rive-Sud. La Yield on Cost est difficile à maintenir au-dessus de 5%. Fort rendement à la revente mais faible rendement opérationnel entrant.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Boucherville / Saint-Bruno</div>
+          <div class="sm-tag stabilized">Stabilisé</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">170k–230k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">4,0–5,0%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 300–1 700$</div></div>
+          </div>
+          <p>Marchés de banlieue matures, familiaux. Faible roulement, locataires stables. Locataires en place depuis 10+ ans ont des loyers très bas — les protections TAL jouent pleinement. Meilleur pour BRRRR patient ou détention longue.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Saint-Jean-sur-Richelieu</div>
+          <div class="sm-tag value-add">Valeur ajoutée / Croissance</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">130k–175k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">5,0–6,5%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 050–1 350$</div></div>
+          </div>
+          <p>Cap rates les plus élevés de la région — résiste mieux à la compression DSCR. Marché plus liquide pour les plex 6–12 u. Croissance de population soutenue, base militaire (locataires stables). Fort écart de loyer entre in-place et marché sur le vieux stock. Premier choix pour valeur ajoutée agressive.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Chambly / Carignan</div>
+          <div class="sm-tag emerging">Émergent</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">120k–165k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">5,5–7,0%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 000–1 250$</div></div>
+          </div>
+          <p>Cap rates attractifs, prix d'entrée plus bas. Stock plus épars — trouver un 6+ unités prend plus de temps. Liquidité à la revente plus mince. Réserve capex plus élevée sur vieux stock (1950–70). Convient à investisseur régional avec connaissance locale.</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">La Prairie / Candiac / Ste-Catherine</div>
+          <div class="sm-tag emerging">Émergent</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">140k–185k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">4,8–6,0%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 100–1 400$</div></div>
+          </div>
+          <p>Corridor autoroute 30 : croissance résidentielle soutenue, base industrielle. Plex de 6–10 u. moins communs mais disponibles. Bon équilibre prix/rendement. Bassin locatif mixte (familles + travailleurs).</p>
+        </div>
+        <div class="pb-sm-card">
+          <div class="sm-name">Beloeil / McMasterville</div>
+          <div class="sm-tag value-add">Valeur ajoutée</div>
+          <div class="pb-sm-stats">
+            <div class="pb-sm-stat"><div class="sl">Prix/porte</div><div class="sv">130k–170k$</div></div>
+            <div class="pb-sm-stat"><div class="sl">Cap rate</div><div class="sv">5,2–6,5%</div></div>
+            <div class="pb-sm-stat"><div class="sl">4½ rénové</div><div class="sv">1 000–1 300$</div></div>
+          </div>
+          <p>Marchés secondaires à bonne capacité de rendement opérationnel. Stock ancien — prévoir capex importants (toiture, fondation, fenêtres). Faible liquidité à la revente sur 6+ unités. Convient à stratégie long terme avec budget réno solide.</p>
+        </div>
+      </div><!-- /pb-sm-grid -->
+
+      <div class="pb-est" style="margin-top:18px;">
+        <div class="pb-est-tag">À valider / Indicative</div>
+        <p><strong>Ces fourchettes sont indicatives.</strong> Les prix/porte et loyers varient selon l'état, l'âge, l'emplacement précis et les conditions du moment. Comparez toujours avec au moins 3–5 transactions comparables récentes (moins de 12 mois) avant de valider vos hypothèses dans l'outil.</p>
+      </div>
+    </div>
+
+    <!-- ─── 3. RÈGLES DU POUCE ──────────────────────────────────────── -->
+    <div class="pb-section" id="pb-rules">
+      <div class="pb-label">3 · Règles du pouce / Rules of Thumb &amp; Fast Filters</div>
+      <h2>Rejeter vite, analyser les bons</h2>
+      <p>Ces filtres ne remplacent pas l'outil — ils servent à éliminer 80% des dossiers avant d'investir du temps dans une analyse complète.</p>
+
+      <h3>Filtre GRM (Gross Rent Multiplier)</h3>
+      <div class="pb-dtree">
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">GRM ≤ 14 (Rive-Sud secondaire) ou ≤ 13 (SJSR, Chambly)</div><div class="pb-dtree-then go">Analyser</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">GRM 14–17 (marché établi type Longueuil, Brossard)</div><div class="pb-dtree-then warn">Valeur ajoutée obligatoire</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">GRM &gt; 18</div><div class="pb-dtree-then stop">Rejeter sauf exception</div></div>
+      </div>
+      <p style="font-size:12px; color:var(--ink-soft);">GRM = Prix ÷ (Loyer mensuel × Unités × 12). Disponible dans l'onglet Analyse.</p>
+
+      <h3>Filtre Prix/Rôle (Price-to-Assessment)</h3>
+      <div class="pb-dtree">
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Ratio ≤ 1,20</div><div class="pb-dtree-then go">Normal / favorable</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Ratio 1,20–1,40</div><div class="pb-dtree-then warn">Acceptable si forte valeur ajoutée</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Ratio &gt; 1,40</div><div class="pb-dtree-then stop">Signal de surfacturation — négociez ou passez</div></div>
+      </div>
+
+      <h3>Test « L'écart de loyer justifie-t-il la rénovation? »</h3>
+      <div class="pb-card">
+        <strong>Formule : (Loyer cible − Loyer actuel) × 12 × Unités à rénover ÷ Coût réno total</strong><br><br>
+        Ce ratio donne le « rendement incrémental brut » sur l'investissement rénovation.
+        <div class="pb-verdict-row" style="margin-top:11px;">
+          <span class="pb-verdict go">≥ 12% → Réno justifiée (payée en &lt;8 ans)</span>
+          <span class="pb-verdict warn">8–12% → Analyser avec soin</span>
+          <span class="pb-verdict stop">&lt; 8% → Réno difficile à justifier</span>
+        </div>
+        <p style="margin-top:11px; font-size:12px; color:var(--ink-soft);">Exemple : loyer cible 1 400$, actuel 950$, 4 unités à rénover, budget 120 000$. Écart annuel = (450 × 12 × 4) = 21 600$. Ratio = 21 600 ÷ 120 000 = 18% → justifié.</p>
+      </div>
+
+      <h3>Règles additionnelles</h3>
+      <table>
+        <thead><tr><th>Indicateur</th><th>Seuil rapide</th><th>Interprétation</th></tr></thead>
+        <tbody>
+          <tr><td>Prix par porte</td><td>&lt; 175 000$ (SJSR) / &lt; 210 000$ (Longueuil)</td><td>Zone d'opportunité — analyser</td></tr>
+          <tr><td>Cap rate entrant (actuel)</td><td>≥ 4,8% : CMHC possible. ≥ 5,5% : confortable</td><td>En dessous de 4,5% : DSCR sera le binding constraint</td></tr>
+          <tr><td>Yield on Cost (post-réno)</td><td>≥ 6,0% pour une thèse valeur ajoutée</td><td>En dessous de 5,5% : refi difficile à des LTV utiles</td></tr>
+          <tr><td>Écart in-place/marché</td><td>≥ 30% : excellent gisement valeur ajoutée</td><td>10–20% : faible potentiel, questionner la thèse</td></tr>
+          <tr><td>Âge de l'immeuble</td><td>Avant 1970 : réserve capex 80–100$/u/mois</td><td>Prévoir toit, fenêtres, plomberie, électricité</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ─── 4. HYPOTHÈSES ───────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-inputs">
+      <div class="pb-label">4 · Choisir les bonnes hypothèses / Judgment on Key Inputs</div>
+      <h2>Les 7 intrants qui font ou brisent l'analyse</h2>
+
+      <h3>① Loyer cible (Section C) <span class="pb-tool-ref">C</span></h3>
+      <p>Le loyer cible est l'hypothèse la plus impactante — une erreur de 10% change le profit net de 20–35%. <strong>Ne jamais utiliser les loyers demandés sur les annonces comme benchmark.</strong></p>
+      <ul>
+        <li>Cherchez des <em>baux signés récents</em> (moins de 6 mois) sur des unités comparables <em>rénovées</em> dans le même secteur.</li>
+        <li>Utilisez Centris (historique des loyers), les rapports SCHL, ou interrogez des courtiers locaux.</li>
+        <li>Appliquez un escompte de 3–5% sur le loyer demandé pour obtenir le loyer signé réel.</li>
+        <li>Pour les unités sous régime TAL (locataire en place), le loyer cible n'est accessible qu'à la reprise ou au départ volontaire.</li>
+      </ul>
+      <div class="pb-est">
+        <div class="pb-est-tag">À valider</div>
+        <p>Fourchettes indicatives Rive-Sud (rénové moyen, 2024–2025) : 3½ : 900–1 100$ · 4½ : 1 100–1 500$ · 5½ : 1 300–1 800$. Variations importantes selon secteur — voir §2.</p>
+      </div>
+
+      <h3>② Taux de roulement (Section C) <span class="pb-tool-ref">C</span></h3>
+      <p>Le modèle utilise une série géométrique : <code>fraction optimisée en année y = 1 − (1 − roulement)^y</code>. Un taux optimiste comprime artificiellement la période de transition et flatte le profit à 5 ans.</p>
+      <div class="pb-card">
+        <strong>Calibration réaliste Rive-Sud :</strong>
+        <ul style="margin-top:8px;">
+          <li><strong>15–17%</strong> : stock récent (&lt; 15 ans), marché actif (Brossard, Greenfield Park)</li>
+          <li><strong>12–15%</strong> : stock des années 1980–90, locataires stables (Saint-Bruno, Boucherville)</li>
+          <li><strong>8–12%</strong> : stock des années 1960–70, locataires âgés en place depuis 10+ ans (Vieux-Longueuil, SJSR vieux secteur)</li>
+        </ul>
+        <p style="margin-top:8px; font-size:12px; color:var(--ink-soft);">⚠ Un roulement de 20% suppose qu'1 unité sur 5 se libère chaque année. Sur un 6-plex, c'est 1,2 unité/an — très optimiste si aucune stratégie CFK n'est prévue.</p>
+      </div>
+
+      <h3>③ Dépenses d'exploitation — Opex (Sections B &amp; C) <span class="pb-tool-ref">B·C</span></h3>
+      <p>Sur la Rive-Sud, affinez selon l'âge du bâtiment :</p>
+      <table>
+        <thead><tr><th>Type de stock</th><th>Opex conseillé</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr><td>Immeuble neuf (post-2010)</td><td>25–30%</td><td>Mécanique sous garantie, faibles réparations</td></tr>
+          <tr><td>1985–2005, bien entretenu</td><td>30–35%</td><td>Baseline standard</td></tr>
+          <tr><td>1970–1985, rénové partiellement</td><td>35–38%</td><td>Mécanique vieillissante, surprises fréquentes</td></tr>
+          <tr><td>Avant 1970, non rénové</td><td>38–45%</td><td>Plomberie galvanisée, électricité K&amp;T, toit</td></tr>
+        </tbody>
+      </table>
+      <p>⚠ Les <strong>taxes foncières</strong> sont souvent omises dans le calcul d'opex des vendeurs. Sur un 6-plex, elles représentent typiquement 8 000–20 000$/an selon le secteur.</p>
+
+      <h3>④ Cap rate de sortie + dérive (Section H) <span class="pb-tool-ref">H</span></h3>
+      <p>La dérive de cap rate est le levier le plus puissant pour manipuler un résultat. Soyez conservateur :</p>
+      <div class="pb-dtree">
+        <div class="pb-dtree-row"><div class="pb-dtree-if">Bull</div><div class="pb-dtree-cond">Dérive −0,1 à −0,2%/an (compression) → prix de vente plus élevé</div><div class="pb-dtree-then warn">Optimiste — à réserver à des secteurs en forte croissance</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">Base</div><div class="pb-dtree-cond">Dérive 0% (cap rate stable) ou +0,1 à +0,2%/an</div><div class="pb-dtree-then go">Conservateur — départ raisonnable</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">Stress</div><div class="pb-dtree-cond">Dérive +0,5 à +1,0%/an (expansion)</div><div class="pb-dtree-then stop">Test de résistance — choc de taux ou récession</div></div>
+      </div>
+      <p style="font-size:13px;">Rappel : <strong>cap rate de sortie = cap rate actuel + dérive × années de détention.</strong> Sur 5 ans à +0,3%/an, le cap sort à +1,5% — ce qui peut effacer tout le profit sur un deal serré.</p>
+
+      <h3>⑤ Rénovations — Honnêteté budgétaire (Section D) <span class="pb-tool-ref">D</span></h3>
+      <p>Le budget réno est systématiquement sous-estimé. Règle : <strong>augmentez le devis initial de 20–25% pour les imprévus</strong> (code du bâtiment, amiante, plomberie cachée).</p>
+      <div class="pb-est">
+        <div class="pb-est-tag">À valider</div>
+        <p>Coûts indicatifs Rive-Sud (entrepreneurs généraux, 2024) : Léger : 15–25 000$/u. · Modéré (cuisine complète, SDB, planchers) : 28–45 000$/u. · Lourd (tout inclus, fenêtres, électricité) : 50–80 000$/u. · Réhabilitation complète (pré-1970) : 80–120 000$/u.</p>
+      </div>
+
+      <h3>⑥ Taux d'inoccupation (Sections B &amp; C) <span class="pb-tool-ref">B·C</span></h3>
+      <p>Le taux SCHL pour la Rive-Sud (Longueuil CMA) oscille historiquement entre <strong>1,5% et 3,5%</strong>. Mais pour l'underwriting, utilisez toujours au minimum 3–4% pour absorber les vacances de rotation. Durant la période de rénovation, planifiez 2–3 mois de vacance par unité rénovée.</p>
+
+      <h3>⑦ Taux d'intérêt — Sensibilité au refinancement (Sections E &amp; K) <span class="pb-tool-ref">E·K</span></h3>
+      <p>Le DSCR est très sensible aux taux. Sur un 6-plex à 1 175 000$ avec prêt CMHC à 40 ans : +100 bps sur le taux réduit le DSCR d'environ 0,08–0,10. Testez toujours à +1,0% sur votre taux d'acquisition et à +1,5% sur votre taux de refi (voir §7 — Tests de stress).</p>
+    </div>
+
+    <!-- ─── 5. FINANCEMENT ──────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-financing">
+      <div class="pb-label">5 · Financement en pratique / Financing Playbook</div>
+      <h2>CMHC vs. Conventionnel — Arbre de décision</h2>
+
+      <div class="pb-dtree">
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Unités ≥ 5 ET cap rate entrant ≥ 4,5% ET amortissement long souhaité</div><div class="pb-dtree-then go">→ MLI Market (CMHC), 40 ans</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Idem + loyers abordables possibles ou projet écoénergétique</div><div class="pb-dtree-then go">→ MLI Select, viser Palier 2–3 (45 ans, −20% prime)</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">DSCR contraint même à 40 ans · besoin de LTV 90–95%</div><div class="pb-dtree-then go">→ MLI Select Palier 1 (100 pts, 50 ans, LTV 95%)</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Délai serré · complexité CMHC non justifiée · refi partiel</div><div class="pb-dtree-then warn">→ Conventionnel (caisse ou BN), LTV 65–75%, amort. 25–30 ans</div></div>
+        <div class="pb-dtree-row"><div class="pb-dtree-if">SI</div><div class="pb-dtree-cond">Réno intensive, pas de revenus stabilisés pendant travaux</div><div class="pb-dtree-then warn">→ Prêt pont (bridge) privé pendant réno, CMHC au refi stabilisé</div></div>
+      </div>
+
+      <h3>Stratégie de points MLI Select — cas réels 6–12 unités</h3>
+      <table>
+        <thead><tr><th>Critère</th><th>Points</th><th>Faisabilité</th></tr></thead>
+        <tbody>
+          <tr><td>Loyers ≤ 80% du loyer médian du marché (LAA)</td><td>15–25/u.</td><td>⚠ Difficile si stratégie value-add — les loyers cibles ne doivent pas dépasser le seuil</td></tr>
+          <tr><td>Certification énergétique (Novoclimat, LEED)</td><td>20–30</td><td>✓ Accessible si réno majeure — prévoir en amont avec architecte certifié</td></tr>
+          <tr><td>Unités accessibles PMR (mobilité réduite)</td><td>10–15/u.</td><td>⚠ Contrainte architecturale sur bâtiment existant</td></tr>
+          <tr><td>Proximité transport en commun (&lt; 500m)</td><td>5–10</td><td>✓ Longueuil, Brossard REM — vérifier critères SCHL</td></tr>
+          <tr><td>Rénovation écoénergétique majeure</td><td>10–20</td><td>✓ Isolation, fenêtres triple-vitrage, pompe à chaleur</td></tr>
+        </tbody>
+      </table>
+      <div class="pb-card">
+        <strong>Scénario typique Palier 2 (70 pts) :</strong> Réno modérée (25 pts Novoclimat) + proximité autobus express (8 pts) + loyers &lt; 80% médiane sur 4/6 unités (20–40 pts) = 53–73 pts → Palier 2 ou 3. <strong>Amortissement 45 ans, −20% prime SCHL, LTV 90%.</strong><br><br>
+        <strong>Palier 1 (100 pts) :</strong> Plus difficile à atteindre sur un existant — rénovation profonde + certification complète + 100% loyers abordables. Sur bâtiment neuf, beaucoup plus accessible.
+      </div>
+
+      <h3>Anatomie de la contrainte DSCR — comment la débloquer</h3>
+      <div class="pb-card">
+        <strong>Si contraint par DSCR (plus fréquent) :</strong>
+        <ul style="margin-top:8px;">
+          <li>Allonger l'amortissement (chaque +5 ans ≈ +0,05–0,08 sur le DSCR)</li>
+          <li>MLI Select → DSCR min 1,10× vs 1,30× en MLI Market terme court</li>
+          <li>Augmenter les revenus réels (valider avec SCHL des revenus réalistes)</li>
+          <li>Utiliser les champs SCHL normalisés (taux de cap, opex, vacance SCHL) dans l'outil si différents de vos hypothèses opérationnelles</li>
+        </ul>
+        <strong style="margin-top:12px; display:block;">Si contraint par LTV :</strong>
+        <ul style="margin-top:8px;">
+          <li>Augmenter la valeur économique (meilleure stabilisation des revenus)</li>
+          <li>Passer à MLI Select (LTV max 90–95% vs 85% MLI Market)</li>
+          <li>Réduire le prix d'achat (négociation)</li>
+        </ul>
+      </div>
+
+      <h3>La boucle BRRRR (Buy-Renovate-Rent-Refinance-Repeat)</h3>
+      <p>L'outil calcule la prise de fonds nette en section K <span class="pb-tool-ref">K</span>. Voici comment lire le résultat :</p>
+      <div class="pb-kpi-row">
+        <div class="pb-kpi-box green"><div class="kl">Prise de fonds nette &gt; 0</div><div class="kv">Recyclage</div><div class="ks">Capital récupérable pour deal suivant</div></div>
+        <div class="pb-kpi-box gold"><div class="kl">Multiple cash-out ≥ 0,5×</div><div class="kv">Bon BRRRR</div><div class="ks">50%+ du cash initial récupéré</div></div>
+        <div class="pb-kpi-box"><div class="kl">Multiple cash-out ≥ 1,0×</div><div class="kv">BRRRR parfait</div><div class="ks">100%+ du cash récupéré</div></div>
+      </div>
+      <p style="font-size:12px; color:var(--ink-soft);">⚠ Le refi CMHC génère une <strong>nouvelle prime SCHL + TVQ</strong>, payable cash. L'outil l'intègre — vérifiez que votre réserve couvre ce décaissement à la date de refi.</p>
+    </div>
+
+    <!-- ─── 6. SCÉNARIOS ────────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-scenarios">
+      <div class="pb-label">6 · Scénarios types / Scenario Playbooks</div>
+      <h2>4 archétypes de transaction</h2>
+
+      <div class="pb-card">
+        <div class="pb-card-title">Scénario A — Valeur ajoutée turnaround (Value-Add)</div>
+        <p><strong>Thèse :</strong> Acheter un plex sous-optimisé (loyers 30–45% sous le marché), rénover les unités au roulement, relancer les loyers, revendre ou refinancer à 5–7 ans.</p>
+        <p><strong>Secteurs typiques :</strong> SJSR, Vieux-Longueuil, Saint-Hubert, Chambly.</p>
+        <table style="margin-top:10px;">
+          <thead><tr><th>KPI</th><th>Cible go</th><th>Seuil d'alerte</th></tr></thead>
+          <tbody>
+            <tr><td>Cap rate actuel (in-place)</td><td>4,5–5,5%</td><td>&lt; 4,0% : spread de réno insuffisant</td></tr>
+            <tr><td>Yield on Cost (post-réno)</td><td>≥ 6,0%</td><td>&lt; 5,5% : refi difficile</td></tr>
+            <tr><td>Rendement annualisé</td><td>≥ 10%</td><td>&lt; 8% : risque/rendement défavorable</td></tr>
+            <tr><td>Contrainte liante</td><td>LTV (prêt max par valeur)</td><td>DSCR : NOI actuel trop faible pour le prêt cible</td></tr>
+            <tr><td>Cash-flow Flux an 1–2</td><td>Break-even acceptable</td><td>Négatif &gt; 1 500$/mois : risque de trésorerie</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px; font-size:12px; color:var(--ink-soft);">Onglets à analyser : Paramètres A·B·C·D·E·H (vente 5–7 ans). Consultez le Flux pour vérifier la trésorerie.</p>
+      </div>
+
+      <div class="pb-card">
+        <div class="pb-card-title">Scénario B — Cash-cow stabilisé (Core/Income)</div>
+        <p><strong>Thèse :</strong> Acheter un immeuble bien loué, loyers proches du marché, détenir 10+ ans pour le cash-flow et l'amortissement de dette.</p>
+        <p><strong>Secteurs typiques :</strong> Greenfield Park, Boucherville, Saint-Bruno, Saint-Lambert.</p>
+        <table style="margin-top:10px;">
+          <thead><tr><th>KPI</th><th>Cible go</th><th>Seuil d'alerte</th></tr></thead>
+          <tbody>
+            <tr><td>Cap rate actuel</td><td>≥ 4,5%</td><td>&lt; 4,2% : pression sur le cash-flow</td></tr>
+            <tr><td>DSCR (prêt assuré)</td><td>≥ 1,25×</td><td>&lt; 1,15× : marge de sécurité insuffisante</td></tr>
+            <tr><td>Cash-flow an 1 (Flux)</td><td>&gt; 500$/mois après réserves</td><td>Négatif : dépendance au capital, risque</td></tr>
+            <tr><td>Cash-on-cash</td><td>≥ 5%</td><td>&lt; 3% : rendement décevant</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px; font-size:12px; color:var(--ink-soft);">Sections prioritaires : A·B·E·G·H (dérive cap faible à nul). Le Flux sur 10 ans est l'indicateur clé.</p>
+      </div>
+
+      <div class="pb-card">
+        <div class="pb-card-title">Scénario C — BRRRR / Refi-out</div>
+        <p><strong>Thèse :</strong> Acheter, rénover, stabiliser les loyers, puis refinancer CMHC à une LTV élevée pour recycler le capital. Objectif : récupérer 80–100% du cash investi.</p>
+        <table style="margin-top:10px;">
+          <thead><tr><th>KPI (Section K)</th><th>Cible go</th><th>Seuil d'alerte</th></tr></thead>
+          <tbody>
+            <tr><td>Prise de fonds nette</td><td>&gt; 0</td><td>Négative : capital bloqué indéfiniment</td></tr>
+            <tr><td>Multiple cash-out</td><td>≥ 0,70×</td><td>&lt; 0,50× : BRRRR peu efficace</td></tr>
+            <tr><td>Yield on Cost (refi)</td><td>≥ 5,5%</td><td>&lt; 5,0% : banque prêtera moins sur la valeur</td></tr>
+            <tr><td>Cap rate au refi (Section K)</td><td>+0,0 à +0,3% vs. achat</td><td>Ne jamais tabler sur une compression</td></tr>
+            <tr><td>DSCR post-refi</td><td>≥ 1,15× (MLI Select) ou ≥ 1,20× (Market)</td><td>Prêt refi sera réduit si DSCR est binding</td></tr>
+          </tbody>
+        </table>
+        <p style="margin-top:10px; font-size:12px; color:var(--ink-soft);">⚠ La pénalité de bris hypothécaire à mi-terme peut être significative. Planifiez le refi à l'échéance du terme.</p>
+      </div>
+
+      <div class="pb-card">
+        <div class="pb-card-title">Scénario D — Développement (Neuf, mode Dev) <span class="pb-tool-ref">DA–DH</span></div>
+        <p><strong>Thèse :</strong> Acheter un terrain ou démolir un existant, construire 6–12 unités neuves, refinancer (hold) ou vendre à l'achèvement.</p>
+        <table style="margin-top:10px;">
+          <thead><tr><th>KPI</th><th>Cible go</th><th>Seuil arrêt</th></tr></thead>
+          <tbody>
+            <tr><td>Spread de développement (YoC − cap de sortie)</td><td>≥ 2,0%</td><td>&lt; 1,5% : risque de construction non compensé</td></tr>
+            <tr><td>Marge sur coût (vente)</td><td>≥ 15%</td><td>&lt; 10% : vulnérable aux dépassements</td></tr>
+            <tr><td>Équité récupérée (hold)</td><td>&gt; 0 (cash-out positif)</td><td>Négative : fonds bloqués à perpétuité</td></tr>
+            <tr><td>Cash-on-Cash stabilisé (hold)</td><td>≥ 6%</td><td>&lt; 4% : faible vs. risque promoteur</td></tr>
+            <tr><td>Valeur résiduelle terrain</td><td>≥ prix payé</td><td>Inférieure : vous avez surpayé le terrain</td></tr>
+          </tbody>
+        </table>
+        <div class="pb-est" style="margin-top:11px;">
+          <div class="pb-est-tag">À valider</div>
+          <p>Coûts de construction neuf Rive-Sud 2024–2025 : 225–300$/pi² clé en main (6-plex standard, sans sous-sol, hors terrain). Délais de permis : Longueuil 8–14 mois, SJSR 4–8 mois.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 7. STRESS TESTS ─────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-stress">
+      <div class="pb-label">7 · Tests de stress / Stress Testing</div>
+      <h2>Sensibilités manuelles sans modifier l'outil</h2>
+      <p>L'outil n'intègre pas de tableau de sensibilité automatique. Voici la procédure pour simuler les scénarios défavorables en 3 minutes :</p>
+
+      <h3>Les 4 leviers de stress les plus impactants</h3>
+      <ol class="pb-steps">
+        <li><strong>Taux d'intérêt +1,0% et +2,0%</strong> Modifiez le champ « Taux d'intérêt » en Section E <span class="pb-tool-ref">E</span>. Observez comment le DSCR (bandeau + section Financement) et le profit net changent. Un deal robuste supporte +1,0% sans passer sous le DSCR minimum.</li>
+        <li><strong>Cap rate de sortie +0,5% et +1,0%</strong> Augmentez la « Variation cap rate/an » en Section H <span class="pb-tool-ref">H</span>. Sur 5 ans, +0,3%/an = cap rate de sortie +1,5% → prix de vente fortement réduit.</li>
+        <li><strong>Loyer cible −10% et −15%</strong> Réduisez le loyer cible en Section C <span class="pb-tool-ref">C</span>. Simule une thèse de loyer trop optimiste. Le Yield on Cost et le profit net doivent rester acceptables.</li>
+        <li><strong>Opex +5% et taux de vacance +3%</strong> Augmentez les dépenses optimisées et l'inoccupation en Section C <span class="pb-tool-ref">C</span>. Simule une gestion difficile ou un ralentissement du marché.</li>
+      </ol>
+
+      <h3>Tableau de référence — Seuils de tolérance</h3>
+      <table class="pb-stress-table">
+        <thead><tr><th>Scénario de stress</th><th>Impact KPI principal</th><th>Seuil go</th><th>Seuil d'alerte</th></tr></thead>
+        <tbody>
+          <tr><td>Taux +1,0%</td><td>DSCR −0,08 à −0,12</td><td class="cell-go">DSCR ≥ 1,10</td><td class="cell-stop">DSCR &lt; 1,00</td></tr>
+          <tr><td>Cap sortie +1,0%</td><td>Profit net −30 à −50%</td><td class="cell-go">Profit net &gt; 0</td><td class="cell-stop">Profit net négatif</td></tr>
+          <tr><td>Loyer cible −10%</td><td>YoC −0,5 à −0,8%</td><td class="cell-go">YoC ≥ 5,0%</td><td class="cell-warn">YoC &lt; 5,0%</td></tr>
+          <tr><td>Opex +5% + Vacance +3%</td><td>NOI −12 à −18%</td><td class="cell-go">Cash-flow &gt; 0</td><td class="cell-stop">Cash-flow &lt; −1 000$/mois</td></tr>
+          <tr><td>Combo : taux +1% + cap +0,5% + loyer −5%</td><td>Profit net −50 à −70%</td><td class="cell-go">Rendement ≥ 5%/an</td><td class="cell-stop">Rendement &lt; 3%/an</td></tr>
+        </tbody>
+      </table>
+
+      <div class="pb-card" style="margin-top:15px;">
+        <strong>La règle des trois scénarios :</strong> Paramétrez toujours l'outil en trois passes — Base (vos hypothèses raisonnables), Pessimiste (taux +1%, cap +0,5%, loyer −5%), Effondrement (combo ci-dessus). Si le scénario Pessimiste donne un rendement annualisé &gt; 5% et un cash-flow non catastrophique, le deal mérite une offre. Si le scénario Pessimiste donne un rendement négatif, cherchez un prix plus bas ou passez.
+      </div>
+    </div>
+
+    <!-- ─── 8. DILIGENCE QC ─────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-diligence">
+      <div class="pb-label">8 · Diligence raisonnable Québec / Québec Due-Diligence Checklist</div>
+      <h2>Ce que l'outil ne vérifie pas</h2>
+
+      <h3>Documents à obtenir avant offre conditionnelle</h3>
+      <ul class="checklist">
+        <li>Registre de loyers (bail de chaque unité, loyer actuel, date d'entrée du locataire)</li>
+        <li>Preuve des derniers loyers perçus (3–6 mois de relevés bancaires ou quittances)</li>
+        <li>Historique des fixations de loyer TAL (décisions passées — savoir si des augmentations ont été refusées)</li>
+        <li>États financiers 2–3 ans (T2125 ou états vérifiés) avec détail des dépenses réelles</li>
+        <li>Comptes de taxes foncières des 2 dernières années</li>
+        <li>Avis de cotisation SCHL / évaluation existante si disponible</li>
+        <li>Relevé hypothécaire courant (solde, taux, terme restant, pénalité de bris)</li>
+        <li>Déclaration de copropriété si applicable (condo-plex)</li>
+      </ul>
+
+      <h3>Inspection physique — Points critiques stock Rive-Sud</h3>
+      <ul class="checklist">
+        <li><strong>Électricité :</strong> knob-and-tube (K&amp;T) sur stock pré-1950 — coût de mise aux normes 8 000–15 000$/u. Assurance refusée si K&amp;T non mis à niveau.</li>
+        <li><strong>Plomberie :</strong> tuyaux galvanisés (pré-1960) → rouille, faible débit, remplacement 20–40 000$ bâtiment</li>
+        <li><strong>Réservoirs à mazout :</strong> souterrains — contamination potentielle, décontamination 15–80 000$</li>
+        <li><strong>Pyrite :</strong> dalle en béton avec remblai pyriteux (Longueuil Est, Boucherville) — gonflement de dalle, réhabilitation 30–80 000$</li>
+        <li><strong>Amiante :</strong> matériaux isolants, tuiles de vinyle, joints (pré-1980) — désamiantage obligatoire avant réno</li>
+        <li><strong>Toiture :</strong> durée de vie : bardeau asphalte 20–25 ans, membrane TPO 25 ans. Coût remplacement : 8–15$/pi²</li>
+        <li><strong>Fondation :</strong> fissures en escalier (mouvement différentiel) → expertise structurale obligatoire</li>
+        <li><strong>Isolation :</strong> vérifiez l'enveloppe thermique — impact direct sur les frais de chauffage imputables</li>
+      </ul>
+
+      <h3>Réglementation locative Québec</h3>
+      <div class="pb-card">
+        <strong>Tribunal administratif du logement (TAL)</strong>
+        <p style="margin-top:8px;">Le TAL encadre les augmentations de loyer. Pour un locataire en place, vous ne pouvez pas imposer une augmentation supérieure à l'indice TAL annuel sans leur accord ou décision du Tribunal. L'indice 2024 était ~3–4%. <strong>La seule façon d'atteindre les loyers du marché sur un immeuble occupé est le départ volontaire ou les mesures légales encadrées.</strong></p>
+      </div>
+      <div class="pb-card">
+        <strong>Reprise du logement (art. 1957–1970 C.c.Q.)</strong>
+        <p style="margin-top:8px;">Un propriétaire peut reprendre un logement pour y habiter lui-même ou pour un proche au premier degré. Préavis de 6 mois minimum. Indemnité = 3 mois de loyer + frais de déménagement. <strong>Locataires âgés 70+ ans ont une protection renforcée.</strong></p>
+      </div>
+      <div class="pb-card">
+        <strong>Éviction pour travaux majeurs (art. 1959 C.c.Q.)</strong>
+        <p style="margin-top:8px;">Possible uniquement si les travaux rendent le logement inhabitable pendant toute leur durée. Processus lourd (avis 3–6 mois, droit de retour du locataire). En pratique : beaucoup d'investisseurs préfèrent les CFK (cash for keys) volontaires.</p>
+      </div>
+      <div class="pb-card">
+        <strong>Cash for keys (CFK) — Bonne pratique</strong>
+        <p style="margin-top:8px;">Négociation à l'amiable : le locataire part volontairement en échange d'une compensation. <strong>Fourchettes de référence :</strong> 3–6 mois de loyer (départ standard), 6–12 mois (longue durée), 12–18 mois (personne âgée, locataire vulnérable). Documentez tout par écrit — faites rédiger l'entente par votre avocat.</p>
+      </div>
+
+      <h3>Taxe de mutation immobilière (Bienvenue)</h3>
+      <table>
+        <thead><tr><th>Tranche de prix</th><th>Taux (Ville de Longueuil)</th></tr></thead>
+        <tbody>
+          <tr><td>0 – 58 900$</td><td>0,5%</td></tr>
+          <tr><td>58 901 – 294 600$</td><td>1,0%</td></tr>
+          <tr><td>294 601 – 552 300$</td><td>1,5%</td></tr>
+          <tr><td>552 301 – 1 104 700$</td><td>2,0%</td></tr>
+          <tr><td>&gt; 1 104 700$</td><td>2,5% (Montréal 4%, mais hors Rive-Sud)</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px; color:var(--ink-soft);">⚠ Les taux varient par municipalité. Vérifiez les taux de SJSR, Brossard, etc. spécifiquement. La taxe est incluse dans les frais d'acquisition — intégrez-la dans la Section A <span class="pb-tool-ref">A</span> (frais d'acq. %).</p>
+
+      <h3>Risque de réévaluation municipale</h3>
+      <p>L'évaluation municipale est révisée tous les 3 ans. Un achat à 1,4× le rôle peut déclencher une réévaluation significative lors du prochain cycle → taxes foncières plus élevées → opex réel supérieur à votre modèle. Intégrez ce risque dans votre opex stressed.</p>
+    </div>
+
+    <!-- ─── 9. DRAPEAUX ROUGES ──────────────────────────────────────── -->
+    <div class="pb-section" id="pb-redflags">
+      <div class="pb-label">9 · Drapeaux rouges &amp; tueurs de transaction / Red Flags &amp; Deal-Killers</div>
+      <h2>Rejeter rapidement — ne pas négocier</h2>
+
+      <div class="pb-card" style="border-left: 3px solid var(--negative);">
+        <strong style="color:var(--negative);">Tueurs de transaction absolus</strong>
+        <ul style="margin-top:10px;">
+          <li>Contamination au mazout ou à l'amiante non divulguée + vendeur refusant de réduire le prix</li>
+          <li>Pyrite confirmée dans la dalle — coût de réhabilitation dépasse la valeur ajoutée disponible</li>
+          <li>Locataires sous jugement TAL en cours (loyers contestés rétroactivement) — passif non quantifiable</li>
+          <li>Loyers non déclarés / revenus gonflés artificiellement dans la mise en marché</li>
+          <li>Bâtiment sans permis pour des agrandissements passés — régularisation impossible ou très coûteuse</li>
+          <li>Zone inondable (zone 0-20 ans) sans assurance disponible</li>
+          <li>Vendeur refusant un accès raisonnable pour l'inspection (masquage d'un problème)</li>
+        </ul>
+      </div>
+
+      <div class="pb-card" style="border-left: 3px solid var(--warm); margin-top:13px;">
+        <strong style="color:var(--warm);">Drapeaux rouges — négociez le prix ou une condition de sortie</strong>
+        <ul style="margin-top:10px;">
+          <li>Ratio prix/rôle &gt; 1,5 sans justification valeur ajoutée claire</li>
+          <li>Locataires en place depuis 20+ ans avec loyers à 50–60% sous le marché ET âgés 70+ → longs délais de CFK</li>
+          <li>Toiture en fin de vie + fenêtres originales + plomberie galvanisée → capex année 1 non prévu</li>
+          <li>Dépenses réelles sur états financiers 40–50% (opex bien au-dessus des 30% souvent présentés)</li>
+          <li>GRM &gt; 18 sans marge manifeste</li>
+          <li>Prêt hypothécaire à taux fixe élevé avec pénalité IRD importante + terme restant &gt; 3 ans</li>
+          <li>Litige en cours sur le bâtiment (voisinage, municipal, copropriété)</li>
+          <li>Inoccupation actuelle &gt; 15% sans explication convaincante</li>
+          <li>Vendeur pressé + prix réduit plusieurs fois → enquêtez sur la raison (vice caché potentiel)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ─── 10. INDICATEURS ─────────────────────────────────────────── -->
+    <div class="pb-section" id="pb-metrics">
+      <div class="pb-label">10 · Interprétation des indicateurs / Reading the Metrics</div>
+      <h2>Ce que les chiffres veulent vraiment dire</h2>
+      <p>Les onglets <em>Guide</em> et <em>SCHL</em> définissent les formules. Ce qui suit ajoute l'<strong>interprétation décisionnelle</strong> — que faire selon le chiffre.</p>
+
+      <table>
+        <thead><tr><th>Indicateur</th><th>Chiffre de référence</th><th>Interprétation / Décision</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Cap rate actuel</strong></td><td>4,5–6,5% Rive-Sud</td><td>En dessous de 4,5% : le DSCR sera binding — pas le levier valeur ajoutée mais la capacité d'emprunt. En dessus de 6% : soit le stock est médiocre, soit le risque locatif est élevé. Questionnez.</td></tr>
+          <tr><td><strong>GRM</strong></td><td>12–16 Rive-Sud</td><td>Filtre grossier uniquement. Un GRM élevé avec forte valeur ajoutée peut être justifié — n'utilisez pas le GRM comme unique décision. Complément du cap rate.</td></tr>
+          <tr><td><strong>Yield on Cost (YoC)</strong></td><td>≥ 5,5–6,5% pour refi viable</td><td>C'est votre cap rate pro-forma post-réno. Si YoC &lt; cap de marché sortie, vous ne créez pas de valeur — vous payez le marché. Si YoC &gt; cap de refi de 1–2%, vous êtes en bonne position BRRRR.</td></tr>
+          <tr><td><strong>DSCR (base)</strong></td><td>≥ 1,20 confortable</td><td>Le DSCR base mesure la couverture sans la prime capitalisée. Si proche de 1,10 (minimum MLI Select), peu de marge. Utilisez le DSCR assuré pour la comparaison exacte avec les exigences SCHL.</td></tr>
+          <tr><td><strong>Contrainte liante (binding constraint)</strong></td><td>DSCR ou LTV</td><td>Si DSCR : le NOI est insuffisant pour le prêt voulu. Levier : allonger l'amort ou MLI Select. Si LTV : la valeur économique limite le prêt. Levier : améliorer le NOI ou payer moins.</td></tr>
+          <tr><td><strong>Cash requis total</strong></td><td>Variable selon capacité</td><td>Inclut mise de fonds + équité réno + frais acq. + TVQ SCHL + frais courtier. La TVQ SCHL sur un prêt de 900k peut représenter 22 000$ de cash additionnel.</td></tr>
+          <tr><td><strong>Rendement annualisé</strong></td><td>≥ 8–10% objectif</td><td>Approximation du TRI. En dessous de 7% : difficile de justifier le risque immobilier vs. placements alternatifs. En dessus de 12% : vérifiez que les hypothèses ne sont pas trop optimistes.</td></tr>
+          <tr><td><strong>Multiple de sortie</strong></td><td>≥ 1,4× sur 5 ans</td><td>1,2× sur 5 ans = ~3,7%/an annualisé — insuffisant. 1,5× sur 5 ans = ~8,4%/an. Cible : 1,5–2,0× selon le risque.</td></tr>
+          <tr><td><strong>Prise de fonds nette (refi)</strong></td><td>&gt; 0 pour BRRRR</td><td>Si négative : vous devez injecter du cash pour refinancer — le deal est un cul-de-sac capitalistique. Si positive : vous récupérez du capital tout en conservant l'actif.</td></tr>
+          <tr><td><strong>Spread de développement</strong></td><td>≥ 1,5–2,0% (dev mode)</td><td>Le juge principal d'un projet neuf. En dessous de 1,5% : le risque construction n'est pas compensé. En dessous de 0% : le projet détruit de la valeur. Ne jamais construire avec un spread négatif.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="pb-divider"></div>
+
+      <div class="pb-card">
+        <strong>Interaction entre indicateurs — la lecture systémique</strong>
+        <p style="margin-top:10px;">Un cap rate de 5% est excellent ou médiocre selon le contexte : <em>excellent</em> si les loyers sont au marché et le DSCR est confortable → deal cash-cow. <em>Médiocre</em> si les loyers sont déjà au marché, l'immeuble est vieux, et l'opex réel est 38% → peu de marge, capex à venir. La règle d'or : <strong>lisez toujours le cap actuel + DSCR + cash requis ensemble avant de tirer une conclusion.</strong></p>
+      </div>
+
+      <div class="pb-cta">
+        <div class="pb-cta-title">Pour aller plus loin</div>
+        <p>Pour les formules exactes, les grilles de primes SCHL, et le glossaire complet des indicateurs, référez-vous aux onglets <strong style="color:#fff;">Guide</strong> et <strong style="color:#fff;">SCHL</strong> de cet outil.</p>
+        <button class="pb-cta-btn" onclick="showTab('inputs', document.querySelector('.tab-btn'))">← Retour aux Paramètres</button>
+      </div>
+    </div>
+
+  </div><!-- /playbook -->
+  </div><!-- /tab-playbook -->
+
+  <!-- ── Tab: Repères ───────────────────────────────────────────────────── -->
+  <div id="tab-ranges" class="tab-content active">
+
+    <!-- ── Return ladder (always visible, both modes) ── -->
+    <div class="schl-card" style="margin-bottom:20px">
+      <div class="schl-card-header">Rendements cibles par niveau de risque</div>
+      <table class="schl-table">
+        <thead>
+          <tr>
+            <th>Stratégie</th>
+            <th>IRR équité (levier)</th>
+            <th>YoC stabilisé</th>
+            <th>Spread YoC / cap</th>
+            <th>Multiple d'équité</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Core / core-plus<br><small>Stabilisé, loyers marché, sans réno</small></td>
+            <td class="highlight">8–10 %</td>
+            <td>4,75–5,25 %</td>
+            <td>50–75 pb</td>
+            <td>~1,4–1,5×</td>
+          </tr>
+          <tr>
+            <td>Value-add — location<br><small>Loyers sous-marché, roll au roulement</small></td>
+            <td class="highlight">12–14 %</td>
+            <td>5,5–6,0 %</td>
+            <td>100–150 pb</td>
+            <td>~1,6–1,8×</td>
+          </tr>
+          <tr>
+            <td>Value-add — réno + location<br><small>Rénos débloquent la hausse de loyer</small></td>
+            <td class="highlight">15–18 %</td>
+            <td>6,25–7,0 %</td>
+            <td>150–250 pb</td>
+            <td>~1,8–2,2×</td>
+          </tr>
+          <tr>
+            <td>Développement<br><small>Terrain → actif stabilisé (ground-up)</small></td>
+            <td class="highlight">18–22 %+</td>
+            <td>6,5–7,5 %</td>
+            <td>200–300 pb</td>
+            <td>~1,8–2,5×</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schl-note" style="margin-bottom:10px">
+      <strong>Pourquoi le développement exige 200–300 pb de spread.</strong> En value-add on améliore un revenu existant; en développement on <em>fabrique</em> l'actif — tout le profit est l'écart entre le YoC de construction et le cap de sortie. Le spread compense des risques absents en acquisition : aucun revenu pendant 12–24 mois (portage + intérêts capitalisés), risque de dépassement non plafonné, immeuble vide à la livraison (pas de rent roll), risque d'entitlement/zonage en amont. L'IRR plus élevé compense un risque séquentiel et empilé; le multiple plus dispersé reflète des issues plus bimodales.
+    </div>
+
+    <div class="schl-note" style="margin-bottom:10px">
+      <strong>Le test go/no-go.</strong> Construire à un YoC qui dépasse le cap stabilisé du marché par une marge saine. Si les 6-plex Rive-Sud se vendent à ~4,5 % de cap et qu'on ne peut bâtir qu'à 5,5 % YoC, ces ~100 pb ne couvrent pas les risques construction + location + portage → <strong>mieux vaut acheter l'existant</strong>. Viser <strong>6,5–7,5 % YoC contre ~4,5 % de sortie = 200–300 pb</strong>; sinon le développement ne finance pas son propre risque.
+    </div>
+
+    <div class="schl-note" style="margin-bottom:20px">
+      <strong>Calibrage Québec — deux forces opposées.</strong> La <em>TVQ (auto-cotisation / self-supply)</em> sur le neuf locatif frappe la base de coût (dénominateur du YoC) à la stabilisation : QST sur la juste valeur marchande de l'immeuble complété — l'intégrer à la base, pas en après-coup. <em>MLI Select</em> (jusqu'à 95 % LTC, amort 50 ans) améliore fortement l'IRR levier et peut rendre viable un spread YoC plus serré, mais la transition <em>CNÉB (NECB) de septembre 2026</em> relève le seuil de qualification et impose un standard énergétique plus coûteux → hausse des coûts hard, érosion du YoC. Tension : dette CMHC moins chère tire l'IRR vers le haut; TVQ + CNÉB tirent le YoC vers le bas. Chiffrer les deux explicitement.
+    </div>
+
+    <!-- ── Acquisition input ranges (acq mode only) ── -->
+    <div class="acq-only">
+      <div class="schl-card-header" style="margin-bottom:14px">Repères de saisie — Acquisition &nbsp;<small style="font-weight:normal;color:var(--ink-soft)">(6–8 plex, Québec régional / banlieue)</small></div>
+      <div class="schl-grid">
+
+        <div class="schl-card">
+          <div class="schl-card-header">Mise de fonds &amp; financement</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Frais d'acquisition</td><td>1,5–3 %</td><td class="highlight">2,5 %</td><td>Taxe de bienvenue + notaire + inspection</td></tr>
+              <tr><td>Frais de courtier hyp.</td><td>0,5–1 %</td><td class="highlight">1 %</td><td>Du montant du prêt</td></tr>
+              <tr><td>Points MLI (acquisition)</td><td>50–100</td><td class="highlight">50</td><td>50 pts = min pour amort 40 ans; 70+ si critères énergie/abordabilité</td></tr>
+              <tr><td>LTV cible (SCHL)</td><td>75–85 %</td><td class="highlight">85 %</td><td>Max autorisé selon programme</td></tr>
+              <tr><td>Taux d'intérêt</td><td>—</td><td class="highlight">Cotation réelle</td><td>Ne pas utiliser de défaut — demander une soumission courtier</td></tr>
+              <tr><td>LTV conv. (si conv.)</td><td>65–75 %</td><td class="highlight">75 %</td><td>Max conventionnel standard</td></tr>
+              <tr><td>DSCR min (conv.)</td><td>1,20–1,30×</td><td class="highlight">1,20×</td><td>1,30× pour terme &lt; 10 ans (MLI Market)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">Exploitation actuelle</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Inoccupation</td><td>3–7 %</td><td class="highlight">5 %</td><td>3 % = marché serré · 5 % = équilibré · 7 %+ = mou</td></tr>
+              <tr><td>Dépenses d'exploitation</td><td>30–40 %</td><td class="highlight">30–35 %</td><td>Incl. taxes, assurances, utils. communs, gestion, entretien, réserves</td></tr>
+              <tr><td>Loyer actuel</td><td>—</td><td class="highlight">Comparables réels</td><td>Loyers 3F2 / 4F2 dans le secteur; ne pas extrapoler</td></tr>
+              <tr><td>Autres revenus</td><td>0–5 %</td><td class="highlight">0</td><td>Stat. + buanderie + parking; vérifier la stabilité</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">Repositionnement (value-add)</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Loyer cible</td><td>—</td><td class="highlight">Comparables réalisables</td><td>Loyers post-réno dans le secteur; valider avec annonces actives</td></tr>
+              <tr><td>Coût de réno / unité</td><td>15k–30k $</td><td class="highlight">20 000 $</td><td>Rénos légères à moyennes; obtenir soumission avant closing</td></tr>
+              <tr><td>Prime CFK (mois libres)</td><td>0–3 mois</td><td class="highlight">0</td><td>Marché actif = 0; marché lent = 1–2 mois</td></tr>
+              <tr><td>Taux de roulement</td><td>15–25 %/an</td><td class="highlight">17,5 %</td><td>≈ durée moy. bail 5–6 ans; vérifier profil des locataires</td></tr>
+              <tr><td>Croissance de loyer</td><td>2–3 %</td><td class="highlight">2 %</td><td>Décret ou marché selon secteur</td></tr>
+              <tr><td>Période de détention</td><td>3–7 ans</td><td class="highlight">5 ans</td><td>Aligne avec terme hypothécaire et horizon fiscal</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">Refinancement &amp; sortie</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Points MLI (refi)</td><td>50–100</td><td class="highlight">50</td><td>Même logique qu'acquisition; vérifier critères à la date de refi</td></tr>
+              <tr><td>Cap refi</td><td>—</td><td class="highlight">Comparable actuel</td><td>Cap de marché estimé à la date de refi, pas d'aujourd'hui</td></tr>
+              <tr><td>Dérive du cap</td><td>0,25–0,75 %</td><td class="highlight">0,5 %</td><td>Marge conservatrice pour compression / décompression de cap</td></tr>
+              <tr><td>Taux refi</td><td>—</td><td class="highlight">Cotation réelle</td><td>Utiliser courbe forward ou taux légèrement supérieur</td></tr>
+              <tr><td>Commission de vente</td><td>2–5 %</td><td class="highlight">2 %</td><td>Négociable; 4–5 % sur les petits marchés</td></tr>
+              <tr><td>Impôt marginal (Corp)</td><td>25–27 %</td><td class="highlight">26,5 %</td><td>TPME QC; valider avec comptable</td></tr>
+              <tr><td>Taux gain en capital</td><td>27–33 %</td><td class="highlight">33 %</td><td>Corp : 2/3 inclusion × ~50 % taux marginal</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /schl-grid acq -->
+    </div><!-- /acq-only -->
+
+    <!-- ── Développement input ranges (dev mode only) ── -->
+    <div class="dev-only">
+      <div class="schl-card-header" style="margin-bottom:14px">Repères de saisie — Développement &nbsp;<small style="font-weight:normal;color:var(--ink-soft)">(6–8 plex, Québec régional / banlieue)</small></div>
+
+      <div class="schl-note" style="margin-bottom:14px">
+        <strong>Trois paramètres décident du deal :</strong> <em>coût de construction ($/pi²)</em>, <em>loyer neuf stabilisé</em>, et <em>cap de sortie</em>. Ces trois exigent une diligence réelle (devis entrepreneur, annonces neuves actives, transactions comparables stabilisées). Le reste peut démarrer aux valeurs Base.
+      </div>
+
+      <div class="schl-grid">
+
+        <div class="schl-card">
+          <div class="schl-card-header">DA | Terrain &amp; projet</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Frais de fermeture terrain</td><td>2,5–4 %</td><td class="highlight">3 %</td><td>Taxe de bienvenue + notaire + due diligence</td></tr>
+              <tr><td>Superficie / unité (GFA)</td><td>750–1 050 pi²</td><td class="highlight">850–900 pi²</td><td>Surface habitable nette; exclure balcons &amp; mécanique</td></tr>
+              <tr><td>⚑ Terrain en % du TDC</td><td>≤ 20 %</td><td class="highlight">10–15 %</td><td>&gt; 20 % → signal d'acheter l'existant plutôt que de construire</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">DB | Coûts hard</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Coût constr. standard</td><td>225–280 $/pi²</td><td class="highlight">250 $/pi²</td><td>Devis récent obligatoire; ne pas recycler un ancien prix</td></tr>
+              <tr><td>Coût constr. haut de gamme</td><td>280–350 $/pi²</td><td>—</td><td>Matériaux premium, finitions élevées, CNÉB 2026+</td></tr>
+              <tr><td>Aménagement du site</td><td>20k–50k $</td><td class="highlight">30 000 $</td><td>Plus élevé si services éloignés ou sol problématique</td></tr>
+              <tr><td>⚑ Hard / unité (garde-fou)</td><td>180k–230k $</td><td class="highlight">~200k $</td><td>Hors plage → vérifier GFA/unité ou $/pi²</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">DC &amp; DD | Coûts indirects &amp; contingence</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>% indirect (soft)</td><td>3–10 %</td><td class="highlight">5 %</td><td>5 % si arch/permis/légal sont détaillés; ~8–10 % si tout est globalisé</td></tr>
+              <tr><td>Architecture &amp; génie</td><td>8k–15k $/unité</td><td class="highlight">~10k $/unité</td><td>Ou ~5 % du coût hard; valider avec l'architecte</td></tr>
+              <tr><td>Frais de promotion (dev fee)</td><td>3–8 %</td><td class="highlight">5 %</td><td>Profit du promoteur inclus dans le coût; 0 % = voir coût brut seulement</td></tr>
+              <tr><td>Contingence</td><td>5–10 % du hard</td><td class="highlight">8 %</td><td>10 % = premier projet / complexe; 5 % = répétition simple</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">DE | Échéancier</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Durée de construction</td><td>10–14 mois</td><td class="highlight">12 mois</td><td>Bois structuré, 6–8 plex; plus long si béton ou permis complexes</td></tr>
+              <tr><td>Mise en location (lease-up)</td><td>3–6 mois</td><td class="highlight">4 mois</td><td>5–6 mois en marché lent; le portage continue pendant toute cette période</td></tr>
+              <tr><td>% moyen du prêt décaissé</td><td>50–60 %</td><td class="highlight">55 %</td><td>Approximation de la courbe S; portage = prêt × ce % × taux × mois</td></tr>
+              <tr><td>⚑ Carry en % du TDC</td><td>—</td><td class="highlight">2–3 %</td><td>&gt; 4 % → vérifier durée de construction et taux du prêt constr.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">DG | Revenus stabilisés</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Loyer cible / unité</td><td>—</td><td class="highlight">Comparables NEUFS</td><td>+10–20 % vs médian existant; utiliser annonces de neuf actives uniquement</td></tr>
+              <tr><td>Inoccupation stabilisée</td><td>2–4 %</td><td class="highlight">3 %</td><td>Neuf = moins de roulement; normaliser à 5 % pour la valeur prêtable SCHL</td></tr>
+              <tr><td>Dépenses d'exploitation</td><td>25–32 %</td><td class="highlight">28–30 %</td><td>Neuf = moins d'entretien; inclure taxes, assurances, gestion, réserves</td></tr>
+              <tr><td>Inoccupation normalisée SCHL</td><td>—</td><td class="highlight">5 %</td><td>Plancher conservateur du prêteur — fixe le plafond du prêt approuvé</td></tr>
+              <tr><td>Dépenses normalisées SCHL</td><td>—</td><td class="highlight">35 %</td><td>Plus conservateur que l'exploitation réelle; détermine le prêt approuvé</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">DF | Financement</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>LTC construction</td><td>65–75 %</td><td class="highlight">75 %</td><td>Maximum conventionnel standard</td></tr>
+              <tr><td>Spread taux constr. / perm. (conv.)</td><td>+1,5–2,0 %</td><td class="highlight">+1,75 %</td><td>Ex. perm 5,0 % → constr ~6,75 %; compense le risque chantier</td></tr>
+              <tr><td>Spread taux constr. / perm. (SCHL)</td><td>+0,25–0,5 %</td><td class="highlight">+0,35 %</td><td>Risque assuré = écart très réduit</td></tr>
+              <tr><td>Take-out LTV (MLI Select)</td><td>50–95 %</td><td class="highlight">85 %</td><td>95 % exige 100 pts; 85 % standard avec 70 pts</td></tr>
+              <tr><td>Points MLI Select</td><td>50–100</td><td class="highlight">70</td><td>70 pts → amort 45 ans + escompte prime 20 %; 100 pts → 50 ans + 30 %</td></tr>
+              <tr><td>Taux permanent</td><td>—</td><td class="highlight">Cotation réelle</td><td>≈ OC 10 ans + 0,3–0,9 %; ne jamais utiliser un taux par défaut</td></tr>
+              <tr><td>Frais de courtier hyp.</td><td>0,5–1,5 %</td><td class="highlight">1 %</td><td>Sur le prêt de construction</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">DH | Valeur &amp; sortie</div>
+          <table class="schl-table">
+            <thead><tr><th>Paramètre</th><th>Fourchette</th><th>Base</th><th>Repère / source</th></tr></thead>
+            <tbody>
+              <tr><td>Cap de sortie (banlieue)</td><td>4,75–5,5 %</td><td class="highlight">Comparable VENDU + coussin</td><td rowspan="2">Paramètre le plus sensible. Cap de vente ≠ cap d'achat; ajouter 0,25–0,5 % de marge prudentielle</td></tr>
+              <tr><td>Cap de sortie (régional)</td><td>5,25–6,0 %</td><td class="highlight">Comparable VENDU + coussin</td></tr>
+              <tr><td>Marge cible (valeur résiduelle)</td><td>15–20 %</td><td class="highlight">15 %</td><td>Seuil promoteur; la valeur résiduelle du terrain en découle</td></tr>
+              <tr><td>Commission de vente</td><td>3–5 %</td><td class="highlight">4 %</td><td>Marché régional; peut baisser sur grandes valeurs</td></tr>
+              <tr><td>Taux de gain en capital (corp)</td><td>27–33 %</td><td class="highlight">27 %</td><td>Corp QC : 2/3 inclusion × ~40 % taux marginal; valider avec comptable</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="schl-card">
+          <div class="schl-card-header">⚑ Garde-fous — sanity checks</div>
+          <table class="schl-table">
+            <thead><tr><th>Indicateur</th><th>Cible</th><th>Signal si hors plage</th></tr></thead>
+            <tbody>
+              <tr><td>Spread YoC / cap de sortie</td><td class="highlight">≥ 1,5 pt → Go ✓</td><td>0–1,5 pt = Limite ⚠ · &lt; 0 = No-go ✗</td></tr>
+              <tr><td>Terrain en % du TDC</td><td class="highlight">≤ 15 %</td><td>&gt; 20 % : acheter existant plutôt que construire</td></tr>
+              <tr><td>Hard / unité</td><td class="highlight">180k–230k $</td><td>Hors plage → vérifier GFA/unité ou $/pi²</td></tr>
+              <tr><td>TDC / unité vs valeur / unité</td><td class="highlight">TDC &lt; valeur</td><td>TDC ≥ valeur : perte structurelle, aucun levier ne corrige</td></tr>
+              <tr><td>Portage (carry) en % du TDC</td><td class="highlight">2–3 %</td><td>&gt; 4 % : vérifier durée de constr. et taux du prêt constr.</td></tr>
+              <tr><td>YoC cible (marché régional QC)</td><td class="highlight">≥ 7 %</td><td>Loyer ~1 850–1 950 $ sur coût standard pour l'atteindre</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /schl-grid dev -->
+    </div><!-- /dev-only -->
+
+  </div><!-- /tab-ranges -->
 
 </div><!-- /page -->
 
