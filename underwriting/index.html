@@ -968,7 +968,7 @@ footer .logo { color: var(--paper); }
           <div class="section-body">
             <div class="field-row">
               <span class="field-label">Variation cap rate / an <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Compression (–) ou expansion (+) du cap rate à la sortie. 0.1–0.25%/an est raisonnable.</span></span></span>
-              <div class="field-input has-sfx"><input type="number" id="capRateDrift" value="0.5" step="0.05" min="-5" max="5" onchange="recalc()"><span class="sfx">%/an</span></div>
+              <div class="field-input has-sfx"><input type="number" id="capRateDrift" value="0.25" step="0.05" min="-5" max="5" onchange="recalc()"><span class="sfx">%/an</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Nouveau taux hypo (pénalité) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux actuel du marché, pour calcul IRD.</span></span></span>
@@ -988,7 +988,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Frais de fermeture (vente)</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="closingFees" value="-1500" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="closingFees" value="1500" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
           </div>
         </div>
@@ -1050,7 +1050,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div class="field-row">
               <span class="field-label">Frais de fermeture (refi)</span>
-              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="refiClosingFees" value="-3000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
+              <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="refiClosingFees" value="3000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
               <span class="field-label">Frais de courtier (refi) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">% du prêt refi approuvé. Réduit la prise de fonds nette.</span></span></span>
@@ -2781,9 +2781,9 @@ function mortgageConstant(annualPct, amortYears) {
 }
 function loanBalance(principal, annualPct, amortYears, monthsPaid) {
   const r = monthlyRate(annualPct), n = amortYears*12;
-  if (r === 0) return principal - (principal/n)*monthsPaid;
+  if (r === 0) return Math.max(0, principal - (principal/n)*monthsPaid);
   const pmt = principal * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
-  return principal * Math.pow(1+r,monthsPaid) - pmt * ((Math.pow(1+r,monthsPaid)-1)/r);
+  return Math.max(0, principal * Math.pow(1+r,monthsPaid) - pmt * ((Math.pow(1+r,monthsPaid)-1)/r));
 }
 function breakPenalty(balance, contractPct, currentPct, yearsIntoTerm, termYears) {
   const remaining = Math.max(0, termYears - yearsIntoTerm);
@@ -2817,14 +2817,15 @@ function getMaxAmort(program, pts) {
 function getProgramMaxLtv(program, pts) {
   if (program === 'mli-market') return 85;
   if (pts >= 100) return 95;
-  return 90;
+  if (pts >= 70) return 90;
+  return 85;   // MLI Select 50–69 pts
 }
-function getMinDscr(program, buildingType, units, term) {
+function getMinDscr(program, buildingType, units, term, isRefi) {
   if (buildingType === 'other') return 1.2;
   if (program === 'mli-select') return 1.1;
   // MLI Market Standard Locatif — per CMHC Standard Rental Housing sheet
-  if (units <= 6) return 1.1;          // 5–6 units purchase (refi = 1.20, same as 7+ / ≥10yr)
-  return term >= 10 ? 1.2 : 1.3;      // 7+ units: term-based
+  if (units <= 6) return isRefi ? 1.2 : 1.1;   // 5–6 units: 1.10 purchase / 1.20 refinance
+  return term >= 10 ? 1.2 : 1.3;               // 7+ units: term-based (same purchase & refi)
 }
 function getMliDiscount(program, pts) {
   if (program !== 'mli-select') return 0;
@@ -2852,27 +2853,35 @@ function getBasePremiumRate(ltvPct, buildingType, purpose) {
 function getAmortSurcharge(amort) { return Math.max(0, Math.floor((amort-25)/5)) * 0.0025; }
 function getProvTax(province) {
   if (province === 'qc') return 0.09975;
-  if (['on','mb','sk'].includes(province)) return 0.08;
+  if (province === 'on') return 0.08;
+  if (province === 'mb') return 0.07;
+  if (province === 'sk') return 0.06;
   return 0;
 }
 
-function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, ratePct, term, amort, province, propertyValue, noi, units, lendingValue) {
+function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, ratePct, term, amort, province, propertyValue, noi, units, lendingValue, isRefi) {
   // lendingValue = CMHC's lending value (economic value); defaults to propertyValue if not supplied
   const lv = (lendingValue > 0 && lendingValue < propertyValue) ? lendingValue : propertyValue;
   const effAmort = Math.min(amort, getMaxAmort(program, mliPts));
   const progMaxLtv = getProgramMaxLtv(program, mliPts);
   const effLtvCap = Math.min(targetLtvPct, progMaxLtv) / 100;
-  const minDscr = getMinDscr(program, buildingType, units, term);
+  const minDscr = getMinDscr(program, buildingType, units, term, isRefi);
   const mc = mortgageConstant(ratePct, effAmort);
   const ltvMaxLoan = lv * effLtvCap;           // capped on lending value, not price
-  const dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
+  const surcharge = getAmortSurcharge(effAmort);
+  const discount = getMliDiscount(program, mliPts);
+  // Premium band per CMHC = loan ÷ lending value (not price)
+  const rateFor = loan => Math.max(0, (getBasePremiumRate(lv > 0 ? loan/lv*100 : 0, buildingType, purpose) + surcharge) * (1 - discount));
+  // The DSCR covenant holds on the insured loan (premium is capitalized), so size the base
+  // loan such that NOI ≥ minDscr × DS(loan × (1 + netRate)). The premium rate depends on the
+  // loan, which depends on the premium → fixed-point iteration (converges in 2–3 passes).
+  let dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
+  for (let i = 0; i < 6; i++) dscrMaxLoan = mc > 0 ? noi / (minDscr * mc * (1 + rateFor(dscrMaxLoan))) : 0;
   const approvedLoan = Math.min(ltvMaxLoan, Math.max(0, dscrMaxLoan));
   const binding = dscrMaxLoan <= ltvMaxLoan ? 'DSCR' : 'LTV';
   const effLtv = propertyValue > 0 ? approvedLoan / propertyValue : 0;  // loan ÷ price (% de financement)
-  const baseRate = getBasePremiumRate(effLtv*100, buildingType, purpose);
-  const surcharge = getAmortSurcharge(effAmort);
-  const discount = getMliDiscount(program, mliPts);
-  const netRate = Math.max(0, (baseRate + surcharge) * (1 - discount));
+  const baseRate = getBasePremiumRate(lv > 0 ? approvedLoan/lv*100 : 0, buildingType, purpose);
+  const netRate = rateFor(approvedLoan);
   const premium = approvedLoan * netRate;
   const insured = approvedLoan + premium;
   const r = monthlyRate(ratePct);
@@ -2882,7 +2891,7 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const dscrInsured = ads > 0 ? noi / ads : 0;
   const provTax = premium * getProvTax(province);
   const downPayment = propertyValue - approvedLoan;
-  const appFee = Math.min(Math.max(units*150, units*100), 50000);
+  const appFee = units * 200;   // CMHC multi-unit application fee: 200 $/unit
   const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
   return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
@@ -3002,7 +3011,7 @@ function recalc() {
   const schlNOI  = schlEGI * (1 - schlOpex / 100);
   const valeurEconomique = schlCapRate > 0 ? schlNOI / (schlCapRate / 100) : purchasePrice;
   const cmhc = acqFinType === 'cmhc'
-    ? computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, schlNOI, units, valeurEconomique)
+    ? computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, schlNOI, units, valeurEconomique, false)
     : computeConventional(acqConvLtv, rate, amort, acqConvDscr, purchasePrice, schlNOI, valeurEconomique);
 
   // F: Private financing
@@ -3047,15 +3056,18 @@ function recalc() {
   const principalRepaid = cmhc.insured - balanceAtExit;
   const totalInterest = totalDS - principalRepaid;
   const grossProfit = salePrice - totalAcqCost - totalInvest;
-  const cgTaxable = Math.max(0, grossProfit);
+  const cgTaxable = Math.max(0, grossProfit - salesComm - closing);   // selling costs reduce the gain
   const cgTax = cgTaxable * cgTaxRate/100;
-  const rentalTaxable = Math.max(0, weightedRev - totalInterest);
+  const rentalTaxable = Math.max(0, weightedRev - totalInterest - privCost);   // mortgage + private interest deductible
   const rentalTax = rentalTaxable * margTax/100;
   const netOpProfit = weightedRev - totalDS - privCost - totalReserve;
-  const netPreTax = grossProfit + netOpProfit - penalty;
-  const netPostTax = netPreTax - cgTax - salesComm + closing - rentalTax;
+  // Financing costs paid at closing + principal repaid during the hold (equity recovered at sale)
+  // — including them makes netPostTax tie exactly to the venteCF cash-flow vector below.
+  const finFees = cmhc.premium + cmhc.provTax + cmhc.appFee + brokerFee;
+  const netPreTax = grossProfit + netOpProfit + principalRepaid - finFees - penalty;
+  const netPostTax = netPreTax - cgTax - salesComm - closing - rentalTax;
   const totalRet = totalCash > 0 ? netPostTax / totalCash : 0;
-  const annRet = holding > 0 && totalRet > -1 ? Math.pow(1+totalRet, 1/holding)-1 : 0;
+  const annRet = holding > 0 ? (totalRet > -1 ? Math.pow(1+totalRet, 1/holding)-1 : -1) : 0;
   const exitMult = totalCash > 0 ? (totalCash + netPostTax) / totalCash : 0;
 
   // K: Refi (garder) — refinance at the SAME year as the détention (not a separate mid-hold year),
@@ -3063,12 +3075,12 @@ function recalc() {
   // recycled and the asset is held going forward, so this is a fork against Vente, not a chain.
   const refiPropVal = refiCapRatePct > 0 ? exitNOI / (refiCapRatePct/100) : 0;
   const refi = refiFinType === 'cmhc'
-    ? computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units)
+    ? computeCmhc(refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate, refiTerm, refiAmort, province, refiPropVal, exitNOI, units, undefined, true)
     : computeConventional(refiConvLtv, refiRate, refiAmort, refiConvDscr, refiPropVal, exitNOI, 0);
   // Same payoff as the Vente scenario — same year, same original loan.
   const grossCashOut = refi.approvedLoan - balanceAtExit - penalty;
   const refiBrokerFee = refi.approvedLoan * refiBrokerPct/100;
-  const netCashOut = grossCashOut + refiClosing - refi.provTax - refi.appFee - refiBrokerFee - privAmt;
+  const netCashOut = grossCashOut - refiClosing - refi.provTax - refi.appFee - refiBrokerFee - privAmt;
   // Going forward, post-refi: capital still at risk (can be ≤ 0 if fully recycled), new debt
   // service, resulting stabilized annual cash flow, and paper equity left in the asset.
   const cashLeftIn = totalCash - netCashOut;
@@ -3091,7 +3103,7 @@ function recalc() {
     venteCF[y] = blendedNOI - cmhc.ads - annualReserve - privIntV;
     if (y === holdingIntR) {
       // Add net sale proceeds (taxes lumped at exit)
-      venteCF[y] += salePrice - salesComm - penalty + closing - balanceAtExit - privAmt - cgTax - rentalTax;
+      venteCF[y] += salePrice - salesComm - penalty - closing - balanceAtExit - privAmt - cgTax - rentalTax;
     }
   }
   const irrVente = irr(venteCF);
@@ -3103,7 +3115,7 @@ function recalc() {
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost, privRate,
     totalReserve, annualReserve, totalCash, brokerFee, allInCost,
-    exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, netPreTax, netPostTax, totalRet, annRet, exitMult,
+    exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, finFees, principalRepaid, netPreTax, netPostTax, totalRet, annRet, exitMult,
     refiPropVal, refi, grossCashOut, netCashOut, refiBrokerFee,
     cashLeftIn, refiCF, refiCoC, refiEquity, capitalRecycledPct, irrVente, refiCapRatePct,
     holding, rate, term, optVacPct, optOpexPct, otherInc, closing, refiClosing };
@@ -3256,6 +3268,7 @@ function updateOutputs() {
     outRow('Balance hypothécaire à la sortie', '-'+fmtC(balanceAtExit), 'neg') +
     outRow('Pénalité de bris', '-'+fmtC(penalty), 'neg') +
     outRow('Commission de vente', '-'+fmtC(salesComm), 'neg') +
+    (C.closing > 0 ? outRow('Frais de fermeture (vente)', '-'+fmtC(C.closing), 'neg') : '') +
     (C.privAmt > 0 ? outRow('Remboursement capital privé (réno)', '-'+fmtC(C.privAmt), 'neg') : '') +
     '<div class="divider"></div>' +
     `<div class="sub-label">Revenus d'exploitation (période de détention)</div>` +
@@ -3265,6 +3278,8 @@ function updateOutputs() {
     outRow('Réserves totales', '-'+fmtC(C.totalReserve), 'neg') +
     '<div class="divider"></div>' +
     outRow('Gain en capital brut', fmtC(grossProfit)) +
+    outRow('Capital remboursé (équité récupérée)', '+'+fmtC(C.principalRepaid)) +
+    outRow('Frais de financement (prime + frais)', '-'+fmtC(C.finFees), 'neg') +
     outRow('Impôt sur gain en capital ('+fmtP(C.cgTaxRate,1)+')', '-'+fmtC(cgTax), 'neg') +
     outRow('Impôt sur revenu locatif', '-'+fmtC(rentalTax), 'neg') +
     outRow('PROFIT NET AVANT IMPÔT', fmtC(netPreTax), 'key-row') +
@@ -3366,7 +3381,7 @@ function updateCashFlow() {
 
     // Vente scenario
     const saleGross = isExit ? salePrice : 0;
-    const saleFrais = isExit ? salesComm + penalty - closing : 0;
+    const saleFrais = isExit ? salesComm + penalty + closing : 0;
     const saleMort  = isExit ? balanceAtExit : 0;
     const salePriv  = isExit ? privAmt : 0;
     const saleTax   = isExit ? cgTax + rentalTax : 0;
@@ -3422,7 +3437,7 @@ function updateCashFlow() {
       wfRow('= Flux total à la sortie', fmtC(e.fluxVente), 'cf-wf-sep cf-wf-total '+(e.fluxVente >= 0 ? 'pos-cf' : 'neg-cf')),
       wfRow('Cumulatif', fmtC(e.cumVente), 'cf-wf-total '+(e.cumVente >= 0 ? 'pos-cf' : 'neg-cf')),
     ].join('');
-    const refiFraisPen = penalty + refi.provTax + refi.appFee + refiBrokerFee - refiClosing;
+    const refiFraisPen = penalty + refi.provTax + refi.appFee + refiBrokerFee + refiClosing;
     const refiCardRows = [
       wfRow('Prêt refi', '+'+fmtC(refi.approvedLoan), 'pos-cf'),
       wfRow('Remb. hypothèque', '-'+fmtC(balanceAtExit), 'neg-cf'),
@@ -3669,8 +3684,8 @@ function resetAll() {
     renoCost:20000, pctReno:50, cfkMonths:0, pctCfk:20,
     mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
     acqConvLtv:75, acqConvDscr:1.20, refiConvLtv:75, refiConvDscr:1.20,
-    capRateDrift:0.5, newMortgageRate:4.25, marginalTax:26.5, cgTaxRate:33, commission:2, closingFees:-1500,
-    refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:-3000, refiBrokerFeePct:1,
+    capRateDrift:0.25, newMortgageRate:4.25, marginalTax:26.5, cgTaxRate:33, commission:2, closingFees:1500,
+    refiMliPoints:50, refiCapRate:4.75, refiTargetLtv:75, refiInterestRate:4.25, refiClosingFees:3000, refiBrokerFeePct:1,
     privatePct:100, privateRate:14,
   };
   for (const [id, val] of Object.entries(defaults)) {
@@ -3929,7 +3944,7 @@ function recalcDev() {
     const premiumPurpose = dConstrFinType === 'conventional' ? 'purchase' : 'construction';
     takeout = computeCmhc(dCmhcProgram, dBuildingType, premiumPurpose, dMliPoints,
                           dTargetLtv, dPermRate, dTerm, dAmortization, dProvince,
-                          GDV, schlNoiDev, dUnits, econValueDev);
+                          GDV, schlNoiDev, dUnits, econValueDev, false);
   } else {
     // Conventional take-out: no CMHC insurance. NOI basis same as CMHC path for consistency.
     takeout = computeConventional(dConvTakeoutLtv, dPermRate, dAmortization, dConvTakeoutDscr,
@@ -3962,7 +3977,8 @@ function recalcDev() {
   const equityRequired = TDC - constrLoan;
 
   // ── Build-to-hold + refi take-out ──
-  const equityRecapture = takeout.approvedLoan - constrLoan - brokerFee;
+  // brokerFee is already inside TDC (hence equityRequired) — don't subtract it again here.
+  const equityRecapture = takeout.approvedLoan - constrLoan;
   const cashLeftIn      = TDC - takeout.approvedLoan;
   const stabCashFlow    = stabNOI - takeout.ads;
   const cashOnCash      = cashLeftIn > 0 ? stabCashFlow / cashLeftIn : 0;
@@ -4017,7 +4033,7 @@ function recalcDev() {
   holdCF[constrGridYears + devHold] += netSaleProceedsDev;
 
   // IRR — Refi+Vente: same timeline, but at conversion year the take-out recaptures equity.
-  // equityRecapture = takeout.approvedLoan − constrLoan − brokerFee (already computed above).
+  // equityRecapture = takeout.approvedLoan − constrLoan (already computed above; fees are in TDC).
   const refiCF = holdCF.slice();
   refiCF[constrGridYears] += equityRecapture;
   const irrDevRefi      = equityRequired > 0 ? irr(refiCF) : null;
@@ -4178,7 +4194,6 @@ function updateDevOutputs() {
     `<div class="sub-label">Prise de fonds — conversion prêt permanent ${isCmhcTakeout ? 'SCHL' : 'conv.'}</div>` +
     outRow('Prêt take-out approuvé', fmtC(takeout.approvedLoan)) +
     outRow('Prêt de construction (remb.)', '-'+fmtC(constrLoan), 'neg') +
-    outRow('Frais de courtier (remb.)', '-'+fmtC(brokerFee), 'neg') +
     outRow('ÉQUITÉ RÉCUPÉRÉE À CONVERSION', fmtC(equityRecapture), equityRecapture >= 0 ? 'key-row pos' : 'key-row neg') +
     outRow('Cash restant dans l\'actif', fmtC(cashLeftIn), 'key-row') +
     '<div class="divider"></div>' +
