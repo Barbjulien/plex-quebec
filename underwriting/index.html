@@ -884,7 +884,7 @@ footer .logo { color: var(--paper); }
                 <div class="field-input"><select id="loanPurpose" onchange="recalc()"><option value="purchase">Achat / Refi</option><option value="construction">Construction</option></select></div>
               </div>
               <div class="field-row">
-                <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux utilisé par la SCHL pour estimer la valeur économique (= NOI normalisé ÷ taux). Laissez vide pour utiliser le prix d'achat comme valeur de prêt.</span></span></span>
+                <span class="field-label">Taux de cap. SCHL <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Laissez vide dans la plupart des cas — le DSCR gouverne le prêt. À remplir seulement si le prêteur impose un taux de cap normalisé indépendant : ne devient contraignant que s'il rend 85% × valeur économique inférieur au prêt DSCR. Le « TGA valeur économique » des feuilles de courtier (ex. 4.94%) est dérivé du prêt DSCR — l'entrer ici est circulaire et ne change rien.</span></span></span>
                 <div class="field-input has-sfx"><input type="number" id="schlCapRate" value="" placeholder="—" step="0.05" min="0" max="20" onchange="recalc()"><span class="sfx">%</span></div>
               </div>
               <div class="field-row">
