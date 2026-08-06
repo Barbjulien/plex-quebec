@@ -2870,18 +2870,16 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const ltvMaxLoan = lv * effLtvCap;           // capped on lending value, not price
   const surcharge = getAmortSurcharge(effAmort);
   const discount = getMliDiscount(program, mliPts);
-  // Premium band per CMHC = loan ÷ lending value (not price)
-  const rateFor = loan => Math.max(0, (getBasePremiumRate(lv > 0 ? loan/lv*100 : 0, buildingType, purpose) + surcharge) * (1 - discount));
-  // The DSCR covenant holds on the insured loan (premium is capitalized), so size the base
-  // loan such that NOI ≥ minDscr × DS(loan × (1 + netRate)). The premium rate depends on the
-  // loan, which depends on the premium → fixed-point iteration (converges in 2–3 passes).
-  let dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
-  for (let i = 0; i < 6; i++) dscrMaxLoan = mc > 0 ? noi / (minDscr * mc * (1 + rateFor(dscrMaxLoan))) : 0;
+  // Market practice (calibrated on Multi-Prêts commercial sheets, 2026-07):
+  // the DSCR covenant is sized on the BASE loan (pre-premium), and the premium
+  // band is set by loan ÷ purchase price. The DSCR on the insured loan (premium
+  // capitalized) is reported separately as dscrInsured and lands below the minimum.
+  const dscrMaxLoan = mc > 0 ? noi / (minDscr * mc) : 0;
   const approvedLoan = Math.min(ltvMaxLoan, Math.max(0, dscrMaxLoan));
   const binding = dscrMaxLoan <= ltvMaxLoan ? 'DSCR' : 'LTV';
   const effLtv = propertyValue > 0 ? approvedLoan / propertyValue : 0;  // loan ÷ price (% de financement)
-  const baseRate = getBasePremiumRate(lv > 0 ? approvedLoan/lv*100 : 0, buildingType, purpose);
-  const netRate = rateFor(approvedLoan);
+  const baseRate = getBasePremiumRate(effLtv*100, buildingType, purpose);
+  const netRate = Math.max(0, (baseRate + surcharge) * (1 - discount));
   const premium = approvedLoan * netRate;
   const insured = approvedLoan + premium;
   const r = monthlyRate(ratePct);
@@ -2891,7 +2889,7 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const dscrInsured = ads > 0 ? noi / ads : 0;
   const provTax = premium * getProvTax(province);
   const downPayment = propertyValue - approvedLoan;
-  const appFee = units * 200;   // CMHC multi-unit application fee: 200 $/unit
+  const appFee = units * 150;   // Droits SCHL: 150 $/unité (confirmé fiche Multi-Prêts 2026-07)
   const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
   return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
