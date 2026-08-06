@@ -782,6 +782,10 @@ footer .logo { color: var(--paper); }
               <span class="field-label">Dépenses d'exploitation <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">30–35% = bien entretenu 6+, 35–40% = moyen, 40–45% = vieux/petit. Exclut le service de la dette.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="operatingExpenses" value="30" step="0.5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
+            <div class="field-row">
+              <span class="field-label">Base des dépenses <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Les analyses de courtiers (ex. Multi-Prêts) expriment souvent les dépenses en % du revenu brut potentiel (RBP). L'option choisie s'applique aussi aux dépenses optimisées et normalisées SCHL.</span></span></span>
+              <div class="field-input"><select id="opexBasis" onchange="recalc()"><option value="egi">% des revenus effectifs (EGI)</option><option value="rbp">% du revenu brut potentiel (RBP)</option></select></div>
+            </div>
           </div>
         </div>
 
@@ -2881,7 +2885,9 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const baseRate = getBasePremiumRate(effLtv*100, buildingType, purpose);
   const netRate = Math.max(0, (baseRate + surcharge) * (1 - discount));
   const premium = approvedLoan * netRate;
-  const insured = approvedLoan + premium;
+  const appFee = units * 150;   // Droits SCHL: 150 $/unité (confirmé fiche Multi-Prêts 2026-07)
+  // Prime ET droits capitalisés dans le prêt total (pratique courtier: montant total = prêt + prime + droits)
+  const insured = approvedLoan + premium + appFee;
   const r = monthlyRate(ratePct);
   const n = effAmort * 12;
   const mp = r === 0 ? insured/n : insured * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
@@ -2889,7 +2895,6 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const dscrInsured = ads > 0 ? noi / ads : 0;
   const provTax = premium * getProvTax(province);
   const downPayment = propertyValue - approvedLoan;
-  const appFee = units * 150;   // Droits SCHL: 150 $/unité (confirmé fiche Multi-Prêts 2026-07)
   const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
   return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
@@ -2979,8 +2984,9 @@ function recalc() {
       _rentAnnualEl.value = formatCurrency(String(Math.round(gri)));
     }
   }
+  const opexBasis = gs('opexBasis') || 'egi';   // 'egi' | 'rbp' (convention courtier)
   const egi = gri * (1 - vacPct/100) + otherInc;
-  const opex = egi * opexPct/100;
+  const opex = (opexBasis === 'rbp' ? gri : egi) * opexPct/100;
   const noi = egi - opex;
   const capRate = purchasePrice > 0 ? noi / purchasePrice : 0;
   const grm = gri > 0 ? purchasePrice / gri : 0;
@@ -2991,11 +2997,16 @@ function recalc() {
   const totalInvest = totalReno + cfk;
   const renoPerSqft = avgSqft > 0 && units > 0 ? totalReno / (avgSqft * units) : 0;
 
-  // C: Optimized NOI
+  // C: Optimized NOI — NOI at a given per-unit rent, honouring the expense basis
+  const noiAtRent = rent => {
+    const g = rent * units * 12;
+    const e = g * (1 - optVacPct/100) + otherInc;
+    return e - (opexBasis === 'rbp' ? g : e) * optOpexPct/100;
+  };
   const projRentExit = targetRent * Math.pow(1 + rentGrowth/100, holding);
   const optGRI = projRentExit * units * 12;
   const optEGI = optGRI * (1 - optVacPct/100) + otherInc;
-  const optOpex = optEGI * optOpexPct/100;
+  const optOpex = (opexBasis === 'rbp' ? optGRI : optEGI) * optOpexPct/100;
   const optNOI = optEGI - optOpex;
   // yoc is computed below (after brokerFee & cmhc are in scope) on a full all-in cost basis
 
@@ -3006,7 +3017,7 @@ function recalc() {
   const schlOpex = schlOpexIn !== '' ? (parseFloat(schlOpexIn) || 0) : opexPct;
   const schlVac  = schlVacIn  !== '' ? (parseFloat(schlVacIn)  || 0) : vacPct;
   const schlEGI  = gri * (1 - schlVac / 100) + otherInc;
-  const schlNOI  = schlEGI * (1 - schlOpex / 100);
+  const schlNOI  = schlEGI - (opexBasis === 'rbp' ? gri : schlEGI) * schlOpex / 100;
   const valeurEconomique = schlCapRate > 0 ? schlNOI / (schlCapRate / 100) : purchasePrice;
   const cmhc = acqFinType === 'cmhc'
     ? computeCmhc(program, buildingType, purpose, mliPts, targetLtv, rate, term, amort, province, purchasePrice, schlNOI, units, valeurEconomique, false)
@@ -3023,7 +3034,8 @@ function recalc() {
 
   // H: Total cash required
   const brokerFee = cmhc.approvedLoan * brokerFeePct/100;
-  const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + cmhc.appFee + brokerFee;
+  // Droits SCHL capitalisés dans le prêt — pas de cash à la fermeture pour ce poste
+  const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + brokerFee;
   // Full all-in project cost (denominateur Yield on Cost) = achat + frais acq + réno + courtier + frais SCHL
   const allInCost = totalAcqCost + totalInvest + brokerFee + cmhc.provTax + cmhc.appFee;
   const yoc = allInCost > 0 ? optNOI / allInCost : 0;
@@ -3044,8 +3056,7 @@ function recalc() {
   let weightedRev = 0;
   for (let y = 1; y <= holding; y++) {
     const frac = tr > 0 ? 1 - Math.pow(1-tr, y) : 1;
-    const rentY = targetRent * Math.pow(1 + rentGrowth/100, y);
-    const noiY = (rentY * units * 12 * (1 - optVacPct/100) + otherInc) * (1 - optOpexPct/100);
+    const noiY = noiAtRent(targetRent * Math.pow(1 + rentGrowth/100, y));
     const noiCurrY = noi * Math.pow(1 + rentGrowth/100, y);
     weightedRev += noiY * frac + noiCurrY * (1-frac);
   }
@@ -3078,7 +3089,7 @@ function recalc() {
   // Same payoff as the Vente scenario — same year, same original loan.
   const grossCashOut = refi.approvedLoan - balanceAtExit - penalty;
   const refiBrokerFee = refi.approvedLoan * refiBrokerPct/100;
-  const netCashOut = grossCashOut - refiClosing - refi.provTax - refi.appFee - refiBrokerFee - privAmt;
+  const netCashOut = grossCashOut - refiClosing - refi.provTax - refiBrokerFee - privAmt; // droits refi capitalisés
   // Going forward, post-refi: capital still at risk (can be ≤ 0 if fully recycled), new debt
   // service, resulting stabilized annual cash flow, and paper equity left in the asset.
   const cashLeftIn = totalCash - netCashOut;
@@ -3093,8 +3104,7 @@ function recalc() {
   venteCF[0] = -totalCash;
   for (let y = 1; y <= holdingIntR; y++) {
     const frac = tr > 0 ? 1 - Math.pow(1-tr, y) : 1;
-    const rentY = targetRent * Math.pow(1+rentGrowth/100, y);
-    const noiY = (rentY * units * 12 * (1-optVacPct/100) + otherInc) * (1-optOpexPct/100);
+    const noiY = noiAtRent(targetRent * Math.pow(1+rentGrowth/100, y));
     const noiCurrY = noi * Math.pow(1+rentGrowth/100, y);
     const blendedNOI = noiY * frac + noiCurrY * (1-frac);
     const privIntV = holding > 0 ? privAmt * privRate/100 * (y - 0.5) / holding : 0;
@@ -3238,7 +3248,8 @@ function updateOutputs() {
       (c.discount > 0 ? outRow('Rabais MLI Select', '-'+fmtP(c.discount*100)) : '') +
       outRow('Taux net', fmtP(c.netRate*100)) +
       outRow('Prime SCHL nette', fmtC(c.premium), 'key-row') +
-      outRow('Hypothèque assurée', fmtC(c.insured)) : '') +
+      (c.appFee > 0 ? outRow('Droits SCHL (capitalisés)', fmtC(c.appFee)) : '') +
+      outRow('Hypothèque assurée (prêt + prime + droits)', fmtC(c.insured)) : '') +
     outRow('Paiement mensuel', fmtC(c.mp)) +
     '<div class="divider"></div>' +
     `<div class="sub-label">Cash requis à la fermeture</div>` +
@@ -3247,7 +3258,6 @@ function updateOutputs() {
     outRow('Frais d\'acquisition', fmtC(C.acqCostDollar)) +
     outRow('Frais de courtier hypothécaire', fmtC(brokerFee)) +
     (isCmhcAcq && c.provTax > 0 ? outRow('TVQ sur prime SCHL', fmtC(c.provTax)) : '') +
-    (isCmhcAcq && c.appFee  > 0 ? outRow('Frais de demande SCHL', fmtC(c.appFee)) : '') +
     outRow('TOTAL CASH REQUIS', fmtC(totalCash), 'key-row') +
     `<div class="metric-grid">
       ${metricBox('Cash Requis', fmtC(totalCash), '', 'amber')}
@@ -3307,7 +3317,7 @@ function updateOutputs() {
       `<div class="sub-label">Prime SCHL (refi)</div>` +
       outRow('Prime SCHL nette', fmtC(r.premium)) +
       (r.provTax > 0 ? outRow('TVQ sur prime', '-'+fmtC(r.provTax), 'neg') : '') +
-      (r.appFee  > 0 ? outRow('Frais de demande SCHL', '-'+fmtC(r.appFee), 'neg') : '') : '') +
+      (r.appFee  > 0 ? outRow('Droits SCHL (capitalisés)', fmtC(r.appFee)) : '') : '') +
     '<div class="divider"></div>' +
     `<div class="sub-label">Prise de fonds — Année ${holdingInt}</div>` +
     outRow('Balance hypothécaire à la sortie', '-'+fmtC(balanceAtExit), 'neg') +
@@ -3339,6 +3349,7 @@ function updateCashFlow() {
   const targetRent = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
   const rentGrowth = (parseFloat(document.getElementById('rentGrowth').value) || 0) / 100;
   const units = parseFloat(document.getElementById('units').value) || 0;
+  const opexBasis = (document.getElementById('opexBasis') || {value:'egi'}).value || 'egi';
   const effAmort = cmhc.effAmort;
   const holdingInt = Math.min(Math.round(holding), 30);
 
@@ -3352,11 +3363,14 @@ function updateCashFlow() {
   for (let y = 1; y <= holdingInt; y++) {
     const frac = turnover > 0 ? 1 - Math.pow(1-turnover, y) : 1;
     const rentY = targetRent * Math.pow(1 + rentGrowth, y);
-    const noiY = (rentY * units * 12 * (1 - optVacPct/100) + otherInc) * (1 - optOpexPct/100);
-    // Current-rent NOI also grown by rentGrowth each year (in-place rents adjust annually)
+    const griY = rentY * units * 12;
+    const egiY = griY * (1 - optVacPct/100) + otherInc;
+    const noiY = egiY - (opexBasis === 'rbp' ? griY : egiY) * optOpexPct/100;
+    // Current-rent NOI/EGI also grown by rentGrowth each year (in-place rents adjust annually)
     const noiCurrY = noi * Math.pow(1 + rentGrowth, y);
+    const egiCurrY = C.egi * Math.pow(1 + rentGrowth, y);
     const blendedNOI = noiY * frac + noiCurrY * (1-frac);
-    const blendedEGI = blendedNOI / (1 - optOpexPct/100);
+    const blendedEGI = egiY * frac + egiCurrY * (1-frac);
     const ds = cmhc.ads;
     // Private bridge interest: ramped draw — interest on mid-year cumulative balance
     const privIntY = holding > 0 ? privAmt * privRate/100 * (y - 0.5) / holding : 0;
@@ -3435,7 +3449,7 @@ function updateCashFlow() {
       wfRow('= Flux total à la sortie', fmtC(e.fluxVente), 'cf-wf-sep cf-wf-total '+(e.fluxVente >= 0 ? 'pos-cf' : 'neg-cf')),
       wfRow('Cumulatif', fmtC(e.cumVente), 'cf-wf-total '+(e.cumVente >= 0 ? 'pos-cf' : 'neg-cf')),
     ].join('');
-    const refiFraisPen = penalty + refi.provTax + refi.appFee + refiBrokerFee + refiClosing;
+    const refiFraisPen = penalty + refi.provTax + refiBrokerFee + refiClosing;
     const refiCardRows = [
       wfRow('Prêt refi', '+'+fmtC(refi.approvedLoan), 'pos-cf'),
       wfRow('Remb. hypothèque', '-'+fmtC(balanceAtExit), 'neg-cf'),
@@ -3693,6 +3707,7 @@ function resetAll() {
   document.getElementById('cmhcProgram').value = 'mli-market';
   document.getElementById('refiProgram').value = 'mli-market';
   document.getElementById('buildingType').value = 'standard';
+  document.getElementById('opexBasis').value = 'egi';
   document.getElementById('loanPurpose').value = 'purchase';
   document.getElementById('schlCapRate').value = '';
   document.getElementById('schlOpexPct').value = '';
@@ -3964,7 +3979,7 @@ function recalcDev() {
   const brokerFee = constrLoan * dBrokerFeePct / 100;
 
   // ── Total Development Cost ──
-  const TDC = costExFin + financingCarry + brokerFee + takeout.provTax + takeout.appFee;
+  const TDC = costExFin + financingCarry + brokerFee + takeout.provTax; // droits SCHL capitalisés dans le prêt take-out
 
   // ── Development metrics ──
   const yocDev       = TDC > 0 ? stabNOI / TDC : 0;
@@ -4042,7 +4057,7 @@ function recalcDev() {
   // ── Residual land value ──
   const targetMarginDec = dTargetMargin / 100;
   const maxTDC          = GDV > 0 && (1 + targetMarginDec) > 0 ? GDV / (1 + targetMarginDec) : 0;
-  const nonLandCost     = hard + soft + contingency + financingCarry + brokerFee + takeout.provTax + takeout.appFee;
+  const nonLandCost     = hard + soft + contingency + financingCarry + brokerFee + takeout.provTax;
   const residualLandGross= maxTDC - nonLandCost;
   const residualLand     = dLandClosingPct > 0
     ? residualLandGross / (1 + dLandClosingPct / 100)
@@ -4119,7 +4134,7 @@ function updateDevOutputs() {
     outRow('Carry intérêts construction', fmtC(financingCarry), 'neg') +
     outRow('Frais de courtier hypothécaire', fmtC(brokerFee), 'neg') +
     (isCmhcTakeout && takeout.provTax > 0 ? outRow('TVQ sur prime SCHL', fmtC(takeout.provTax), 'neg') : '') +
-    (isCmhcTakeout && takeout.appFee  > 0 ? outRow('Frais de demande SCHL', fmtC(takeout.appFee), 'neg') : '') +
+    (isCmhcTakeout && takeout.appFee  > 0 ? outRow('Droits SCHL (capitalisés)', fmtC(takeout.appFee)) : '') +
     outRow('COÛT TOTAL DE DÉVELOPPEMENT', fmtC(TDC), 'key-row') +
     `<div class="metric-grid">
       ${metricBox('TDC', fmtC(TDC), 'ex-financement: '+fmtC(costExFin), 'blue')}
@@ -4260,7 +4275,7 @@ function updateDevCashFlow() {
     ['Coûts indirects (soft)', soft],
     ['Contingence', contingency],
     ['Carry intérêts', financingCarry],
-    ['Frais courtier + SCHL', brokerFee + C.takeout.provTax + C.takeout.appFee],
+    ['Frais courtier + SCHL', brokerFee + C.takeout.provTax],
   ];
   let cumul = 0;
   let costRows = '';
