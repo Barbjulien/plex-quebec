@@ -68,7 +68,7 @@ Prime nette = Prêt × (taux_base + surcharge_amort) × (1 − rabais_MLI_Select
 - Rabais MLI Select : 10% (50–69 pts), 20% (70–99 pts), 30% (100+ pts)
 - LTV max MLI Select : 85% (50–69 pts), 90% (70–99 pts), 95% (100+ pts)
 - Taxe provinciale sur prime : QC 9.975%, ON 8%, MB 7%, SK 6%
-- Droits SCHL : 150 $/unité (payés comptant dans l'outil; certains courtiers les capitalisent)
+- Droits SCHL : 150 $/unité, capitalisés dans le prêt total (prêt + prime + droits)
 
 #### Revenus pondérés (roulement des locataires)
 La transition des loyers actuels vers les loyers cibles est modélisée par une série géométrique basée sur le taux de roulement annuel :
@@ -126,4 +126,4 @@ L'outil reprend l'identité visuelle de Plex Québec :
 
 Ce fichier HTML était à l'origine la transposition web de `Plex_Underwriter.xlsx` (`/Documents/CRE Models/`). Le modèle web a depuis divergé et fait autorité : DSCR minimum selon la fiche SCHL Standard Locatif (1.10 achat / 1.20 refi pour 5–6 unités), dimensionnement calibré sur la pratique des courtiers commerciaux (validé au dollar près contre une analyse Multi-Prêts de 2026-07), et réconciliation exacte entre le profit net et le vecteur de flux IRR. Le fichier Excel n'a pas été mis à jour en conséquence.
 
-**Note conventions courtier** : les analyses de courtiers expriment souvent les dépenses en % du revenu brut potentiel (RBP). L'outil les applique sur l'EGI — pour reproduire une analyse courtier, convertir (ex. 30.62% du RBP ≈ 31.56% de l'EGI à 3% d'inoccupation) ou utiliser les champs SCHL normalisés.
+**Note conventions courtier** : les analyses de courtiers expriment souvent les dépenses en % du revenu brut potentiel (RBP). Le champ « Base des dépenses » (section B) permet de choisir % EGI ou % RBP — en mode RBP, l'outil reproduit une analyse Multi-Prêts au dollar près (prêt total = prêt + prime + droits capitalisés, paiement identique).
