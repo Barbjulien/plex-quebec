@@ -2896,7 +2896,10 @@ function computeCmhc(program, buildingType, purpose, mliPts, targetLtvPct, rateP
   const provTax = premium * getProvTax(province);
   const downPayment = propertyValue - approvedLoan;
   const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
-  return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
+  // Transparence double plafond: chaque plafond traduit dans l'unité de l'autre
+  const ltvImpliedDscr = mc > 0 && ltvMaxLoan > 0 ? noi / (ltvMaxLoan * mc) : 0;  // DSCR si on empruntait au plafond LTV
+  const dscrImpliedLtv = lv > 0 ? dscrMaxLoan / lv : 0;                            // % de la valeur au plafond DSCR
+  return {mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv, dscrBase, minDscr, ltvImpliedDscr, dscrImpliedLtv, baseRate, surcharge, discount, netRate, premium, insured, mp, ads, dscrInsured, provTax, downPayment, appFee, effAmort, lendingValue: lv};
 }
 
 function computeConventional(targetLtvPct, ratePct, amort, minDscr, propertyValue, noi, lendingValue) {
@@ -2914,9 +2917,11 @@ function computeConventional(targetLtvPct, ratePct, amort, minDscr, propertyValu
   const ads = mp * 12;
   const dscrInsured = ads > 0 ? noi / ads : 0;
   const dscrBase = mc > 0 && approvedLoan > 0 ? noi / (approvedLoan * mc) : 0;
+  const ltvImpliedDscr = mc > 0 && ltvMaxLoan > 0 ? noi / (ltvMaxLoan * mc) : 0;
+  const dscrImpliedLtv = lv > 0 ? dscrMaxLoan / lv : 0;
   return { mc, ltvMaxLoan, dscrMaxLoan, approvedLoan, binding, effLtv,
            baseRate:0, surcharge:0, discount:0, netRate:0, premium:0, insured:approvedLoan,
-           mp, ads, dscrInsured, dscrBase,
+           mp, ads, dscrInsured, dscrBase, minDscr, ltvImpliedDscr, dscrImpliedLtv,
            provTax:0, appFee:0, effAmort:amort, downPayment:propertyValue-approvedLoan, lendingValue:lv };
 }
 
@@ -3235,8 +3240,11 @@ function updateOutputs() {
     `<div class="sub-label">Prêt ${isCmhcAcq ? 'CMHC / SCHL' : 'conventionnel'}</div>` +
     (isCmhcAcq && schlNOI !== noi ? outRow('NOI normalisé SCHL', fmtC(schlNOI)) : '') +
     (isCmhcAcq && c.lendingValue < purchasePrice ? outRow('Valeur économique SCHL', fmtC(c.lendingValue)) : '') +
+    outRow('DSCR minimum requis (achat)', fmtX(c.minDscr)) +
     outRow('Plafond LTV (prêt max)', fmtC(c.ltvMaxLoan)) +
+    outRow('→ DSCR implicite à ce prêt', fmtX(c.ltvImpliedDscr), c.ltvImpliedDscr < c.minDscr ? 'neg' : '') +
     outRow('Plafond DSCR (prêt max)', fmtC(c.dscrMaxLoan)) +
+    outRow('→ % de la valeur à ce prêt', fmtP(c.dscrImpliedLtv*100)) +
     outRow('Prêt approuvé', fmtC(c.approvedLoan), 'key-row') +
     outRow('% de financement (/ prix)', fmtP(c.effLtv*100)) +
     outRow('DSCR (prêt de base)', fmtX(c.dscrBase)) +
@@ -3307,8 +3315,11 @@ function updateOutputs() {
     outRow('Cap rate au refi', fmtP(refiCapRatePct)) +
     outRow('NOI à la réversion (roulement ajusté)', fmtC(exitNOI)) +
     outRow('Valeur estimée au refi', fmtC(refiPropVal)) +
+    outRow('DSCR minimum requis (refi)', fmtX(r.minDscr)) +
     outRow('Plafond LTV', fmtC(r.ltvMaxLoan)) +
+    outRow('→ DSCR implicite à ce prêt', fmtX(r.ltvImpliedDscr), r.ltvImpliedDscr < r.minDscr ? 'neg' : '') +
     outRow('Plafond DSCR', fmtC(r.dscrMaxLoan)) +
+    outRow('→ % de la valeur à ce prêt', fmtP(r.dscrImpliedLtv*100)) +
     outRow('Prêt refi approuvé', fmtC(r.approvedLoan), 'key-row') +
     outRow('LTV effectif', fmtP(r.effLtv*100)) +
     outRow(isCmhcRefi ? 'DSCR sur hypo assurée' : 'DSCR', fmtX(r.dscrInsured)) +
