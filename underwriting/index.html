@@ -78,7 +78,7 @@ nav {
   padding: 12px 0;
   position: sticky; top: 57px; z-index: 40;
 }
-.dashboard-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; position: relative; z-index: 2; }
+.dashboard-inner { max-width: 1280px; margin: 0 auto; padding: 0 28px; display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; position: relative; z-index: 2; }
 .kpi { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 8px 14px; min-width: 0; flex: 1; }
 .kpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.14em; color: rgba(255,255,255,0.5); margin-bottom: 3px; }
 .kpi-value { font-size: 16px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums; }
@@ -801,8 +801,12 @@ footer .logo { color: var(--paper); }
               <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="targetRent" value="1450" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
-              <span class="field-label">Croissance annuelle des loyers <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Historique QC: 2–3%/an. Soyez conservateur.</span></span></span>
+              <span class="field-label">Croissance loyers marché <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Croissance annuelle du loyer cible (marché). Historique QC: 2–3%/an. Soyez conservateur.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="rentGrowth" value="2" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Indexation loyers en place <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Croissance annuelle des loyers des locataires EN PLACE (indexation TAL, typiquement 2–3%). Si inférieure à la croissance marché, l'écart au marché (loss-to-lease) s'élargit avec le temps au lieu de rester constant.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="indexGrowth" value="2" step="0.1" min="0" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Période de détention <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Durée prévue avant vente ou refinancement. Si elle dépasse le terme hypothécaire, le prêt est renouvelé à chaque fin de terme au taux de renouvellement ci-dessous.</span></span></span>
@@ -841,7 +845,7 @@ footer .logo { color: var(--paper); }
           </div>
           <div class="section-body open">
             <div class="field-row">
-              <span class="field-label">Coût réno / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Léger: 15–25K$, Modéré (cuisine/SDB): 25–40K$, Lourd: 40–60K$+</span></span></span>
+              <span class="field-label">Coût réno / unité <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Léger: 15–25K$, Modéré (cuisine/SDB): 25–40K$, Lourd: 40–60K$+. Décaissé au rythme du roulement des unités (pas à la fermeture) — le budget est complété à la sortie.</span></span></span>
               <div class="field-input has-pfx"><span class="pfx">$</span><input type="text" inputmode="decimal" id="renoCost" value="20000" onchange="this.value=formatCurrency(this.value);recalc()"></div>
             </div>
             <div class="field-row">
@@ -995,6 +999,18 @@ footer .logo { color: var(--paper); }
             <div class="field-row">
               <span class="field-label">Taux effectif — gain en capital <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux effectif sur gain en capital (inclusion × taux marginal). Corp: 2/3 × ~50% ≈ 33%. Personnel: 1/2 × ~50% ≈ 25%.</span></span></span>
               <div class="field-input has-sfx"><input type="number" id="cgTaxRate" value="33" step="0.5" min="0" max="60" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Impôt annuel avec DPA (CCA) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Décoché: impôt locatif forfaitaire à la sortie (simplifié). Coché: impôt locatif payé ANNUELLEMENT, réduit par la DPA (catégorie 1), avec récupération d'amortissement à la vente (imposée au taux marginal). Simplifications: pas de règle de demi-année, récupération complète de la DPA prise, pas de report de pertes.</span></span></span>
+              <div class="field-input"><input type="checkbox" id="ccaOn" style="width:18px;height:18px;accent-color:var(--accent);" onchange="recalc()"></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">Taux DPA <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Catégorie 1 (bâtiment): 4% dégressif. Les rénos s'ajoutent au coût en capital l'année où elles sont décaissées.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="ccaRate" value="4" step="0.5" min="0" max="20" onchange="recalc()"><span class="sfx">%</span></div>
+            </div>
+            <div class="field-row">
+              <span class="field-label">% bâtiment (vs terrain) <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Part du prix d'achat attribuable au bâtiment (seul le bâtiment s'amortit). Typique plex urbain: 70–85%. Voir la répartition terrain/bâtiment au rôle d'évaluation.</span></span></span>
+              <div class="field-input has-sfx"><input type="number" id="bldgPct" value="80" step="5" min="0" max="100" onchange="recalc()"><span class="sfx">%</span></div>
             </div>
             <div class="field-row">
               <span class="field-label">Commission vente</span>
@@ -1481,6 +1497,8 @@ footer .logo { color: var(--paper); }
               <th>Service dette</th>
               <th>Réserves</th>
               <th>Fin. privé</th>
+              <th>Réno (équité)</th>
+              <th>Impôt (DPA)</th>
               <th>Flux opér.</th>
               <th>Cumulatif opér.</th>
             </tr>
@@ -1573,7 +1591,9 @@ footer .logo { color: var(--paper); }
             <li>Investissement total = Rénovations + CFK &nbsp;·&nbsp; Réno/pi² = Rénovations / (pi² × unités)</li>
             <li><strong>Yield on cost</strong> = NOI optimisé / (Coût acq. total + Investissement total)</li>
           </ul>
-          <p style="margin-top:8px;"><strong>Roulement :</strong> à l'année y, la fraction d'unités converties aux loyers cibles = 1 − (1 − roulement)<sup>y</sup>. Le NOI blendé de l'année = NOI opt × fraction + NOI actuel × (1 − fraction), le NOI actuel étant lui-même indexé annuellement par la croissance.</p>
+          <p style="margin-top:8px;"><strong>Roulement :</strong> à l'année y, la fraction d'unités converties aux loyers cibles = 1 − (1 − roulement)<sup>y</sup>. Le NOI blendé de l'année = NOI opt × fraction + NOI actuel × (1 − fraction).</p>
+          <p style="margin-top:8px;"><strong>Deux pistes de croissance :</strong> les loyers CIBLES croissent au taux marché ; les loyers EN PLACE croissent à l'indexation (TAL). Si l'indexation est inférieure au marché, l'écart au marché (loss-to-lease) s'élargit avec le temps — c'est le moteur de la thèse valeur ajoutée.</p>
+          <p style="margin-top:8px;"><strong>Décaissement des rénos :</strong> la dépense réno de l'année y est proportionnelle aux unités qui roulent cette année-là (même courbe que les revenus), normalisée pour que le budget soit entièrement déployé à la sortie. Le CFK se paie à la fermeture (il achète le roulement). Le financement privé est tiré au prorata de chaque décaissement et ses intérêts courent sur le solde tiré — le cash à la fermeture n'inclut donc pas l'équité réno, qui sort dans les flux annuels.</p>
         </div>
       </div>
 
@@ -1621,12 +1641,12 @@ footer .logo { color: var(--paper); }
           <p style="margin-top:8px;"><strong>Cash total requis (H) :</strong></p>
           <ul style="line-height:1.8;">
             <li>Mise de fonds SCHL (= Valeur − Prêt approuvé)</li>
-            <li>+ Équité réno (portion non financée des rénovations)</li>
+            <li>+ Équité réno (portion non financée des rénovations) — <em>engagée</em>, mais décaissée au rythme du roulement des unités, pas à la fermeture</li>
             <li>+ Frais d'acquisition ($)</li>
             <li>+ Taxe provinciale sur la prime SCHL</li>
             <li>+ Frais de dossier SCHL</li>
           </ul>
-          <p style="margin-top:6px;">Note : le financement privé n'est pas inclus dans le cash total — c'est un prêt, pas un apport en capital.</p>
+          <p style="margin-top:6px;">Note : le financement privé n'est pas inclus dans le cash total — c'est un prêt, pas un apport en capital. Le « cash à la fermeture » exclut l'équité réno (seule la part équité du CFK se paie à la clôture); l'équité réno sort dans les flux annuels, au rythme du roulement, et c'est ainsi qu'elle entre dans le TRI.</p>
         </div>
       </div>
 
@@ -1637,6 +1657,7 @@ footer .logo { color: var(--paper); }
         </div>
         <div class="help-body">
           <p><strong>Entrées :</strong> dérive du cap rate (%/an), taux hypothécaire courant (pour pénalité IRD), taux marginal revenu locatif (%), taux effectif gain en capital (%), commission de vente (%), frais de fermeture ($).</p>
+          <p style="margin-top:8px;"><strong>Impôt locatif — deux modes :</strong> par défaut, l'impôt sur le revenu locatif est un forfait prélevé à la sortie (simplifié). Avec « Impôt annuel avec DPA », il est payé chaque année, réduit par la DPA (catégorie 1, dégressive sur la part bâtiment + rénos capitalisées, plafonnée au revenu de l'année) ; la récupération d'amortissement (Σ DPA prise) est imposée au taux marginal à la vente. Le profit net total est quasi identique dans les deux modes — c'est le TRI qui s'améliore (report d'impôt). Simplifications : pas de règle de demi-année, récupération complète, pas de report de pertes.</p>
           <p style="margin-top:10px;"><strong>NOI de sortie (turnover-phased) :</strong></p>
           <ul style="line-height:2;">
             <li>Fraction optimisée = 1 − (1 − roulement)<sup>détention</sup></li>
@@ -1687,7 +1708,7 @@ footer .logo { color: var(--paper); }
             <li><strong>Yield on cost</strong> = NOI opt / (Coût acq. + Investissement) — rendement sur capital total déployé</li>
             <li><strong>DSCR de base</strong> = NOI / (Prêt approuvé × constante hyp.) — sans prime capitalisée</li>
             <li><strong>DSCR assuré</strong> = NOI / Service de dette annuel (hypo. assurée) — indicateur officiel SCHL</li>
-            <li><strong>Cash-on-cash</strong> = Flux annuel / Cash total — rendement annuel sur la mise de fonds; le flux annuel inclut les intérêts du financement privé répartis sur la période de détention (tirage progressif)</li>
+            <li><strong>Cash-on-cash</strong> = Flux annuel / Équité totale engagée — le flux annuel déduit les intérêts du financement privé (courus sur le solde réellement tiré) ET l'équité réno décaissée cette année-là (étalée au roulement des unités); les premières années montrent donc le vrai drag de la phase travaux</li>
             <li><strong>Rendement de la dette</strong> = NOI / Solde hypothécaire — rendement de l'actif du point de vue du prêteur</li>
             <li><strong>Rendement annualisé</strong> = (1 + rendement total)<sup>1/n</sup> − 1 — approximation du TRI</li>
             <li><strong>Multiple</strong> = Valeur finale / Capital investi</li>
@@ -2957,23 +2978,57 @@ function buildProjection(p) {
   const rows = [];
   let takeoutInfo = null;
   let weightedRev = 0, totalDS = 0, totalInterest = 0, principalRepaidTotal = 0, privIntTotal = 0;
+  // Reno spend phased with unit turnover (same curve as the revenue blend): each
+  // year's outlay is proportional to the units that turn over that year,
+  // normalized so the full budget is deployed by exit. CFK is paid at closing
+  // (it buys the turnover). The private bridge is drawn pro-rata with each
+  // outlay (CFK share at closing, reno share as spent); interest accrues on the
+  // outstanding balance, mid-year convention for the year's draw.
+  const fracAt = y => y <= 0 ? 0 : (p.tr > 0 ? 1 - Math.pow(1 - p.tr, y) : 1);
+  const fracN = fracAt(n);
+  const renoSpendAt = y => fracN > 0 ? p.totalReno * (fracAt(y) - fracAt(y-1)) / fracN : 0;
+  let privBal = p.cfk * p.privFrac;
+  let renoEquitySpread = 0;
+  // DPA (CCA): pool dégressif sur la part bâtiment + rénos capitalisées l'année du
+  // décaissement; la DPA ne peut pas créer de perte locative (plafonnée au revenu).
+  let ccaPool = p.ccaPool0 || 0, ccaTotal = 0, taxAnnualTotal = 0;
   for (let y = 1; y <= n; y++) {
-    const growth = Math.pow(1 + p.rentGrowth/100, y);
+    // Deux pistes de croissance: loyers cibles au taux MARCHÉ, loyers en place à l'INDEXATION
+    const growthM = Math.pow(1 + p.rentGrowth/100, y);
+    const growthI = Math.pow(1 + p.indexGrowth/100, y);
     const frac = p.tr > 0 ? 1 - Math.pow(1 - p.tr, y) : 1;
-    const griY = p.targetRent * growth * p.units * 12;
+    const griY = p.targetRent * growthM * p.units * 12;
     const egiY = griY * (1 - p.optVacPct/100) + p.otherInc;
     const noiY = egiY - (p.opexBasis === 'rbp' ? griY : egiY) * p.optOpexPct/100;
-    const noiCurrY = p.noi * growth;
-    const egiCurrY = p.egi * growth;
+    const noiCurrY = p.noi * growthI;
+    const egiCurrY = p.egi * growthI;
     const blendedNOI = noiY * frac + noiCurrY * (1 - frac);
     const blendedEGI = egiY * frac + egiCurrY * (1 - frac);
     const balPrev = loanBalance(phase.principal, phase.rate, phase.amortYears, (y - 1 - phase.startYear) * 12);
     const balEnd  = loanBalance(phase.principal, phase.rate, phase.amortYears, (y - phase.startYear) * 12);
     const principalY = balPrev - balEnd;
     const interestY = phase.ads - principalY;
-    const privIntY = (takeoutInfo || p.holding <= 0) ? 0 : p.privAmt * p.privRate/100 * (y - 0.5) / p.holding;
-    const cf = blendedNOI - phase.ads - p.annualReserve - privIntY;
-    const row = { y, frac, blendedNOI, blendedEGI, ads: phase.ads, adsRate: phase.rate, balEnd, interestY, principalY, privIntY, cf, event: null, cashOut: 0 };
+    const renoY = renoSpendAt(y);
+    const drawY = takeoutInfo ? 0 : renoY * p.privFrac;   // post-take-out spend is all equity
+    const privIntY = (takeoutInfo || p.holding <= 0) ? 0 : (privBal + drawY/2) * p.privRate/100;
+    privBal += drawY;
+    const renoEquityY = renoY - drawY;
+    renoEquitySpread += renoEquityY;
+    const taxableY = blendedNOI - interestY - privIntY;
+    let ccaY = 0, taxY = 0;
+    if (p.ccaOn) {
+      ccaPool += renoY;
+      ccaY = Math.min(ccaPool * p.ccaRate/100, Math.max(0, taxableY));
+      ccaPool -= ccaY;
+      ccaTotal += ccaY;
+      taxY = Math.max(0, taxableY - ccaY) * p.margTax/100;
+      taxAnnualTotal += taxY;
+    }
+    const cf = blendedNOI - phase.ads - p.annualReserve - privIntY - renoEquityY;
+    const row = { y, frac, blendedNOI, blendedEGI, ads: phase.ads, adsRate: phase.rate,
+                  phaseStartY: phase.startYear, phaseTermY: phase.termYears,
+                  balEnd, interestY, principalY, privIntY, renoY, renoEquityY,
+                  taxableY, ccaY, taxY, cf, event: null, cashOut: 0 };
     weightedRev += blendedNOI; totalDS += phase.ads; totalInterest += interestY;
     principalRepaidTotal += principalY; privIntTotal += privIntY;
     // Term boundary before exit → renewal (or equity take-out refi, first boundary only)
@@ -2984,10 +3039,13 @@ function buildProjection(p) {
           ? computeCmhc(p.refiProg, p.buildingType, p.purpose, p.refiMliPts, p.refiLtv, p.refiRate, p.refiTerm, p.refiAmort, p.province, refiVal, blendedNOI, p.units, undefined, true)
           : computeConventional(p.refiConvLtv, p.refiRate, p.refiAmort, p.refiConvDscr, refiVal, blendedNOI, 0);
         const refiBrokerFee = refi.approvedLoan * p.refiBrokerPct/100;
-        const netCashOut = refi.approvedLoan - balEnd - p.refiClosing - refi.provTax - refiBrokerFee - p.privAmt;
+        // Private bridge: repay the balance actually drawn so far (not the full
+        // committed amount — draws follow the turnover-phased spend schedule)
+        const netCashOut = refi.approvedLoan - balEnd - p.refiClosing - refi.provTax - refiBrokerFee - privBal;
         takeoutInfo = { year: y, refi, refiVal, netCashOut, refiBrokerFee, balAtTakeout: balEnd,
-                        noiAtTakeout: blendedNOI,
+                        noiAtTakeout: blendedNOI, privRepaid: privBal,
                         refiPhaseFees: refi.premium + refi.provTax + refi.appFee + refiBrokerFee + p.refiClosing };
+        privBal = 0;
         row.event = 'takeout'; row.cashOut = netCashOut;
         phase = { principal: refi.insured, rate: p.refiRate, amortYears: refi.effAmort, startYear: y, ads: refi.ads, termYears: p.refiTerm };
       } else {
@@ -2998,11 +3056,13 @@ function buildProjection(p) {
       }
       row.newAds = phase.ads; row.newRatePct = phase.rate;
     }
+    row.privBalY = privBal;   // solde privé en fin d'année (0 à partir du retrait)
     rows.push(row);
   }
   const balanceAtExit = loanBalance(phase.principal, phase.rate, phase.amortYears, (n - phase.startYear) * 12);
   return { rows, finalPhase: phase, balanceAtExit, weightedRev, totalDS, totalInterest,
-           principalRepaidTotal, privIntTotal, takeoutInfo, holdingIntR: n };
+           principalRepaidTotal, privIntTotal, privBalExit: privBal, renoEquitySpread,
+           ccaTotal, taxAnnualTotal, takeoutInfo, holdingIntR: n };
 }
 
 function recalc() {
@@ -3017,6 +3077,9 @@ function recalc() {
   const rentAvgIn = g('currentRent'), rentAnnualIn = g('currentRentAnnual');
   const vacPct = g('vacancyRate'), otherInc = g('otherIncome'), opexPct = g('operatingExpenses');
   const targetRent = g('targetRent'), rentGrowth = g('rentGrowth'), holding = g('holdingPeriod');
+  const idxGrowth = g('indexGrowth');
+  const ccaOn = document.getElementById('ccaOn').checked;
+  const ccaRate = g('ccaRate'), bldgPct = g('bldgPct');
   const optVacPct = g('optimizedVacancy'), optOpexPct = g('optimizedExpenses'), turnover = g('turnoverRate');
   const renoCost = g('renoCost'), pctReno = g('pctReno'), cfkMonths = g('cfkMonths'), pctCfk = g('pctCfk');
   const acqFinType  = gs('acqFinType')  || 'cmhc';   // 'cmhc' | 'conventional'
@@ -3119,26 +3182,36 @@ function recalc() {
 
   // Unified projection: year-by-year rows, loan phases, renewal / equity take-out
   const tr = turnover/100;
-  const projParams = { holdingIntR, holding, term, rate, cmhc, noi, egi, targetRent, rentGrowth, tr,
-    units, otherInc, optVacPct, optOpexPct, opexBasis, annualReserve, privAmt, privRate,
+  const projParams = { holdingIntR, holding, term, rate, cmhc, noi, egi, targetRent, rentGrowth,
+    indexGrowth: idxGrowth, tr,
+    units, otherInc, optVacPct, optOpexPct, opexBasis, annualReserve,
+    totalReno, cfk, privFrac: privPct/100, privRate,
+    ccaOn, ccaRate, ccaPool0: purchasePrice * bldgPct/100, margTax,
     takeout, refiFinType, refiProg, buildingType, purpose, refiMliPts, refiLtv, refiRate,
     refiTerm, refiAmort, province, refiConvLtv, refiConvDscr, refiCapRatePct, refiClosing, refiBrokerPct };
   const proj = buildProjection({ ...projParams, renewalRate });
   // Private interest summed from the rows so the aggregates tie to the vector exactly
-  // (equals privAmt*rate*holding/2 when no take-out; the ramp stops at the take-out).
+  // (accrues on the drawn balance — CFK at closing, reno draws following the
+  // turnover-phased spend schedule; stops at the take-out).
   const privCost = proj.privIntTotal;
 
   // H: Total cash required
   const brokerFee = cmhc.approvedLoan * brokerFeePct/100;
   // Droits SCHL capitalisés dans le prêt — pas de cash à la fermeture pour ce poste
+  // totalCash = équité totale engagée (nette du financement privé prévu). Les rénos
+  // étant décaissées au rythme du roulement, le cash exigé À LA FERMETURE exclut
+  // l'équité réno (seule la part équité du CFK se paie à la clôture).
   const totalCash = cmhc.downPayment + renoEquity + acqCostDollar + cmhc.provTax + brokerFee;
+  const cfkEquityClose = cfk * (1 - privPct/100);
+  const cashAtClose = cmhc.downPayment + acqCostDollar + cmhc.provTax + brokerFee + cfkEquityClose;
   // Full all-in project cost (denominateur Yield on Cost) = achat + frais acq + réno + courtier + frais SCHL
   const allInCost = totalAcqCost + totalInvest + brokerFee + cmhc.provTax + cmhc.appFee;
   const yoc = allInCost > 0 ? optNOI / allInCost : 0;
 
   // I: Sale scenario — exit NOI phased by turnover (transparent: buyer pays for in-place, not full stabilization)
+  // Loyers en place indexés (TAL), loyers cibles au taux marché — l'écart au marché s'élargit si indexation < marché
   const fracExit = tr > 0 ? 1 - Math.pow(1-tr, holding) : 1;
-  const noiExit = noi * Math.pow(1 + rentGrowth/100, holding);
+  const noiExit = noi * Math.pow(1 + idxGrowth/100, holding);
   const exitNOI = optNOI * fracExit + noiExit * (1 - fracExit);
   const exitCap = capRate + capDrift/100 * holding;
   const salePrice = exitCap > 0 ? exitNOI / exitCap : 0;
@@ -3157,22 +3230,41 @@ function recalc() {
   // Vente pack: exit-side values + IRR vector for a given projection. Used for the
   // base case and re-run at renewalRate ± 1/2 % for the sensitivity strip (the
   // penalty, interest deduction and rental tax all depend on the renewal rate).
-  // t=0: -equity; t=y: annual operating CF (+ take-out at the renewal, counted at
-  // the extraction date); terminal sale proceeds added at the final year.
-  const ventePack = (pr) => {
+  // t=0: -cash at closing (reno equity lands in the years it is spent, inside
+  // row.cf); t=y: annual operating CF net of that year's reno equity (+ take-out
+  // at the renewal, counted at the extraction date); terminal sale proceeds
+  // added at the final year.
+  // sale: {salePrice, salesComm, cgTax} — overridable pour la grille de sensibilité
+  const ventePack = (pr, sale) => {
+    const sp = sale ? sale.salePrice : salePrice;
+    const sc = sale ? sale.salesComm : salesComm;
+    const cg = sale ? sale.cgTax : cgTax;
     const balExit = pr.balanceAtExit;
     const pen = breakPenalty(balExit, pr.finalPhase.rate, newRate, holdingIntR - pr.finalPhase.startYear, pr.finalPhase.termYears);
     const rTaxable = Math.max(0, pr.weightedRev - pr.totalInterest - pr.privIntTotal);   // mortgage + private interest deductible
-    const rTax = rTaxable * margTax/100;
     const cf = new Array(holdingIntR + 1).fill(0);
-    cf[0] = -totalCash;
-    for (const row of pr.rows) cf[row.y] = row.cf + row.cashOut;
-    // Net sale proceeds (taxes lumped at exit); private repaid at exit unless already repaid at the take-out
-    cf[holdingIntR] += salePrice - salesComm - pen - closing - balExit - (pr.takeoutInfo ? 0 : privAmt) - cgTax - rTax;
-    return { venteCF: cf, irrVente: irr(cf), balanceAtExit: balExit, penalty: pen, rentalTaxable: rTaxable, rentalTax: rTax };
+    cf[0] = -cashAtClose;
+    let rTax, recapTax = 0;
+    if (ccaOn) {
+      // Mode DPA: impôt locatif payé annuellement (net de la DPA, calculée dans la
+      // projection); récupération d'amortissement imposée à la sortie au taux marginal.
+      for (const row of pr.rows) cf[row.y] = row.cf + row.cashOut - row.taxY;
+      rTax = pr.taxAnnualTotal;
+      recapTax = pr.ccaTotal * margTax/100;
+    } else {
+      // Mode simplifié: impôt locatif forfaitaire à la sortie (comportement historique)
+      for (const row of pr.rows) cf[row.y] = row.cf + row.cashOut;
+      rTax = rTaxable * margTax/100;
+    }
+    // Net sale proceeds; private balance outstanding repaid at exit
+    // (zero after a take-out — the bridge was repaid from refi proceeds)
+    cf[holdingIntR] += sp - sc - pen - closing - balExit - pr.privBalExit - cg - (ccaOn ? recapTax : rTax);
+    return { venteCF: cf, irrVente: irr(cf), balanceAtExit: balExit, penalty: pen,
+             rentalTaxable: rTaxable, rentalTax: rTax, recaptureTax: recapTax,
+             rentalTaxTotal: rTax + recapTax };
   };
   const base = ventePack(proj);
-  const { venteCF, irrVente, balanceAtExit, penalty, rentalTaxable, rentalTax } = base;
+  const { venteCF, irrVente, balanceAtExit, penalty, rentalTaxable, rentalTax, recaptureTax, rentalTaxTotal } = base;
 
   const netOpProfit = weightedRev - totalDS - privCost - totalReserve;
   // Financing costs paid at closing + principal repaid during the hold (equity recovered at sale)
@@ -3181,7 +3273,7 @@ function recalc() {
   const finFees = cmhc.premium + cmhc.provTax + cmhc.appFee + brokerFee
     + (proj.takeoutInfo ? proj.takeoutInfo.refiPhaseFees : 0);
   const netPreTax = grossProfit + netOpProfit + principalRepaid - finFees - penalty;
-  const netPostTax = netPreTax - cgTax - salesComm - closing - rentalTax;
+  const netPostTax = netPreTax - cgTax - salesComm - closing - rentalTaxTotal;
   const totalRet = totalCash > 0 ? netPostTax / totalCash : 0;
   const annRet = holding > 0 ? (totalRet > -1 ? Math.pow(1+totalRet, 1/holding)-1 : -1) : 0;
   const exitMult = totalCash > 0 ? (totalCash + netPostTax) / totalCash : 0;
@@ -3196,6 +3288,77 @@ function recalc() {
       }))
     : null;
 
+  // TRI selon l'année de sortie — vente simulée à la fin de chaque année e (NOI
+  // blendé de l'année, cap dérivé à e, pénalité contre la phase active, impôts et
+  // réno décaissée cumulés à e). À l'année du retrait d'équité, la vente REMPLACE
+  // le refi (pas de retrait + vente simultanés).
+  const exitYearIrr = [];
+  {
+    let cumTaxable = 0, cumCca = 0, cumReno = 0;
+    for (let e = 1; e <= holdingIntR; e++) {
+      const row = proj.rows[e-1];
+      cumTaxable += row.taxableY;
+      cumCca += row.ccaY;
+      cumReno += row.renoY;
+      if (e === holdingIntR) { exitYearIrr.push({ y: e, irr: irrVente, base: true }); continue; }
+      const isTkYear = row.event === 'takeout';
+      const capE = capRate + capDrift/100 * e;
+      const saleE = capE > 0 ? row.blendedNOI / capE : 0;
+      const commE = saleE * commPct/100;
+      const cgE = Math.max(0, saleE - totalAcqCost - (cfk + cumReno) - commE - closing) * cgTaxRate/100;
+      const penE = breakPenalty(row.balEnd, row.adsRate, newRate, e - row.phaseStartY, row.phaseTermY);
+      const privE = isTkYear ? proj.takeoutInfo.privRepaid : row.privBalY;
+      const cf = new Array(e + 1).fill(0);
+      cf[0] = -cashAtClose;
+      for (let y = 1; y <= e; y++) {
+        const r2 = proj.rows[y-1];
+        const co = (y === e && isTkYear) ? 0 : r2.cashOut;
+        cf[y] = r2.cf + co - (ccaOn ? r2.taxY : 0);
+      }
+      const taxE = ccaOn ? cumCca * margTax/100 : Math.max(0, cumTaxable) * margTax/100;
+      cf[e] += saleE - commE - penE - closing - row.balEnd - privE - cgE - taxE;
+      exitYearIrr.push({ y: e, irr: irr(cf), base: false });
+    }
+  }
+
+  // Rendements NON LEVIER (avant impôt, sans dette ni financement privé):
+  // t0 = prix + frais acq + CFK; années = NOI blendé − réserves − réno décaissée;
+  // sortie = prix de vente − commission − fermeture.
+  const unlevCF = new Array(holdingIntR + 1).fill(0);
+  unlevCF[0] = -(totalAcqCost + cfk);
+  for (const row of proj.rows) unlevCF[row.y] = row.blendedNOI - annualReserve - row.renoY;
+  unlevCF[holdingIntR] += salePrice - salesComm - closing;
+  const irrUnlev = irr(unlevCF);
+  let _uIn = 0, _uOut = 0;
+  for (const v of unlevCF) { if (v >= 0) _uIn += v; else _uOut -= v; }
+  const unlevMult = _uOut > 0 ? _uIn / _uOut : 0;
+
+  // DSCR et rendement de la dette: minimum (année du minimum) et moyenne sur la détention
+  let minDscr = Infinity, minDscrYear = 1, sumDscr = 0, minDebtYield = Infinity, minDyYear = 1, sumDy = 0;
+  for (const row of proj.rows) {
+    const d = row.ads > 0 ? row.blendedNOI / row.ads : 0;
+    const dy = row.balEnd > 0 ? row.blendedNOI / row.balEnd : 0;
+    if (d < minDscr) { minDscr = d; minDscrYear = row.y; }
+    if (dy < minDebtYield) { minDebtYield = dy; minDyYear = row.y; }
+    sumDscr += d; sumDy += dy;
+  }
+  const avgDscr = sumDscr / holdingIntR, avgDebtYield = sumDy / holdingIntR;
+
+  // Grille de sensibilité TRI: loyer cible (lignes, ±10%) × cap de sortie (colonnes, ±0.5 pt)
+  const sensRentSteps = [-10, -5, 0, 5, 10], sensCapSteps = [-0.5, -0.25, 0, 0.25, 0.5];
+  const sensGrid = sensRentSteps.map(rs => sensCapSteps.map(cs => {
+    if (rs === 0 && cs === 0) return irrVente;
+    const tR = targetRent * (1 + rs/100);
+    const prS = rs === 0 ? proj : buildProjection({ ...projParams, renewalRate, targetRent: tR });
+    const optNOIS = noiAtRent(tR * Math.pow(1 + rentGrowth/100, holding));
+    const exitNOIS = optNOIS * fracExit + noiExit * (1 - fracExit);
+    const capS = exitCap + cs/100;
+    const saleS = capS > 0 ? exitNOIS / capS : 0;
+    const commS = saleS * commPct/100;
+    const cgS = Math.max(0, saleS - totalAcqCost - totalInvest - commS - closing) * cgTaxRate/100;
+    return ventePack(prS, { salePrice: saleS, salesComm: commS, cgTax: cgS }).irrVente;
+  }));
+
   // K: Refi (garder) — refinance at the SAME year as the détention (not a separate mid-hold year),
   // against the same exit NOI/value as the Vente scenario. No forced later sale: capital is
   // recycled and the asset is held going forward, so this is a fork against Vente, not a chain.
@@ -3206,7 +3369,7 @@ function recalc() {
   // Same payoff as the Vente scenario — same year, same original loan.
   const grossCashOut = refi.approvedLoan - balanceAtExit - penalty;
   const refiBrokerFee = refi.approvedLoan * refiBrokerPct/100;
-  const netCashOut = grossCashOut - refiClosing - refi.provTax - refiBrokerFee - privAmt; // droits refi capitalisés
+  const netCashOut = grossCashOut - refiClosing - refi.provTax - refiBrokerFee - proj.privBalExit; // droits refi capitalisés; solde privé réellement dû à la sortie
   // Going forward, post-refi: capital still at risk (can be ≤ 0 if fully recycled), new debt
   // service, resulting stabilized annual cash flow, and paper equity left in the asset.
   const cashLeftIn = totalCash - netCashOut;
@@ -3223,12 +3386,16 @@ function recalc() {
     totalReno, cfk, totalInvest, renoPerSqft,
     projRentExit, optGRI, optEGI, optOpex, optNOI, yoc, exitNOI, fracExit,
     cmhc, renoEquity, privAmt, privCost, privRate,
-    totalReserve, annualReserve, totalCash, brokerFee, allInCost,
+    totalReserve, annualReserve, totalCash, cashAtClose, cfkEquityClose, brokerFee, allInCost,
     exitCap, salePrice, salePPU, balanceAtExit, penalty, salesComm, weightedRev, totalDS, grossProfit, cgTax, cgTaxRate, rentalTax, netOpProfit, finFees, principalRepaid, netPreTax, netPostTax, totalRet, annRet, exitMult,
     refiPropVal, refi, grossCashOut, netCashOut, refiBrokerFee,
     cashLeftIn, refiCF, refiCoC, refiEquity, capitalRecycledPct, irrVente, refiCapRatePct,
     holding, rate, term, optVacPct, optOpexPct, otherInc, closing, refiClosing,
-    proj, venteCF, hasRenewal, renewalRate, takeout, takeoutInfo: proj.takeoutInfo, irrSensitivity, holdingIntR };
+    proj, venteCF, hasRenewal, renewalRate, takeout, takeoutInfo: proj.takeoutInfo, irrSensitivity, holdingIntR,
+    idxGrowth, ccaOn, recaptureTax, rentalTaxTotal,
+    exitYearIrr, unlevCF, irrUnlev, unlevMult,
+    minDscr, minDscrYear, avgDscr, minDebtYield, minDyYear, avgDebtYield,
+    sensGrid, sensRentSteps, sensCapSteps };
 
   updateDashboard();
   updateOutputs();
@@ -3276,7 +3443,7 @@ function updateDashboard() {
     set('kl-profit', 'Profit Net');
     set('kv-profit', fmtC(netPostTax));
     set('ks-profit', fmtP(annRet*100,1) + '/an · ' + fmtX(exitMult));
-    set('kl-refi', 'Prise de fonds nette (refi)');
+    set('kl-refi', 'Prise de fonds (refi)');
     set('kv-refi', fmtC(netCashOut));
     set('ks-refi', refiCoC !== null ? 'Cash-on-cash post-refi: ' + fmtP(refiCoC*100,1) : 'Capital recyclé: ' + fmtP(capitalRecycledPct*100,1));
   }
@@ -3346,6 +3513,12 @@ function updateOutputs() {
     outRow('% de financement (/ prix)', fmtP(c.effLtv*100)) +
     outRow('DSCR (prêt de base)', fmtX(c.dscrBase)) +
     outRow(isCmhcAcq ? 'DSCR (hypo assurée)' : 'DSCR', fmtX(c.dscrInsured)) +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Couverture sur la détention (NOI blendé, phase-aware)</div>` +
+    outRow('DSCR minimum (an ' + C.minDscrYear + ')', fmtX(C.minDscr), C.minDscr < 1 ? 'neg' : '') +
+    outRow('DSCR moyen', fmtX(C.avgDscr)) +
+    outRow('Rendement dette minimum (an ' + C.minDyYear + ')', fmtP(C.minDebtYield*100)) +
+    outRow('Rendement dette moyen', fmtP(C.avgDebtYield*100)) +
     (isCmhcAcq ? '<div class="divider"></div>' +
       `<div class="sub-label">Prime SCHL</div>` +
       outRow('Taux de base', fmtP(c.baseRate*100)) +
@@ -3359,13 +3532,16 @@ function updateOutputs() {
     '<div class="divider"></div>' +
     `<div class="sub-label">Cash requis à la fermeture</div>` +
     outRow('Mise de fonds', fmtC(c.downPayment)) +
-    outRow('Mise de fonds rénovations', fmtC(renoEquity)) +
+    (C.cfkEquityClose > 0 ? outRow('Équité Cash for Keys (à la fermeture)', fmtC(C.cfkEquityClose)) : '') +
     outRow('Frais d\'acquisition', fmtC(C.acqCostDollar)) +
     outRow('Frais de courtier hypothécaire', fmtC(brokerFee)) +
     (isCmhcAcq && c.provTax > 0 ? outRow('TVQ sur prime SCHL', fmtC(c.provTax)) : '') +
-    outRow('TOTAL CASH REQUIS', fmtC(totalCash), 'key-row') +
+    outRow('CASH À LA FERMETURE', fmtC(C.cashAtClose), 'key-row') +
+    `<div class="sub-label">Équité rénovations — étalée au roulement des unités</div>` +
+    outRow('Équité réno (années 1 à ' + C.holdingIntR + ')', fmtC(C.proj.renoEquitySpread)) +
+    outRow('ÉQUITÉ TOTALE DÉPLOYÉE', fmtC(C.cashAtClose + C.proj.renoEquitySpread), 'key-row') +
     `<div class="metric-grid">
-      ${metricBox('Cash Requis', fmtC(totalCash), '', 'amber')}
+      ${metricBox('Cash Requis', fmtC(totalCash), 'dont ' + fmtC(C.cashAtClose) + ' à la fermeture', 'amber')}
       ${metricBox('Yield on Cost', fmtP(yoc*100), '', 'blue')}
     </div>`;
 
@@ -3382,7 +3558,7 @@ function updateOutputs() {
     outRow('Pénalité de bris', '-'+fmtC(penalty), 'neg') +
     outRow('Commission de vente', '-'+fmtC(salesComm), 'neg') +
     (C.closing > 0 ? outRow('Frais de fermeture (vente)', '-'+fmtC(C.closing), 'neg') : '') +
-    (C.privAmt > 0 ? outRow('Remboursement capital privé (réno)', '-'+fmtC(C.privAmt), 'neg') : '') +
+    (C.proj.privBalExit > 0 ? outRow('Remboursement capital privé (réno)', '-'+fmtC(C.proj.privBalExit), 'neg') : '') +
     '<div class="divider"></div>' +
     `<div class="sub-label">Revenus d'exploitation (période de détention)</div>` +
     outRow('Revenus pondérés (roulement ajusté)', fmtC(weightedRev)) +
@@ -3394,16 +3570,25 @@ function updateOutputs() {
     outRow('Capital remboursé (équité récupérée)', '+'+fmtC(C.principalRepaid)) +
     outRow('Frais de financement (prime + frais)', '-'+fmtC(C.finFees), 'neg') +
     outRow('Impôt sur gain en capital ('+fmtP(C.cgTaxRate,1)+')', '-'+fmtC(cgTax), 'neg') +
-    outRow('Impôt sur revenu locatif', '-'+fmtC(rentalTax), 'neg') +
+    (C.ccaOn
+      ? outRow('Impôts locatifs annuels (Σ, nets de DPA)', '-'+fmtC(rentalTax), 'neg') +
+        outRow('Récupération DPA (à la vente)', '-'+fmtC(C.recaptureTax), 'neg')
+      : outRow('Impôt sur revenu locatif', '-'+fmtC(rentalTax), 'neg')) +
     outRow('PROFIT NET AVANT IMPÔT', fmtC(netPreTax), 'key-row') +
     outRow('PROFIT NET APRÈS IMPÔT', fmtC(netPostTax), netPostTax >= 0 ? 'key-row pos' : 'key-row neg') +
     renewalRows() +
+    '<div class="divider"></div>' +
+    `<div class="sub-label">Rendements non levier (avant impôt, sans financement)</div>` +
+    outRow('TRI non levier', C.irrUnlev !== null ? fmtP(C.irrUnlev*100,1) : '—') +
+    outRow('Multiple non levier', fmtX(C.unlevMult)) +
     `<div class="metric-grid">
-      ${metricBox('IRR', irrVente !== null ? fmtP(irrVente*100,1) : '—', '', 'green')}
+      ${metricBox('IRR', irrVente !== null ? fmtP(irrVente*100,1) : '—', C.irrUnlev !== null ? 'non levier: ' + fmtP(C.irrUnlev*100,1) : '', 'green')}
       ${metricBox('Rendement net', fmtP(totalRet*100,1), 'sur mise de fonds', 'green')}
       ${metricBox('Multiple de sortie', fmtX(exitMult), '', 'blue')}
     </div>` +
-    sensitivityStrip();
+    sensitivityStrip() +
+    exitYearStrip() +
+    sensGridTable();
 
   // Renewal / take-out detail inside the Vente DCF (only when the hold outlives the term)
   function renewalRows() {
@@ -3443,6 +3628,36 @@ function updateOutputs() {
       `<div style="display:flex;gap:4px;padding:6px 2px;">${cells}</div>`;
   }
 
+  // TRI selon l'année de sortie (vente simulée à la fin de chaque année)
+  function exitYearStrip() {
+    if (!C.exitYearIrr || C.exitYearIrr.length < 2) return '';
+    const cells = C.exitYearIrr.map(s => {
+      const v = s.irr !== null ? fmtP(s.irr*100,1) : '—';
+      const style = s.base ? 'font-weight:700;color:var(--accent);' : '';
+      return `<div style="text-align:center;min-width:52px;${style}"><div style="font-size:10px;opacity:0.7;">an ${s.y}${s.base ? ' ●' : ''}</div><div style="font-size:12px;font-weight:600;">${v}</div></div>`;
+    }).join('');
+    return `<div class="sub-label" style="margin-top:10px;">TRI selon l'année de sortie (● = détention prévue)</div>` +
+      `<div style="display:flex;flex-wrap:wrap;gap:4px;padding:6px 2px;">${cells}</div>`;
+  }
+
+  // Grille de sensibilité: loyer cible (lignes) × cap rate de sortie (colonnes)
+  function sensGridTable() {
+    if (!C.sensGrid) return '';
+    const capHdr = C.sensCapSteps.map(cs =>
+      `<th style="font-size:10px;padding:3px 6px;">${fmtP(C.exitCap*100 + cs, 2)}</th>`).join('');
+    const rows = C.sensRentSteps.map((rs, i) => {
+      const cells = C.sensCapSteps.map((cs, j) => {
+        const v = C.sensGrid[i][j];
+        const isBase = rs === 0 && cs === 0;
+        const col = v === null ? '' : v >= 0 ? 'color:var(--pos,#1E7A3C);' : 'color:#B03030;';
+        return `<td style="text-align:center;font-size:11px;padding:3px 6px;${col}${isBase ? 'font-weight:700;outline:1px solid var(--accent);' : ''}">${v !== null ? fmtP(v*100,1) : '—'}</td>`;
+      }).join('');
+      return `<tr><td style="font-size:10px;padding:3px 6px;white-space:nowrap;">${rs === 0 ? 'cible' : (rs > 0 ? '+' : '') + rs + '%'}</td>${cells}</tr>`;
+    }).join('');
+    return `<div class="sub-label" style="margin-top:10px;">TRI — loyer cible × cap rate de sortie</div>` +
+      `<div style="overflow-x:auto;"><table style="border-collapse:collapse;margin:4px 0;"><thead><tr><th style="font-size:10px;padding:3px 6px;">loyer \\ cap</th>${capHdr}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
   // Refi (garder) — refinance at the end of the détention instead of selling; asset is kept.
   const r = refi;
   const holdingInt = Math.round(C.holding);
@@ -3472,7 +3687,7 @@ function updateOutputs() {
     (penalty > 0 ? outRow('Pénalité de bris (bris anticipé)', '-'+fmtC(penalty), 'neg') : outRow('Pénalité de bris', '— (renouvellement)', '')) +
     outRow('Sortie de fonds brute', fmtC(grossCashOut)) +
     (refiBrokerFee > 0 ? outRow('Frais de courtier (refi)', '-'+fmtC(refiBrokerFee), 'neg') : '') +
-    (C.privAmt > 0 ? outRow('Remb. fin. privé (réno)', '-'+fmtC(C.privAmt), 'neg') : '') +
+    (C.proj.privBalExit > 0 ? outRow('Remb. fin. privé (réno)', '-'+fmtC(C.proj.privBalExit), 'neg') : '') +
     outRow('PRISE DE FONDS NETTE', fmtC(netCashOut), netCashOut >= 0 ? 'key-row pos' : 'key-row neg') +
     '<div class="divider"></div>' +
     `<div class="sub-label">Détention continue (post-refi)</div>` +
@@ -3495,6 +3710,7 @@ function updateCashFlow() {
           netCashOut, refi, refiClosing, refiBrokerFee, refiCF, proj, takeoutInfo } = C;
   const targetRent = parseFloat(String(document.getElementById('targetRent').value).replace(/[^\d.-]/g,'')) || 0;
   const rentGrowth = (parseFloat(document.getElementById('rentGrowth').value) || 0) / 100;
+  const idxGrowthCf = (parseFloat(document.getElementById('indexGrowth').value) || 0) / 100;
   const units = parseFloat(document.getElementById('units').value) || 0;
   const holdingInt = proj.holdingIntR;
 
@@ -3507,7 +3723,7 @@ function updateCashFlow() {
   let exitCapture = null;
   // All annual figures come from the unified projection rows (phase-aware debt service / balance)
   for (const row of proj.rows) {
-    const { y, frac, blendedNOI, blendedEGI, privIntY, cf } = row;
+    const { y, frac, blendedNOI, blendedEGI, privIntY, renoEquityY, taxY, cf } = row;
     const ds = row.ads;
     const coc = totalCash > 0 ? cf / totalCash : 0;
     const bal = row.balEnd;
@@ -3517,7 +3733,7 @@ function updateCashFlow() {
     const dscrCls = dscr >= 1.2 ? 'pos-cf' : dscr >= 1 ? '' : 'neg-cf';
     // Per-unit/per-month metrics
     const rentY = targetRent * Math.pow(1 + rentGrowth, y);
-    const avgRent = frac * rentY + (1 - frac) * currentRent * Math.pow(1 + rentGrowth, y);
+    const avgRent = frac * rentY + (1 - frac) * currentRent * Math.pow(1 + idxGrowthCf, y);
     const noiPUM = units > 0 ? blendedNOI / units / 12 : 0;
     const debtYield = bal > 0 ? blendedNOI / bal : 0;
     const yocY = allInCost > 0 ? blendedNOI / allInCost : 0;
@@ -3526,14 +3742,16 @@ function updateCashFlow() {
     // CF stream up to and including this year; they only diverge at the terminal event itself.
     const isExit = (y === holdingInt);
 
-    // Vente scenario (private bridge repaid at exit unless already repaid at the take-out)
+    // Vente scenario (private balance outstanding repaid at exit; zero after a take-out).
+    // En mode DPA, l'impôt locatif est annuel (déduit par année) et la sortie porte
+    // la récupération d'amortissement au lieu du forfait.
     const saleGross = isExit ? salePrice : 0;
     const saleFrais = isExit ? salesComm + penalty + closing : 0;
     const saleMort  = isExit ? balanceAtExit : 0;
-    const salePriv  = isExit && !takeoutInfo ? privAmt : 0;
-    const saleTax   = isExit ? cgTax + rentalTax : 0;
+    const salePriv  = isExit ? proj.privBalExit : 0;
+    const saleTax   = isExit ? cgTax + (C.ccaOn ? C.recaptureTax : rentalTax) : 0;
     const saleNet   = saleGross - saleFrais - saleMort - salePriv - saleTax;
-    const fluxVente = cf + row.cashOut + saleNet;
+    const fluxVente = cf + row.cashOut - (C.ccaOn ? taxY : 0) + saleNet;
     cumVente += fluxVente;
 
     cumOper += cf;
@@ -3554,6 +3772,8 @@ function updateCashFlow() {
       <td class="neg-cf">-${fmtC(ds)}</td>
       <td class="neg-cf">-${fmtC(annualReserve)}</td>
       <td class="neg-cf">${privIntY > 0 ? '-'+fmtC(privIntY) : '—'}</td>
+      <td class="neg-cf">${renoEquityY > 0 ? '-'+fmtC(renoEquityY) : '—'}</td>
+      <td class="neg-cf">${C.ccaOn && taxY > 0 ? '-'+fmtC(taxY) : '—'}</td>
       <td class="${cfCls}">${fmtC(cf)}</td>
       <td class="${cumOper >= 0 ? 'pos-cf' : 'neg-cf'}">${fmtC(cumOper)}</td>
     </tr>`;
@@ -3595,7 +3815,7 @@ function updateCashFlow() {
       wfRow('Prêt refi', '+'+fmtC(refi.approvedLoan), 'pos-cf'),
       wfRow('Remb. hypothèque', '-'+fmtC(balanceAtExit), 'neg-cf'),
       wfRow('Frais & pénalité', refiFraisPen > 0 ? '-'+fmtC(refiFraisPen) : '—', refiFraisPen > 0 ? 'neg-cf' : ''),
-      privAmt > 0 ? wfRow('Remb. fin. privé', '-'+fmtC(privAmt), 'neg-cf') : '',
+      proj.privBalExit > 0 ? wfRow('Remb. fin. privé', '-'+fmtC(proj.privBalExit), 'neg-cf') : '',
       wfRow('= Prise de fonds nette', fmtC(netCashOut), 'cf-wf-sep '+(netCashOut >= 0 ? 'pos-cf' : 'neg-cf')),
       wfRow('── Détention continue ──', '', ''),
       wfRow('Flux opér. annuel (post-refi)', fmtC(refiCF), refiCF >= 0 ? 'pos-cf' : 'neg-cf'),
@@ -3833,7 +4053,8 @@ function resetAll() {
   const defaults = {
     purchasePrice:1175000, units:6, avgSqft:1000, rollValue:969400, acquisitionCostPct:2.5, brokerFeePct:1,
     currentRent:1000, currentRentAnnual:72000, vacancyRate:5, otherIncome:0, operatingExpenses:30,
-    targetRent:1450, rentGrowth:2, holdingPeriod:5, optimizedVacancy:5, optimizedExpenses:30, turnoverRate:17.5,
+    targetRent:1450, rentGrowth:2, indexGrowth:2, holdingPeriod:5, optimizedVacancy:5, optimizedExpenses:30, turnoverRate:17.5,
+    ccaRate:4, bldgPct:80,
     renoCost:20000, pctReno:50, cfkMonths:0, pctCfk:20,
     mliPoints:50, targetLtv:85, interestRate:4.25, contingency:50,
     acqConvLtv:75, acqConvDscr:1.20, refiConvLtv:75, refiConvDscr:1.20,
@@ -3843,6 +4064,7 @@ function resetAll() {
     renewalRate:4.25,
   };
   document.getElementById('renewalTakeout').checked = false;
+  document.getElementById('ccaOn').checked = false;
   for (const [id, val] of Object.entries(defaults)) {
     const el = document.getElementById(id);
     if (el) el.value = CURRENCY_FIELDS.includes(id) ? formatCurrency(String(val)) : val;
