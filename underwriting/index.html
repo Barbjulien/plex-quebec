@@ -683,7 +683,6 @@ footer .logo { color: var(--paper); }
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('inputs', this)">Paramètres</button>
     <button class="tab-btn" onclick="showTab('analysis', this)">Analyse</button>
-    <button class="tab-btn" id="tab-btn-sens" onclick="showTab('sensitivity', this)">Sensibilité</button>
     <button class="tab-btn" onclick="showTab('cashflow', this)">Flux</button>
     <button class="tab-btn" onclick="showTab('help', this)">Guide</button>
     <button class="tab-btn" onclick="showTab('schl', this)">SCHL</button>
@@ -815,7 +814,7 @@ footer .logo { color: var(--paper); }
             </div>
             <div id="renewal-block" style="display:none">
               <div class="field-row">
-                <span class="field-label">Taux au renouvellement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux hypothécaire assumé à chaque renouvellement de terme (paiement recalculé sur l'amortissement restant). La sensibilité ±1–2% est affichée dans l'onglet Sensibilité.</span></span></span>
+                <span class="field-label">Taux au renouvellement <span class="tooltip-wrap"><span class="tip-icon">i</span><span class="tooltip-text">Taux hypothécaire assumé à chaque renouvellement de terme (paiement recalculé sur l'amortissement restant).</span></span></span>
                 <div class="field-input has-sfx"><input type="number" id="renewalRate" value="4.25" step="0.05" min="0" onchange="recalc()"><span class="sfx">%</span></div>
               </div>
               <div class="field-row">
@@ -1473,34 +1472,6 @@ footer .logo { color: var(--paper); }
       <div class="output-card">
         <div class="output-header"><h3>Scénario Refi + Vente (dév.)</h3></div>
         <div class="output-body" id="dev-out-refiexit"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Tab: Sensibilité ────────────────────────────────────────────── -->
-  <div id="tab-sensitivity" class="tab-content">
-    <div class="grid-2 acq-only">
-      <div class="output-card">
-        <div class="output-header"><h3>TRI selon l'Année de Sortie</h3></div>
-        <div class="output-body" id="sens-exityear"></div>
-      </div>
-      <div class="output-card">
-        <div class="output-header"><h3>TRI — Loyer Cible × Cap Rate de Sortie</h3></div>
-        <div class="output-body" id="sens-grid"></div>
-      </div>
-      <div class="output-card">
-        <div class="output-header"><h3>Tornado — Impact des Hypothèses sur le TRI</h3></div>
-        <div class="output-body" id="sens-tornado"></div>
-      </div>
-      <div class="output-card">
-        <div class="output-header"><h3>Points Morts &amp; Marges de Sécurité</h3></div>
-        <div class="output-body" id="sens-breakeven"></div>
-      </div>
-    </div>
-    <div class="output-card dev-only">
-      <div class="output-header"><h3>Sensibilité</h3></div>
-      <div class="output-body">
-        <p style="font-size:12px;color:var(--ink-soft);">L'analyse de sensibilité (TRI par année de sortie, grille loyer × cap, tornado, points morts) est disponible en mode <strong>Acquisition</strong>.</p>
       </div>
     </div>
   </div>
@@ -3373,120 +3344,20 @@ function recalc() {
   }
   const avgDscr = sumDscr / holdingIntR, avgDebtYield = sumDy / holdingIntR;
 
-  // Scénarios de sensibilité (onglet Sensibilité) — irrScenario: re-run complet,
-  // projection avec overrides sur projParams + côté vente recalculé au NOI de
-  // sortie fourni et au cap absolu capX. Même convention que la grille historique:
-  // seuls loyers/dépenses/taux varient, le cash à la fermeture reste celui du cas de base.
-  const packScenario = (projOverrides, exitNOIS, capX) => {
-    const prS = Object.keys(projOverrides).length
-      ? buildProjection({ ...projParams, renewalRate, ...projOverrides }) : proj;
-    const saleS = capX > 0 ? exitNOIS / capX : 0;
-    const commS = saleS * commPct/100;
-    const cgS = Math.max(0, saleS - totalAcqCost - totalInvest - commS - closing) * cgTaxRate/100;
-    return ventePack(prS, { salePrice: saleS, salesComm: commS, cgTax: cgS });
-  };
-  const irrScenario = (projOverrides, exitNOIS, capX) => packScenario(projOverrides, exitNOIS, capX).irrVente;
-  // Σ venteCF (= profit net après impôt du scénario): TRI = 0 ⟺ Σ flux = 0 — borne
-  // finie partout, contrairement à irr() qui retourne null hors de [-90%, +200%]
-  const cfSumScenario = (projOverrides, exitNOIS, capX) =>
-    packScenario(projOverrides, exitNOIS, capX).venteCF.reduce((a, b) => a + b, 0);
-  // NOI à la réversion pour un loyer cible / croissance marché / indexation / roulement
-  // donnés — mêmes formules que le cas de base (exitNoiAt() sans override ≡ exitNOI)
-  const exitNoiAt = ({ tR = targetRent, growth = rentGrowth, idx = idxGrowth, trS = tr } = {}) => {
-    const optNOIS = noiAtRent(tR * Math.pow(1 + growth/100, holding));
-    const noiExitS = noi * Math.pow(1 + idx/100, holding);
-    const fracS = trS > 0 ? 1 - Math.pow(1 - trS, holding) : 1;
-    return optNOIS * fracS + noiExitS * (1 - fracS);
-  };
-
   // Grille de sensibilité TRI: loyer cible (lignes, ±10%) × cap de sortie (colonnes, ±0.5 pt)
   const sensRentSteps = [-10, -5, 0, 5, 10], sensCapSteps = [-0.5, -0.25, 0, 0.25, 0.5];
   const sensGrid = sensRentSteps.map(rs => sensCapSteps.map(cs => {
     if (rs === 0 && cs === 0) return irrVente;
     const tR = targetRent * (1 + rs/100);
-    return irrScenario(rs === 0 ? {} : { targetRent: tR }, exitNoiAt({ tR }), exitCap + cs/100);
+    const prS = rs === 0 ? proj : buildProjection({ ...projParams, renewalRate, targetRent: tR });
+    const optNOIS = noiAtRent(tR * Math.pow(1 + rentGrowth/100, holding));
+    const exitNOIS = optNOIS * fracExit + noiExit * (1 - fracExit);
+    const capS = exitCap + cs/100;
+    const saleS = capS > 0 ? exitNOIS / capS : 0;
+    const commS = saleS * commPct/100;
+    const cgS = Math.max(0, saleS - totalAcqCost - totalInvest - commS - closing) * cgTaxRate/100;
+    return ventePack(prS, { salePrice: saleS, salesComm: commS, cgTax: cgS }).irrVente;
   }));
-
-  // Tornado — TRI à ± une variation sur chaque hypothèse clé, toutes choses égales
-  // par ailleurs. minus/plus = TRI à la variation basse/haute de l'INTRANT (le sens
-  // favorable dépend de la variable: un cap plus bas est favorable, un loyer plus haut aussi).
-  const irrTornado = [];
-  irrTornado.push({ label: 'Loyer cible ±10 %', minus: sensGrid[0][2], plus: sensGrid[4][2] });
-  irrTornado.push({ label: 'Cap rate de sortie ±0,5 pt', minus: sensGrid[2][0], plus: sensGrid[2][4] });
-  irrTornado.push({ label: 'Croissance marché ±1 pt',
-    minus: irrScenario({ rentGrowth: rentGrowth - 1 }, exitNoiAt({ growth: rentGrowth - 1 }), exitCap),
-    plus:  irrScenario({ rentGrowth: rentGrowth + 1 }, exitNoiAt({ growth: rentGrowth + 1 }), exitCap) });
-  irrTornado.push({ label: 'Indexation TAL ±1 pt',
-    minus: irrScenario({ indexGrowth: idxGrowth - 1 }, exitNoiAt({ idx: idxGrowth - 1 }), exitCap),
-    plus:  irrScenario({ indexGrowth: idxGrowth + 1 }, exitNoiAt({ idx: idxGrowth + 1 }), exitCap) });
-  {
-    // Dépenses optimisées ±2 pts — le NOI de sortie doit suivre le même % de dépenses
-    const _optNoiAtOpex = o => {
-      const gX = projRentExit * units * 12;
-      const eX = gX * (1 - optVacPct/100) + otherInc;
-      return eX - (opexBasis === 'rbp' ? gX : eX) * o/100;
-    };
-    const oLo = Math.max(0, optOpexPct - 2), oHi = optOpexPct + 2;
-    const _exitAtOpex = o => _optNoiAtOpex(o) * fracExit + noiExit * (1 - fracExit);
-    irrTornado.push({ label: 'Dépenses optimisées ±2 pts',
-      minus: irrScenario({ optOpexPct: oLo }, _exitAtOpex(oLo), exitCap),
-      plus:  irrScenario({ optOpexPct: oHi }, _exitAtOpex(oHi), exitCap) });
-  }
-  if (tr > 0) {
-    const tLo = Math.max(0.01, tr - 0.05), tHi = Math.min(1, tr + 0.05);
-    irrTornado.push({ label: 'Roulement des unités ±5 pts',
-      minus: irrScenario({ tr: tLo }, exitNoiAt({ trS: tLo }), exitCap),
-      plus:  irrScenario({ tr: tHi }, exitNoiAt({ trS: tHi }), exitCap) });
-  }
-  if (hasRenewal && irrSensitivity) {
-    const _tm = irrSensitivity.find(s => s.delta === -1), _tp = irrSensitivity.find(s => s.delta === 1);
-    irrTornado.push({ label: (takeout ? 'Taux du refi' : 'Taux au renouvellement') + ' ±1 pt',
-      minus: _tm ? _tm.irr : null, plus: _tp ? _tp.irr : null });
-  }
-
-  // Points morts — an 1 et seuils TRI = 0
-  const ads1 = proj.rows[0] ? proj.rows[0].ads : cmhc.ads;
-  // Loyer d'équilibre: flux opérationnel an 1 stabilisé = 0 (noiAtRent est linéaire
-  // en loyer — solution exacte par interpolation sur deux points)
-  const _beF0 = noiAtRent(0) - ads1 - annualReserve, _beF1 = noiAtRent(1000) - ads1 - annualReserve;
-  const beRent = _beF1 !== _beF0 ? -_beF0 * 1000 / (_beF1 - _beF0) : null;
-  const beRentMargin = beRent !== null && targetRent > 0 ? (targetRent - beRent) / targetRent : null;
-  // Occupation d'équilibre: % du RBP nécessaire pour couvrir dépenses + dette + réserves
-  // (base %EGI: les dépenses suivent les revenus; base %RBP: dépenses figées sur le RBP)
-  const beOccAt = (griRef, oPct) => {
-    if (griRef <= 0) return null;
-    const egiBE = opexBasis === 'rbp'
-      ? ads1 + annualReserve + griRef * oPct/100
-      : (oPct < 100 ? (ads1 + annualReserve) / (1 - oPct/100) : null);
-    return egiBE === null ? null : (egiBE - otherInc) / griRef;
-  };
-  const beOccCur = beOccAt(gri, opexPct);
-  const beOccOpt = beOccAt(targetRent * units * 12, optOpexPct);
-  // Cap de sortie où TRI = 0, i.e. Σ venteCF = 0 (bisection — Σ décroît avec le cap)
-  let beCapIrr0 = null;
-  {
-    let lo = 0.005, hi = 0.25;
-    if (cfSumScenario({}, exitNOI, lo) > 0 && cfSumScenario({}, exitNOI, hi) < 0) {
-      for (let k = 0; k < 36; k++) {
-        const mid = (lo + hi) / 2;
-        if (cfSumScenario({}, exitNOI, mid) > 0) lo = mid; else hi = mid;
-      }
-      beCapIrr0 = (lo + hi) / 2;
-    }
-  }
-  // Loyer cible où TRI = 0 (bisection sur le multiplicateur — Σ croît avec le loyer)
-  let beRentIrr0 = null;
-  if (targetRent > 0) {
-    const sumAtMult = m2 => cfSumScenario({ targetRent: targetRent * m2 }, exitNoiAt({ tR: targetRent * m2 }), exitCap);
-    let lo = 0.3, hi = 1.7;
-    if (sumAtMult(lo) < 0 && sumAtMult(hi) > 0) {
-      for (let k = 0; k < 28; k++) {
-        const mid = (lo + hi) / 2;
-        if (sumAtMult(mid) < 0) lo = mid; else hi = mid;
-      }
-      beRentIrr0 = targetRent * (lo + hi) / 2;
-    }
-  }
 
   // K: Refi (garder) — refinance at the SAME year as the détention (not a separate mid-hold year),
   // against the same exit NOI/value as the Vente scenario. No forced later sale: capital is
@@ -3524,9 +3395,7 @@ function recalc() {
     idxGrowth, ccaOn, recaptureTax, rentalTaxTotal,
     exitYearIrr, unlevCF, irrUnlev, unlevMult,
     minDscr, minDscrYear, avgDscr, minDebtYield, minDyYear, avgDebtYield,
-    sensGrid, sensRentSteps, sensCapSteps,
-    irrTornado, ads1, beRent, beRentMargin, beOccCur, beOccOpt, beCapIrr0, beRentIrr0,
-    targetRent, opexBasis };
+    sensGrid, sensRentSteps, sensCapSteps };
 
   updateDashboard();
   updateOutputs();
@@ -3716,8 +3585,7 @@ function updateOutputs() {
       ${metricBox('IRR', irrVente !== null ? fmtP(irrVente*100,1) : '—', C.irrUnlev !== null ? 'non levier: ' + fmtP(C.irrUnlev*100,1) : '', 'green')}
       ${metricBox('Rendement net', fmtP(totalRet*100,1), 'sur mise de fonds', 'green')}
       ${metricBox('Multiple de sortie', fmtX(exitMult), '', 'blue')}
-    </div>` +
-    `<div style="margin-top:10px;font-size:11px;"><a href="#" style="color:var(--accent);text-decoration:none;" onclick="showTab('sensitivity', document.getElementById('tab-btn-sens')); return false;">Analyses de sensibilité — année de sortie, loyer × cap, tornado, points morts →</a></div>`;
+    </div>`;
 
   // Renewal / take-out detail inside the Vente DCF (only when the hold outlives the term)
   function renewalRows() {
@@ -3784,136 +3652,6 @@ function updateOutputs() {
       ${metricBox('Cash-on-Cash', refiCoC !== null ? fmtP(refiCoC*100,1) : '∞', refiCoC !== null ? 'post-refi' : 'capital recyclé', 'green')}
       ${metricBox('Capital recyclé', fmtP(capitalRecycledPct*100,1), 'de la mise de fonds initiale', capitalRecycledPct >= 0.7 ? 'green' : 'blue')}
     </div>`;
-
-  updateSensitivity();
-}
-
-// ─── Onglet Sensibilité ───────────────────────────────────────────────────────
-function updateSensitivity() {
-  if (appMode === 'dev' || !C || !C.proj) return;
-
-  // TRI selon l'année de sortie (vente simulée à la fin de chaque année)
-  const exitYearBody = () => {
-    if (!C.exitYearIrr || C.exitYearIrr.length < 2)
-      return `<p style="font-size:12px;color:var(--ink-soft);">Détention d'un an — un seul point de sortie possible.</p>`;
-    const cells = C.exitYearIrr.map(s => {
-      const v = s.irr !== null ? fmtP(s.irr*100,1) : '—';
-      const style = s.base ? 'font-weight:700;color:var(--accent);' : '';
-      return `<div style="text-align:center;min-width:52px;${style}"><div style="font-size:10px;opacity:0.7;">an ${s.y}${s.base ? ' ●' : ''}</div><div style="font-size:12px;font-weight:600;">${v}</div></div>`;
-    }).join('');
-    // Meilleure année de sortie (TRI max)
-    let best = null;
-    for (const s of C.exitYearIrr) if (s.irr !== null && (best === null || s.irr > best.irr)) best = s;
-    return `<div class="sub-label">Vente simulée à la fin de chaque année — cap dérivé à l'année, pénalité contre la phase active, impôts et réno décaissée cumulés (● = détention prévue)</div>` +
-      `<div style="display:flex;flex-wrap:wrap;gap:4px;padding:6px 2px;">${cells}</div>` +
-      (best !== null ? '<div class="divider"></div>' +
-        outRow('Meilleure année de sortie (TRI max)', 'an ' + best.y + ' — ' + fmtP(best.irr*100,1), best.y !== C.holdingIntR ? '' : 'pos') +
-        (best.y !== C.holdingIntR && best.irr !== null && C.irrVente !== null
-          ? `<div class="mb-2" style="margin-top:6px;"><span class="inline-badge">La détention prévue (an ${C.holdingIntR}) n'est pas l'optimum — écart de ${fmtP((best.irr - C.irrVente)*100,1)} de TRI</span></div>` : '')
-        : '');
-  };
-
-  // Grille: loyer cible (lignes) × cap rate de sortie (colonnes)
-  const gridBody = () => {
-    if (!C.sensGrid) return '';
-    const capHdr = C.sensCapSteps.map(cs =>
-      `<th style="font-size:10px;padding:3px 6px;">${fmtP(C.exitCap*100 + cs, 2)}</th>`).join('');
-    const rows = C.sensRentSteps.map((rs, i) => {
-      const cells = C.sensCapSteps.map((cs, j) => {
-        const v = C.sensGrid[i][j];
-        const isBase = rs === 0 && cs === 0;
-        const col = v === null ? '' : v >= 0 ? 'color:var(--pos,#1E7A3C);' : 'color:#B03030;';
-        return `<td style="text-align:center;font-size:11px;padding:4px 8px;${col}${isBase ? 'font-weight:700;outline:1px solid var(--accent);' : ''}">${v !== null ? fmtP(v*100,1) : '—'}</td>`;
-      }).join('');
-      return `<tr><td style="font-size:10px;padding:4px 8px;white-space:nowrap;">${rs === 0 ? 'cible' : (rs > 0 ? '+' : '') + rs + '%'}</td>${cells}</tr>`;
-    }).join('');
-    return `<div class="sub-label">Loyer cible atteint (lignes, ±10 %) × cap rate de sortie (colonnes, ±0,5 pt) — la case encadrée est le cas de base</div>` +
-      `<div style="overflow-x:auto;"><table style="border-collapse:collapse;margin:4px 0;"><thead><tr><th style="font-size:10px;padding:4px 8px;">loyer \\ cap</th>${capHdr}</tr></thead><tbody>${rows}</tbody></table></div>`;
-  };
-
-  // IRR sensitivity to the renewal / refi rate (± 1 / ± 2 %)
-  const renewalStrip = () => {
-    if (!C.irrSensitivity)
-      return `<div class="sub-label" style="margin-top:10px;">Taux au renouvellement — s.o. (détention ≤ terme, aucun renouvellement)</div>`;
-    const cells = C.irrSensitivity.map(s => {
-      const label = s.delta === 0 ? 'base' : (s.delta > 0 ? '+' : '') + s.delta + '%';
-      const v = s.irr !== null ? fmtP(s.irr*100,1) : '—';
-      const style = s.delta === 0 ? 'font-weight:700;color:var(--accent);' : '';
-      return `<div style="text-align:center;flex:1;${style}"><div style="font-size:10px;opacity:0.7;">${label}</div><div style="font-size:12px;font-weight:600;">${v}</div></div>`;
-    }).join('');
-    const baseRate = C.irrSensitivity.find(s => s.delta === 0);
-    return `<div class="sub-label" style="margin-top:10px;">TRI — sensibilité au taux ${C.takeoutInfo ? 'du refi' : 'de renouvellement'} (${fmtP(baseRate ? baseRate.rate : C.renewalRate)})</div>` +
-      `<div style="display:flex;gap:4px;padding:6px 2px;">${cells}</div>`;
-  };
-
-  // Tornado — fourchette de TRI quand chaque hypothèse varie seule
-  const tornadoBody = () => {
-    const base = C.irrVente;
-    const t = (C.irrTornado || []).filter(it => it.minus !== null && it.plus !== null);
-    if (base === null || !t.length)
-      return `<p style="font-size:12px;color:var(--ink-soft);">TRI de base indisponible — tornado non calculable.</p>` + renewalStrip();
-    const sorted = [...t].sort((a, b) => Math.abs(b.plus - b.minus) - Math.abs(a.plus - a.minus));
-    let lo = base, hi = base;
-    for (const it of sorted) { lo = Math.min(lo, it.minus, it.plus); hi = Math.max(hi, it.minus, it.plus); }
-    const span = Math.max(hi - lo, 1e-6); lo -= span*0.06; hi += span*0.06;
-    const X = v => (v - lo) / (hi - lo) * 100;
-    const rows = sorted.map(it => {
-      const a = Math.min(it.minus, it.plus), b = Math.max(it.minus, it.plus);
-      const segs = [];
-      if (a < base) segs.push(`<div style="position:absolute;left:${X(a)}%;width:${Math.max(X(Math.min(b, base)) - X(a), 0.5)}%;top:3px;bottom:3px;background:rgba(176,48,48,0.18);border:1px solid rgba(176,48,48,0.4);border-radius:2px;"></div>`);
-      if (b > base) segs.push(`<div style="position:absolute;left:${X(Math.max(a, base))}%;width:${Math.max(X(b) - X(Math.max(a, base)), 0.5)}%;top:3px;bottom:3px;background:rgba(30,122,60,0.18);border:1px solid rgba(30,122,60,0.4);border-radius:2px;"></div>`);
-      return `<div style="display:flex;align-items:center;gap:8px;margin:5px 0;">
-        <div style="flex:0 0 185px;font-size:11px;">${it.label}</div>
-        <div style="flex:1;position:relative;height:20px;">
-          ${segs.join('')}
-          <div style="position:absolute;left:${X(base)}%;top:0;bottom:0;width:1px;background:var(--accent);"></div>
-        </div>
-        <div style="flex:0 0 110px;font-size:11px;text-align:right;white-space:nowrap;">${fmtP(a*100,1)} → ${fmtP(b*100,1)}</div>
-      </div>`;
-    }).join('');
-    return `<div class="sub-label">Fourchette de TRI quand chaque hypothèse varie seule, classée par impact (ligne verticale = TRI de base ${fmtP(base*100,1)})</div>` +
-      `<div style="padding:6px 2px;">${rows}</div>` +
-      renewalStrip();
-  };
-
-  // Points morts & marges de sécurité
-  const breakevenBody = () => {
-    const occFmt = v => v === null ? '—' : fmtP(Math.min(v, 9.99)*100, 0);
-    const capMargin = C.beCapIrr0 !== null ? (C.beCapIrr0 - C.exitCap) * 100 : null;
-    const ptFmt = v => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + ' pt';
-    const rentIrr0Margin = C.beRentIrr0 !== null && C.targetRent > 0 ? (C.targetRent - C.beRentIrr0) / C.targetRent : null;
-    return `<div class="sub-label">Point mort opérationnel — an 1 stabilisé (dépenses + service de dette + réserves)</div>` +
-      outRow('Loyer d\'équilibre /u/mois', C.beRent !== null ? fmtC(C.beRent) : '—') +
-      outRow('Loyer cible /u/mois', fmtC(C.targetRent)) +
-      outRow('Marge du loyer cible vs équilibre', C.beRentMargin !== null ? fmtP(C.beRentMargin*100,1) : '—',
-        C.beRentMargin === null ? '' : C.beRentMargin >= 0.10 ? 'pos' : C.beRentMargin >= 0 ? '' : 'neg') +
-      outRow('Occupation d\'équilibre (loyers actuels)', occFmt(C.beOccCur), C.beOccCur !== null && C.beOccCur > 1 ? 'neg' : '') +
-      outRow('Occupation d\'équilibre (loyers cibles)', occFmt(C.beOccOpt), C.beOccOpt !== null && C.beOccOpt > 1 ? 'neg' : '') +
-      ((C.beOccCur !== null && C.beOccCur > 1) ? `<div class="mb-2"><span class="inline-badge">⚠ Aux loyers actuels, même 100 % d'occupation ne couvre pas dette + dépenses</span></div>` : '') +
-      '<div class="divider"></div>' +
-      `<div class="sub-label">Seuils TRI = 0 — où le deal cesse d'être rentable (détention complète)</div>` +
-      outRow('Cap rate de sortie maximal (TRI = 0)', C.beCapIrr0 !== null ? fmtP(C.beCapIrr0*100,2) : '—') +
-      outRow('Cap rate de sortie prévu', fmtP(C.exitCap*100,2)) +
-      outRow('Coussin de cap avant TRI négatif', capMargin !== null ? ptFmt(capMargin) : '—',
-        capMargin === null ? '' : capMargin >= 0.5 ? 'pos' : capMargin >= 0 ? '' : 'neg') +
-      outRow('Loyer cible minimal (TRI = 0)', C.beRentIrr0 !== null ? fmtC(C.beRentIrr0) : '—') +
-      outRow('Marge du loyer cible vs seuil TRI', rentIrr0Margin !== null ? fmtP(rentIrr0Margin*100,1) : '—',
-        rentIrr0Margin === null ? '' : rentIrr0Margin >= 0.10 ? 'pos' : rentIrr0Margin >= 0 ? '' : 'neg') +
-      '<div class="divider"></div>' +
-      `<div class="sub-label">Couverture de la dette — sur la détention</div>` +
-      outRow('DSCR minimum (an ' + C.minDscrYear + ')', fmtX(C.minDscr), C.minDscr < 1 ? 'neg' : '') +
-      outRow('DSCR moyen', fmtX(C.avgDscr)) +
-      outRow('Rendement dette minimum (an ' + C.minDyYear + ')', fmtP(C.minDebtYield*100)) +
-      `<div class="metric-grid">
-        ${metricBox('Coussin de cap', capMargin !== null ? ptFmt(capMargin) : '—', 'avant TRI négatif', capMargin !== null && capMargin >= 0.5 ? 'green' : 'amber')}
-        ${metricBox('Marge de loyer', C.beRentMargin !== null ? fmtP(C.beRentMargin*100,1) : '—', 'cible vs point mort an 1', C.beRentMargin !== null && C.beRentMargin >= 0.10 ? 'green' : 'amber')}
-      </div>`;
-  };
-
-  document.getElementById('sens-exityear').innerHTML = exitYearBody();
-  document.getElementById('sens-grid').innerHTML = gridBody();
-  document.getElementById('sens-tornado').innerHTML = tornadoBody();
-  document.getElementById('sens-breakeven').innerHTML = breakevenBody();
 }
 
 // ─── Cash flow table ──────────────────────────────────────────────────────────
